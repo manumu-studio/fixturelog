@@ -1,0 +1,346 @@
+// prisma/schema.prisma — FixtureLog data model (SPEC-001 §2–§3)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums (§2) ──────────────────────────────────────────────
+
+enum FixtureStatus {
+  DRAFT
+  NEGOTIATING
+  ON_SUBS
+  FIXED
+  COMPLETED
+  FAILED
+}
+
+enum RequirementStatus {
+  ENQUIRY
+  SHORTLISTED
+  NEGOTIATING
+  ON_SUBS
+  FIXED
+  LOST
+}
+
+enum VesselStatus {
+  OPEN
+  ON_HIRE
+  YARD
+  LAID_UP
+}
+
+enum PositionSource {
+  SEEDED
+  MANUAL
+  AIS
+  IMPORTED
+}
+
+enum ConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum VesselType {
+  PSV
+  AHTS
+  MPSV
+  CSV
+  ERRV
+  DSV
+  CTV
+  SOV
+  OTHER
+}
+
+enum DPClass {
+  DP1
+  DP2
+  DP3
+  NONE
+}
+
+enum WorkscopeCode {
+  SUPPLY
+  ANCHOR_HANDLING
+  RIG_MOVE
+  TOWING
+  CONSTRUCTION
+  IMR
+  ROV_SUPPORT
+  STANDBY
+  WIND_OM
+}
+
+enum RegionCode {
+  NORTH_SEA
+  BRAZIL
+  US_GULF
+  WEST_AFRICA
+  MIDDLE_EAST
+  SE_ASIA
+  MEDITERRANEAN
+}
+
+enum Currency {
+  GBP
+  USD
+  NOK
+}
+
+enum CharterType {
+  SPOT
+  TERM
+}
+
+enum CharterPartyForm {
+  SUPPLYTIME_2017
+  OTHER
+}
+
+// ─── Reference / Party Entities ──────────────────────────────
+
+model Owner {
+  id        String   @id @default(cuid())
+  name      String
+  country   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vessels Vessel[]
+}
+
+model Charterer {
+  id        String   @id @default(cuid())
+  name      String
+  sector    String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requirements Requirement[]
+  fixtures     Fixture[]
+}
+
+model Broker {
+  id        String   @id @default(cuid())
+  name      String
+  office    String?
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fixtures       Fixture[]
+  approvedRecaps Recap[]
+}
+
+model Region {
+  id        String     @id @default(cuid())
+  code      RegionCode @unique
+  name      String
+  centerLat Float
+  centerLng Float
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  vessels      Vessel[]        @relation("VesselOpenRegion")
+  requirements Requirement[]
+  fixtures     Fixture[]
+  benchmarks   RateBenchmark[]
+}
+
+model Workscope {
+  id          String        @id @default(cuid())
+  code        WorkscopeCode @unique
+  name        String
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  requirements Requirement[]
+  fixtures     Fixture[]
+  benchmarks   RateBenchmark[]
+}
+
+model RateBenchmark {
+  id          String     @id @default(cuid())
+  regionId    String
+  vesselType  VesselType
+  workscopeId String?
+  basisDate   DateTime
+  minRate     Float
+  medianRate  Float
+  maxRate     Float
+  source      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  region    Region     @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  workscope Workscope? @relation(fields: [workscopeId], references: [id], onDelete: Restrict)
+}
+
+// ─── Core Operational Entities ───────────────────────────────
+
+model Vessel {
+  id           String       @id @default(cuid())
+  name         String
+  imo          String?      @unique
+  mmsi         String?      @unique
+  vesselType   VesselType
+  ownerId      String
+  deckAreaM2   Float?
+  bollardPullT Float?
+  dpClass      DPClass
+  builtYear    Int?
+  status       VesselStatus
+  openRegionId String?
+  openPort     String?
+  openDate     DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  owner      Owner   @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  openRegion Region? @relation("VesselOpenRegion", fields: [openRegionId], references: [id], onDelete: Restrict)
+
+  positions PositionSnapshot[]
+  fixtures  Fixture[]
+
+  @@index([status, openRegionId, openDate])
+}
+
+model PositionSnapshot {
+  id               String          @id @default(cuid())
+  vesselId         String
+  capturedAt       DateTime
+  lat              Float
+  lng              Float
+  portName         String?
+  availabilityFrom DateTime?
+  source           PositionSource
+  confidence       ConfidenceLevel
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  vessel Vessel @relation(fields: [vesselId], references: [id], onDelete: Cascade)
+}
+
+model Requirement {
+  id               String            @id @default(cuid())
+  chartererId      String
+  regionId         String
+  workscopeId      String
+  vesselTypeNeeded VesselType
+  minDeckAreaM2    Float?
+  minBollardPullT  Float?
+  minDpClass       DPClass?
+  startDate        DateTime
+  endDate          DateTime?
+  durationDays     Int?
+  charterType      CharterType
+  dayRateBudget    Float?
+  status           RequirementStatus
+  sourceChannel    String?
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  charterer Charterer @relation(fields: [chartererId], references: [id], onDelete: Restrict)
+  region    Region    @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  workscope Workscope @relation(fields: [workscopeId], references: [id], onDelete: Restrict)
+
+  fixtures Fixture[]
+}
+
+model Fixture {
+  id                String           @id @default(cuid())
+  requirementId     String?
+  vesselId          String
+  chartererId       String
+  brokerId          String
+  regionId          String
+  workscopeId       String
+  charterType       CharterType
+  status            FixtureStatus
+  agreedDayRate     Float
+  currency          Currency
+  mobilizationFee   Float?
+  demobilizationFee Float?
+  durationDays      Int?
+  deliveryPort      String?
+  redeliveryPort    String?
+  commencement      DateTime?
+  charterPartyForm  CharterPartyForm
+  subjectsSummary   String?
+  fixedAt           DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  requirement Requirement? @relation(fields: [requirementId], references: [id], onDelete: Restrict)
+  vessel      Vessel       @relation(fields: [vesselId], references: [id], onDelete: Restrict)
+  charterer   Charterer    @relation(fields: [chartererId], references: [id], onDelete: Restrict)
+  broker      Broker       @relation(fields: [brokerId], references: [id], onDelete: Restrict)
+  region      Region       @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  workscope   Workscope    @relation(fields: [workscopeId], references: [id], onDelete: Restrict)
+
+  subjects         SubjectItem[]
+  recaps           Recap[]
+  weatherSnapshots WeatherSnapshot[]
+
+  @@index([regionId, fixedAt])
+}
+
+model SubjectItem {
+  id        String    @id @default(cuid())
+  fixtureId String
+  label     String
+  status    String
+  dueAt     DateTime?
+  owner     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+}
+
+model Recap {
+  id                 String    @id @default(cuid())
+  fixtureId          String
+  version            Int       @default(1)
+  generatedMarkdown  String
+  generatedText      String
+  mainTerms          Json
+  approvedByBrokerId String?
+  sentAt             DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  fixture          Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  approvedByBroker Broker? @relation(fields: [approvedByBrokerId], references: [id], onDelete: Restrict)
+}
+
+model WeatherSnapshot {
+  id                 String    @id @default(cuid())
+  fixtureId          String?
+  lat                Float
+  lng                Float
+  waveHeightM        Float
+  swellHeightM       Float?
+  windWaveHeightM    Float?
+  workabilityVerdict String
+  laycanFrom         DateTime?
+  laycanTo           DateTime?
+  fetchedAt          DateTime
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  fixture Fixture? @relation(fields: [fixtureId], references: [id], onDelete: Restrict)
+}
