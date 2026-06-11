@@ -1,0 +1,101 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+
+# Build
+build/
+dist/
+*.tsbuildinfo
+.tsbuildinfo.build
+
+#Session continuity (private — not pushed)
+
+.clauderules
+/private-session-prompt.md
+/private-session-index.md
+/private-session-prompts/
+/private-session-prompts/
+FETCH_HEAD
+
+# Project map
+/PROJECT_MAP.md
+/CONTEXT.md
+
+# External agent configs
+/.agents/
+/.codex/
+
+# Cursor rules
+/.cursorrules
+
+# Memory
+/memory/MEMORY.md
+
+# session prompts
+/docs/session-prompts/
+
+# CLAUDE.md
+/docs/CLAUDE.md
+
+# AI research/methodology (archived, not active)
+/docs/ai/
+
+# AGENTS.md (passive compatibility pointer)
+/AGENTS.md
+
+# DEVELOPMENT_PLAYBOOK.md
+/docs/DEVELOPMENT_PLAYBOOK.md
+
+# cursor-tasks
+/docs/cursor-tasks/
+
+# cursor-task-reports
+/docs/cursor-task-reports/
+
+# Incidents (private investigation logs)
+/private-incident-log/
+
+# Internal process docs (build packets, API specs, deployment notes)
+/docs/build-packets/
+/docs/build-packet-reports/
+/docs/audits/
+/docs/superpowers/
+/docs/research/
+/docs/api/
+/docs/DEPLOYMENT.md
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Generated reports
+knip-output.json
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel
