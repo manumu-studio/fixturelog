@@ -1,6 +1,6 @@
 # FixtureLog — Project Context
 
-> **Status: PACKET-001 SPINE FOUNDATION COMPLETE (2026-06-11, v0.2.0).** Project skeleton, data model (13 models, 12 enums), idempotent seed, CI pipeline, and test infrastructure are in place. Service layer (FixtureMatcher, RecapFormatter, WeatherEnricher, FixtureStatusPolicy) and UI belong to the Core Vertical Slice packet.
+> **Status: PACKET-002 CORE VERTICAL SLICE COMPLETE (2026-06-12, v0.3.0).** 14 API routes, pure service layer (`FixtureStatusPolicy`, `RecapFormatter`), Zod validation at every boundary, subject-lift → FIXED workflow with full audit trail, and two server-component UI pages are in place. PACKET-003 (matching) is next.
 >
 > **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`.
 
@@ -40,10 +40,13 @@ Only public role requirements and product/domain context are included in reposit
 | Final scope / spec | ✅ Done — ratified in `docs/specs/SPEC-001-mvp-build.md` |
 | Data model (canonical) | ✅ Done — canonical enums + schema in `docs/specs/SPEC-001-mvp-build.md` |
 | Application architecture | ✅ Done — ratified in `docs/decisions/ADR-0003-application-architecture.md` |
-| App code | ✅ Spine foundation — app shell, health endpoint, seed (v0.2.0). Services TBD in the Core Vertical Slice packet. |
+| App code | ✅ Core vertical slice — 14 API routes, service layer, Zod validators, 2 UI pages (v0.3.0). FixtureMatcher and weather integration belong to PACKET-003. |
 | Packages / frameworks | ✅ Installed — Next.js 15, Prisma 6, Vitest, Playwright, Zod, TypeScript 5 |
-| Schema | ✅ 13 models, 12 enums — initial migration applied |
-| CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e) |
+| Schema | ✅ 13+ models, 12+ enums — `SubjectItemStatus` enum, `FixtureStatusChange` audit model, and Charterer contact columns added in PACKET-002 migration |
+| Service layer | ✅ `FixtureStatusPolicy` (subject-gated status machine + audit writes) and `RecapFormatter` (deterministic SUPPLYTIME 2017) implemented as pure TypeScript services in `src/lib/services/` |
+| API surface | ✅ 14 dynamic routes — charterers (list, create, detail, requirements, fixtures), vessels (list, detail), fixtures (list, create, detail, status, recap, subjects, subject update). See `README.md` API Routes table. |
+| Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts` |
+| CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
 
 ---
 
@@ -86,6 +89,18 @@ The ten formerly-open items are now **resolved**, ratified in a grilling session
 8. **Python service** → **excluded** from the MVP (TypeScript-only); noted as a future polyglot option — `docs/specs/SPEC-001-mvp-build.md`.
 9. **SQL Server** → **Postgres-only** for the demo; README acknowledges SSY's enterprise .NET/SQL Server stack vs the offshore platform's Postgres — `docs/specs/SPEC-001-mvp-build.md`.
 10. **Aggregation endpoints + weather persistence** → dashboard (if built) = live `GET /api/dashboard` aggregation; persist a decision-time `WeatherSnapshot` linked to the fixture (+ short-TTL cache for ad-hoc lookups) to keep CI/e2e hermetic — `docs/decisions/ADR-0002-data-and-integration-strategy.md` and `docs/specs/SPEC-001-mvp-build.md`.
+
+---
+
+## 8. PACKET-002 implementation notes (2026-06-12)
+
+These decisions were made during the Core Vertical Slice build and are recorded here as addenda to the ratified spec:
+
+- **`FixtureStatusChange` audit model** — every status transition writes an immutable audit row (actor, fromStatus, toStatus, indexed on `fixtureId`, cascade-deletes with the fixture). Not part of the original SPEC-001 schema; added as a non-breaking schema addition.
+- **Subject-gated `ON_SUBS → FIXED`** — enforced in `FixtureStatusPolicy`. Attempts without subjects, or with unresolved subjects, return HTTP 400 with an outstanding-subject count. This is the primary domain rule exercised by the API surface.
+- **`fixedAt` on Fixture only** — when a fixture transitions to `FIXED`, `Fixture.fixedAt` is stamped. The linked Requirement moves to `status: FIXED` but has no `fixedAt` column.
+- **Charterer contact columns** — `contactName`, `contactEmail`, `contactPhone` added as optional nullable columns via a non-destructive migration. Existing seed rows receive values; no data was lost.
+- **Node 20 pinned** — `package.json` `engines: ">=20.0.0"` and `.nvmrc 20.20.2` resolve the Vitest/Vite ESM startup incompatibility with Node 18.
 
 ---
 

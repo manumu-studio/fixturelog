@@ -2,6 +2,58 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] — 2026-06-12 (PACKET-002: Core Vertical Slice)
+
+### Added
+
+**API Routes (14 new dynamic routes)**
+- `GET /POST /api/charterers` — list charterers; register a charterer with optional contact fields
+- `GET /api/charterers/[id]` — charterer detail
+- `GET /api/charterers/[id]/requirements` — requirements linked to a charterer
+- `GET /api/charterers/[id]/fixtures` — fixtures linked to a charterer
+- `GET /api/vessels` — list vessels (filterable by type, region, availability)
+- `GET /api/vessels/[id]` — vessel detail
+- `GET /POST /api/fixtures` — list fixtures; create a fixture
+- `GET /api/fixtures/[id]` — fixture detail
+- `PATCH /api/fixtures/[id]/status` — transition fixture status (subject-gated on `ON_SUBS → FIXED`)
+- `POST /api/fixtures/[id]/recap` — generate and persist a deterministic SUPPLYTIME 2017 recap
+- `POST /api/fixtures/[id]/subjects` — add a subject to a fixture
+- `PATCH /api/fixtures/[id]/subjects/[subjectId]` — update subject status (`LIFTED` / `WAIVED`)
+
+**Services**
+- `FixtureStatusPolicy` — pure service enforcing the canonical status machine; subject-gated `ON_SUBS → FIXED` (requires ≥1 subject with every subject `LIFTED` or `WAIVED`); returns 400 with outstanding-subject count on rejection; writes a `FixtureStatusChange` audit row on every transition; stamps `Fixture.fixedAt` on transition to `FIXED`
+- `RecapFormatter` — pure service producing deterministic SUPPLYTIME 2017 recap in Markdown + plain text; no runtime LLM
+
+**Validators**
+- Zod validator modules for charterer, vessel, fixture, and subject boundaries — all route handlers parse request input through these schemas (resolves carry-forward W2)
+
+**UI Pages**
+- `/charterers` — charterer list (Next.js 15 server component)
+- `/charterers/[id]` — charterer detail with linked requirements and fixtures (Next.js 15 server component)
+
+**Schema**
+- `SubjectItemStatus` Postgres enum (`PENDING`, `LIFTED`, `WAIVED`) — replaces plain string on `SubjectItem.status` (resolves carry-forward N1)
+- `FixtureStatusChange` audit model — immutable per-transition record (actor, fromStatus, toStatus); indexed on `fixtureId`; cascades on delete
+- `Charterer` contact columns — `contactName`, `contactEmail`, `contactPhone` (optional, non-destructive migration)
+- Migration: `prisma/migrations/20260612150000_vertical_slice_subjects_audit_contact`
+
+**Infrastructure**
+- Node.js ≥20 pinned via `package.json` `engines` and `.nvmrc 20.20.2` (resolves INCIDENT-P01-vitest-esm-startup)
+- `import 'server-only'` added to `src/lib/prisma.ts` (resolves carry-forward N3)
+- Coverage config extended to include `src/app/api/**`
+
+### Fixed
+- `INCIDENT-P01-vitest-esm-startup` — Vitest ESM startup failure on Node 18; resolved by pinning Node 20
+- `INCIDENT-P01-npm-audit-critical-dev` — `happy-dom` high-severity audit failure; resolved by removing unused dependency
+
+### Quality Gates
+- 99 unit tests across 15 files; all passing
+- Coverage: 95.3% statements / 82.8% branches / 95.5% functions / 95.3% lines (thresholds 70/60/70/70)
+- TypeScript: 0 errors; ESLint: 0 errors
+- First Load JS shared: 102 kB (budget < 200 kB)
+
+---
+
 ## [0.2.0] — 2026-06-11 (PACKET-001: Spine Foundation)
 
 ### Added

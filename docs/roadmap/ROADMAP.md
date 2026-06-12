@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: PACKET-001 Spine Foundation complete (2026-06-11, v0.2.0).** Repo skeleton, data model, seed, CI, and test infrastructure are in place. PACKET-002 Core Vertical Slice is next.
+> **Status: PACKET-002 Core Vertical Slice complete (2026-06-12, v0.3.0).** 14 API routes, pure service layer, subject-lift → FIXED workflow, Zod validators, and two UI pages are in place. PACKET-003 (matching) is next.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -26,11 +26,19 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 - [x] Vitest (coverage thresholds 70/60/70/70) + Playwright (E2E smoke)
 - [x] 4-job CI pipeline (lint-typecheck, test-coverage, build-bundle, e2e) with dual npm audit + bundle budget
 
-### PACKET-002: Core Vertical Slice (planned)
+### PACKET-002: Core Vertical Slice — v0.3.0 (COMPLETE — 2026-06-12)
+- [x] Route Handlers: 14 dynamic API routes covering charterers, vessels, fixtures, subjects, and recap; Zod validation at every boundary
+- [x] Fixture status workflow: subject-gated `ON_SUBS → FIXED` enforced by `FixtureStatusPolicy`; `FixtureStatusChange` audit trail; `Fixture.fixedAt` stamped on FIXED
+- [x] RecapFormatter pure service — deterministic SUPPLYTIME 2017 Markdown + plain text; no runtime LLM
+- [x] Charterer UI: `/charterers` list and `/charterers/[id]` detail pages (Next.js 15 server components)
+- [x] Schema additions: `SubjectItemStatus` enum, `FixtureStatusChange` model, Charterer contact columns (non-destructive migration)
+- [x] 99 unit tests; 95.3% statement coverage; 0 TypeScript errors; 0 lint errors; 102 kB First Load JS
+
+### PACKET-003: Matching (next)
 All items below are CORE must-haves per SPEC-001 §scope tiering.
-- [ ] Route Handlers (vessels, requirements, fixtures) + fixture status workflow (subjects tracking + audit trail) + tests
-- [ ] Vessel↔requirement matching algorithm — **CORE**: FixtureMatcher pure service (hard filters + weighted 0–100 score), heavily unit-tested; the technical centerpiece, not a stretch
-- [ ] Recap generator — RecapFormatter pure service (deterministic SUPPLYTIME 2017 fields, Markdown + plain text) + audit trail
+- [ ] FixtureMatcher pure service — hard filters + weighted 0–100 score, heavily unit-tested; the technical centerpiece
+- [ ] `/api/requirements` route with matching results
+- [ ] Vessel-matching UI panel
 - [ ] Open-Meteo marine weather-window panel (persisted decision-time WeatherSnapshot)
 - [ ] Regional map (Leaflet + OpenStreetMap, vessel + port markers) — **CORE**, built last and lazy-loaded; first must-have to slip if time-pressed
 

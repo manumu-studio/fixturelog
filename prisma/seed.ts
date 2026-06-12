@@ -38,13 +38,14 @@ async function main() {
   const [tidewater, solstad, dof, havila, island, eidesvik, olympic, siem] = owners;
 
   // --- Charterers ---
+  // Contact fields use role-based desks + reserved `.example` addresses — clearly demo data, never live.
   const charterers = await Promise.all([
-    prisma.charterer.create({ data: { name: 'TotalEnergies SE', sector: 'Oil & Gas' } }),
-    prisma.charterer.create({ data: { name: 'Equinor ASA', sector: 'Oil & Gas' } }),
-    prisma.charterer.create({ data: { name: 'Shell plc', sector: 'Oil & Gas' } }),
-    prisma.charterer.create({ data: { name: 'BP plc', sector: 'Oil & Gas' } }),
-    prisma.charterer.create({ data: { name: 'Aker Solutions ASA', sector: 'Subsea/Engineering' } }),
-    prisma.charterer.create({ data: { name: 'Subsea 7 SA', sector: 'Subsea/Engineering' } }),
+    prisma.charterer.create({ data: { name: 'TotalEnergies SE', sector: 'Oil & Gas', contactName: 'Marine Logistics Desk', contactEmail: 'chartering@totalenergies.example', contactPhone: '+33 1 47 44 45 46' } }),
+    prisma.charterer.create({ data: { name: 'Equinor ASA', sector: 'Oil & Gas', contactName: 'Vessel Chartering', contactEmail: 'chartering@equinor.example', contactPhone: '+47 51 99 00 00' } }),
+    prisma.charterer.create({ data: { name: 'Shell plc', sector: 'Oil & Gas', contactName: 'Upstream Marine', contactEmail: 'marine@shell.example', contactPhone: '+44 20 7934 1234' } }),
+    prisma.charterer.create({ data: { name: 'BP plc', sector: 'Oil & Gas', contactName: 'Offshore Logistics', contactEmail: 'logistics@bp.example', contactPhone: '+44 20 7496 4000' } }),
+    prisma.charterer.create({ data: { name: 'Aker Solutions ASA', sector: 'Subsea/Engineering', contactName: 'Procurement Desk', contactEmail: 'procurement@akersolutions.example', contactPhone: '+47 67 51 30 00' } }),
+    prisma.charterer.create({ data: { name: 'Subsea 7 SA', sector: 'Subsea/Engineering', contactName: 'Vessel Management', contactEmail: 'vessels@subsea7.example', contactPhone: '+44 1224 333000' } }),
   ]);
   const [total, equinor, shell, bp] = charterers;
 
