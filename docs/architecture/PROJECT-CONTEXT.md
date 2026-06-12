@@ -1,6 +1,6 @@
 # FixtureLog — Project Context
 
-> **Status: PACKET-003 REQUIREMENT MATCHING COMPLETE (2026-06-12, v0.4.0).** 18 domain API endpoints plus the health endpoint, pure matching engine (`FixtureMatcher` + haversine + dp-class utils), Zod validation at every boundary, requirement → match → shortlist workflow, and four server-component UI pages are in place. PACKET-004 (weather/e2e) is next.
+> **Status: PACKET-004 WEATHER ENRICHMENT + HAPPY-PATH E2E COMPLETE (2026-06-12, v0.5.0).** 20 domain API endpoints plus the health endpoint, weather enrichment layer (`computeVerdict()` + `WeatherEnricher` + two weather routes), fixture-detail `weatherSnapshots` exposure, hermetic full-workflow E2E (3 specs), and 239 unit tests are in place. PACKET-005 (weather UI / visual demo polish) is next.
 >
 > **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`.
 
@@ -40,13 +40,13 @@ Only public role requirements and product/domain context are included in reposit
 | Final scope / spec | ✅ Done — ratified in `docs/specs/SPEC-001-mvp-build.md` |
 | Data model (canonical) | ✅ Done — canonical enums + schema in `docs/specs/SPEC-001-mvp-build.md` |
 | Application architecture | ✅ Done — ratified in `docs/decisions/ADR-0003-application-architecture.md` |
-| App code | ✅ Requirement matching complete — 18 domain API endpoints plus health, service layer + FixtureMatcher, Zod validators, 4 UI pages (v0.4.0). Weather integration belongs to PACKET-004. |
+| App code | ✅ Weather enrichment + E2E complete — 20 domain API endpoints plus health, service layer + FixtureMatcher + WeatherEnricher + computeVerdict(), Zod validators, 4 UI pages, hermetic happy-path E2E (v0.5.0). |
 | Packages / frameworks | ✅ Installed — Next.js 15, Prisma 6, Vitest, Playwright, Zod, TypeScript 5 |
 | Schema | ✅ 13+ models, 12+ enums — `SubjectItemStatus` enum, `FixtureStatusChange` audit model, and Charterer contact columns added in PACKET-002 migration; no schema changes in PACKET-003 |
-| Service layer | ✅ `FixtureStatusPolicy` (subject-gated status machine + audit writes), `RecapFormatter` (deterministic SUPPLYTIME 2017), and `FixtureMatcher` (two-stage hard-filter + weighted scoring engine) — all pure TypeScript services in `src/lib/services/` |
+| Service layer | ✅ `FixtureStatusPolicy` (subject-gated status machine + audit writes), `RecapFormatter` (deterministic SUPPLYTIME 2017), `FixtureMatcher` (two-stage hard-filter + weighted scoring engine), `computeVerdict()` (pure workability verdict function), and `WeatherEnricher` (Open-Meteo fetch + TTL cache) — all pure TypeScript services in `src/lib/services/` |
 | Utilities | ✅ `haversine` (great-circle distance, nautical miles) and `dpClass` (rank, meets-minimum, headroom) in `src/lib/utils/` — both pure, independently tested |
-| API surface | ✅ 18 domain API endpoints plus `GET /api/health` — charterers (list, create, detail, requirements, fixtures), vessels (list, detail), fixtures (list, create, detail, status, recap, subjects, subject update), requirements (list, create, detail, match). See `README.md` API Routes table. |
-| Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts`, `requirement.validators.ts` (incl. sum-to-1.0 weights refine) |
+| API surface | ✅ 20 domain API endpoints plus `GET /api/health` — charterers (list, create, detail, requirements, fixtures), vessels (list, detail), fixtures (list, create, detail, status, recap, weather snapshot persist, subjects, subject update), weather proxy (`GET /api/weather/marine`), requirements (list, create, detail, match). Fixture detail now includes `weatherSnapshots`. See `README.md` API Routes table. |
+| Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts`, `requirement.validators.ts` (incl. sum-to-1.0 weights refine), `weather.validators.ts` (query params, external-response schema, snapshot shape) |
 | Shortlist UI | ✅ `/requirements` (list with status badges) and `/requirements/[id]` (shortlist detail with per-factor breakdown) — Next.js 15 server components |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
 
@@ -127,6 +127,34 @@ These decisions were made during the Requirement Matching build and are recorded
 - **`ShortlistView` extracted** — the shortlist detail page (`/requirements/[id]`) extracted its render logic into `ShortlistView.tsx` (a presentational server component) to keep both files under the 150-line average target.
 
 - **No Prisma migration** — `Requirement`, `Region`, and `RateBenchmark` existed in the PACKET-002 schema. PACKET-003 required no schema changes.
+
+---
+
+## 10. PACKET-004 implementation notes (2026-06-12)
+
+These decisions were made during the Weather Enrichment + E2E build and are recorded here as addenda to the ratified spec:
+
+- **`computeVerdict()` pure function** (`src/lib/services/weather-verdict.ts`) — takes raw `waveHeightM`, `swellWaveHeightM`, and `windWaveHeightM` values and returns a `WorkabilityVerdict` (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`). No I/O, no state, no framework imports. Applies North Sea thresholds.
+
+- **`WeatherEnricher` I/O service** (`src/lib/services/weather-enricher.ts`) — wraps the Open-Meteo Marine API call. Uses the `current` conditions block (not `hourly[0]`, which is midnight, not the present time). Applies a 5-minute in-memory TTL cache keyed by coordinate. Calls `computeVerdict()` and returns a structured `WeatherSnapshot`-shaped object. No database writes — the enricher is a pure network + cache layer.
+
+- **Route persistence, not service persistence** — the `POST /api/fixtures/:id/weather` route handler is the only layer that writes a `WeatherSnapshot` to the database. Keeping persistence in the route (not the service) follows the same separation-of-concerns pattern used by `FixtureStatusPolicy` and `FixtureMatcher`.
+
+- **`fixtureId: null` for ad-hoc lookups** — the `GET /api/weather/marine` proxy route always returns `fixtureId: null` in its response. `fixtureId` is only non-null in snapshots returned by `POST /api/fixtures/:id/weather` (persisted, fixture-linked).
+
+- **`weatherSnapshots` on fixture detail** — `GET /api/fixtures/:id` now includes a `weatherSnapshots` array in its response (additive, non-breaking). This is how the E2E hermetically verifies weather evidence without live API calls.
+
+- **Hermetic E2E** (`e2e/happy-path.spec.ts`) — weather is verified through 2 seeded `WeatherSnapshot` rows attached to fixture2 and fixture3 in `prisma/seed.ts`. The E2E exercises the full broker workflow: requirement creation → matching → fixture creation → weather snapshot count check → subject creation + LIFTED → `ON_SUBS → FIXED` (subject-lift gate honored) → recap generation. Zero live Open-Meteo calls in the automated suite.
+
+- **Subject-lift gate in the E2E** — the happy-path spec creates a SubjectItem on the NEGOTIATING fixture and sets its status to `LIFTED` before attempting the `ON_SUBS → FIXED` transition. This proves the gate works end-to-end, not just in unit tests.
+
+- **Rate limiting deferred** — Open-Meteo's public API has undocumented rate limits. Rate limiting on the proxy route is tracked as a future concern in `docs/roadmap/ROADMAP.md`, not as an in-code TODO.
+
+- **`requiredCoordParam` schema correction** — the initial `weather.validators.ts` draft used a numeric refinement that required an explicit `coerce` step; the final implementation uses `z.coerce.number()` directly in the query schema to handle URL query-string values (which are always strings) cleanly.
+
+- **`response.ok` handling** — the `WeatherEnricher` checks `response.ok` before parsing the body and throws a structured error on non-2xx. This prevents Zod from receiving an error body from Open-Meteo and producing a misleading validation error.
+
+- **No migration** — `WeatherSnapshot` (with nullable `fixtureId`) existed in the PACKET-002 schema. PACKET-004 required no schema changes.
 
 ---
 
