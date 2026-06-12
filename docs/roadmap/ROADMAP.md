@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: PACKET-002 Core Vertical Slice complete (2026-06-12, v0.3.0).** 14 API routes, pure service layer, subject-lift → FIXED workflow, Zod validators, and two UI pages are in place. PACKET-003 (matching) is next.
+> **Status: PACKET-003 Requirement Matching complete (2026-06-12, v0.4.0).** 18 domain API endpoints plus the health endpoint, FixtureMatcher engine (haversine + dp-class utils), Zod validators, and four UI pages are in place. PACKET-004 (weather/e2e) is next.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -34,13 +34,16 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 - [x] Schema additions: `SubjectItemStatus` enum, `FixtureStatusChange` model, Charterer contact columns (non-destructive migration)
 - [x] 99 unit tests; 95.3% statement coverage; 0 TypeScript errors; 0 lint errors; 102 kB First Load JS
 
-### PACKET-003: Matching (next)
-All items below are CORE must-haves per SPEC-001 §scope tiering.
-- [ ] FixtureMatcher pure service — hard filters + weighted 0–100 score, heavily unit-tested; the technical centerpiece
-- [ ] `/api/requirements` route with matching results
-- [ ] Vessel-matching UI panel
-- [ ] Open-Meteo marine weather-window panel (persisted decision-time WeatherSnapshot)
-- [ ] Regional map (Leaflet + OpenStreetMap, vessel + port markers) — **CORE**, built last and lazy-loaded; first must-have to slip if time-pressed
+### PACKET-003: Requirement Matching — v0.4.0 (COMPLETE — 2026-06-12)
+- [x] FixtureMatcher pure service — two-stage (hard filters + weighted composite score); haversine distance + dp-class utilities; heavily unit-tested
+- [x] Requirement CRUD: `POST /api/requirements`, `GET /api/requirements`, `GET /api/requirements/[id]`
+- [x] `POST /api/requirements/[id]/match` — ranked shortlist with per-factor breakdown; `ENQUIRY → SHORTLISTED` transition; tunable weights (0.40/0.35/0.25) with sum-to-1.0 Zod validation
+- [x] Shortlist UI: `/requirements` list page + `/requirements/[id]` detail page with per-factor score breakdown (server components)
+- [x] 98 unit tests added; 197 total; 94.76% statement coverage; 0 TypeScript errors; 0 lint errors; 106 kB First Load JS
+- [ ] Open-Meteo marine weather-window panel (persisted decision-time WeatherSnapshot) — **PACKET-004**
+- [ ] Regional map (Leaflet + OpenStreetMap, vessel + port markers) — **CORE**, built last and lazy-loaded; first must-have to slip if time-pressed — **PACKET-004+**
+
+### PACKET-004: Weather & E2E (next)
 
 ## Phase 3: Polish & Deploy (planned)
 - [ ] Playwright E2E (requirement → match → fixture → recap)

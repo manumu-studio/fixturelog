@@ -2,6 +2,31 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — 2026-06-12 (PACKET-003: Requirement Matching)
+
+### Added
+
+- FixtureMatcher: two-stage (hard filter + weighted score) vessel matching engine (`src/lib/services/fixture-matcher.ts`)
+- Haversine great-circle distance utility returning nautical miles (`src/lib/utils/haversine.ts`)
+- DP class comparison utility — rank, meets-minimum, and headroom helpers; `NONE < DP1 < DP2 < DP3` (`src/lib/utils/dp-class.ts`)
+- Requirement CRUD: `POST /api/requirements`, `GET /api/requirements`, `GET /api/requirements/[id]`
+- `POST /api/requirements/[id]/match` — runs the two-stage matching engine; returns a ranked shortlist with per-factor breakdown (`distance`, `rateFit`, `capabilityMargin`)
+- `ENQUIRY → SHORTLISTED` status transition on first match; re-match on `SHORTLISTED` (or any later status) returns actual status unchanged
+- Tunable scoring weights (default: distance 0.40, rateFit 0.35, capabilityMargin 0.25); weights reflected in `MatchResponse.weightsUsed`
+- Zod validation at all requirement API boundaries: create body, list query params, match-request weights (sum-to-1.0 refine — invalid weights return HTTP 400)
+- `/requirements` page: server-component requirement list with status badges
+- `/requirements/[id]` page: server-component shortlist detail with per-factor score breakdown; `ShortlistView` presentational component extracted
+
+### Quality Gates
+
+- 98 unit tests added this packet; 197 total across all files
+- Coverage: 94.76% statements / 84.52% branches / 92.68% functions / 94.76% lines (thresholds 70/60/70/70)
+- TypeScript: 0 errors; ESLint: 0 errors
+- First Load JS (`/requirements` pages): 106 kB (102 kB shared baseline; budget < 200 kB)
+- No Prisma migration (no schema changes in PACKET-003)
+
+---
+
 ## [0.3.0] — 2026-06-12 (PACKET-002: Core Vertical Slice)
 
 ### Added
