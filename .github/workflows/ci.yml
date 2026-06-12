@@ -1,0 +1,153 @@
+# CI pipeline — 4 parallel jobs for fast feedback (SPEC-001 §7)
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck:
+    name: Lint + Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=high --omit=dev
+      - run: npx prisma generate
+      - run: npm run typecheck
+      - run: npm run lint
+
+  test-coverage:
+    name: Tests + Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run test:coverage
+      - uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  build-bundle:
+    name: Build + Bundle Size
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Build and check bundle size
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee build-output.txt
+          node -e "
+            const fs = require('fs');
+            const output = fs.readFileSync('build-output.txt', 'utf8');
+            const match = output.match(/First Load JS shared by all\s+([\d.]+)\s+(kB|MB)/);
+            if (match) {
+              const size = parseFloat(match[1]);
+              const unit = match[2];
+              const sizeKB = unit === 'MB' ? size * 1024 : size;
+              console.log('Shared JS bundle: ' + sizeKB.toFixed(1) + ' kB');
+              if (sizeKB > 200) {
+                console.error('ERROR: Shared JS exceeds 200 kB budget (' + sizeKB.toFixed(1) + ' kB)');
+                process.exit(1);
+              }
+              console.log('Bundle size OK (under 200 kB budget)');
+            } else {
+              console.error('ERROR: Could not parse bundle size from build output');
+              process.exit(1);
+            }
+          "
+      - name: Smoke test (health check)
+        env:
+          NODE_ENV: 'production'
+        run: |
+          npm start &
+          SERVER_PID=$!
+          sleep 3
+          PASSED=false
+          for i in $(seq 1 20); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health || echo "000")
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "503" ]; then
+              echo "Health endpoint responded with HTTP $HTTP_CODE"
+              PASSED=true
+              break
+            fi
+            echo "Attempt $i: HTTP $HTTP_CODE — retrying in 2s..."
+            sleep 2
+          done
+          kill $SERVER_PID 2>/dev/null || true
+          if [ "$PASSED" = "true" ]; then
+            echo "Smoke test passed"
+          else
+            echo "Smoke test failed — server did not respond within 40s"
+            exit 1
+          fi
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint-typecheck, test-coverage, build-bundle]
+    env:
+      DATABASE_URL: "postgresql://e2e:e2e@127.0.0.1:5432/e2e"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: e2e
+          POSTGRES_PASSWORD: e2e
+          POSTGRES_DB: e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U e2e -d e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx prisma generate
+      - run: npx prisma migrate deploy
+      - run: npx prisma db seed
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
