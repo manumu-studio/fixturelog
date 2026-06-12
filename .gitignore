@@ -21,7 +21,7 @@ dist/
 /private-session-prompts/
 /private-session-prompts/
 FETCH_HEAD
-
+/private-language-log/
 # Project map
 /PROJECT_MAP.md
 /CONTEXT.md
@@ -57,7 +57,7 @@ FETCH_HEAD
 # cursor-task-reports
 /docs/cursor-task-reports/
 
-# Incidents (private investigation logs)
+# Incidents (private logs)
 /private-incident-log/
 
 # Internal process docs (build packets, API specs, deployment notes)
