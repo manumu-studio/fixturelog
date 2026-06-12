@@ -1,4 +1,5 @@
-// src/lib/prisma.ts — Prisma client singleton (hot-reload safe)
+// src/lib/prisma.ts — Prisma client singleton (hot-reload safe; server-only)
+import 'server-only';
 import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };

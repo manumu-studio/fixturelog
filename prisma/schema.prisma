@@ -106,6 +106,13 @@ enum CharterPartyForm {
   OTHER
 }
 
+enum SubjectItemStatus {
+  PENDING
+  LIFTED
+  WAIVED
+  FAILED
+}
+
 // ─── Reference / Party Entities ──────────────────────────────
 
 model Owner {
@@ -120,12 +127,15 @@ model Owner {
 }
 
 model Charterer {
-  id        String   @id @default(cuid())
-  name      String
-  sector    String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  sector       String?
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   requirements Requirement[]
   fixtures     Fixture[]
@@ -294,21 +304,36 @@ model Fixture {
   subjects         SubjectItem[]
   recaps           Recap[]
   weatherSnapshots WeatherSnapshot[]
+  statusChanges    FixtureStatusChange[]
 
   @@index([regionId, fixedAt])
 }
 
 model SubjectItem {
-  id        String    @id @default(cuid())
+  id        String            @id @default(cuid())
   fixtureId String
   label     String
-  status    String
+  status    SubjectItemStatus @default(PENDING)
   dueAt     DateTime?
   owner     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+}
+
+model FixtureStatusChange {
+  id         String        @id @default(cuid())
+  fixtureId  String
+  fromStatus FixtureStatus
+  toStatus   FixtureStatus
+  actor      String
+  notes      String?
+  createdAt  DateTime      @default(now())
+
+  fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+
+  @@index([fixtureId, createdAt])
 }
 
 model Recap {

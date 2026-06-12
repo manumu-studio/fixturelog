@@ -1,8 +1,11 @@
 {
   "name": "fixturelog",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Offshore shipbroking workflow — enquiry to fixture to recap",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:e2e": "next dev",
@@ -29,6 +32,7 @@
     "next": "^15",
     "react": "^19",
     "react-dom": "^19",
+    "server-only": "^0.0.1",
     "zod": "^3"
   },
   "devDependencies": {

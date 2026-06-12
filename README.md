@@ -1,6 +1,6 @@
 # FixtureLog
 
-> **Status: v0.2.0 — PACKET-001 Spine Foundation complete.** Project skeleton, data model, seed, CI pipeline, and test infrastructure are in place. The Core Vertical Slice packet is next.
+> **Status: v0.3.0 — PACKET-002 Core Vertical Slice complete.** 14 API routes, a pure service layer (FixtureStatusPolicy + RecapFormatter), Zod validation at every boundary, and two server-component UI pages are in place. PACKET-003 (matching) is next.
 
 FixtureLog is a portfolio demo project: a small, realistic **offshore shipbroking workflow application**, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role. It is an **Offshore Fixture Board + Recap Generator with a marine "weather window" check** — letting a broker capture a client requirement, match available offshore vessels, record the fixture (the agreed deal), generate the recap (the deal summary), and check whether marine weather supports the work window. The scope, architecture, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md).
 
@@ -59,6 +59,7 @@ FixtureLog is a portfolio demo project: a small, realistic **offshore shipbrokin
 ```
 fixturelog/
 ├── .github/workflows/ci.yml
+├── .nvmrc
 ├── .env.example
 ├── .gitignore
 ├── eslint.config.mjs
@@ -78,16 +79,83 @@ fixturelog/
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
 │   │   ├── globals.css
-│   │   └── api/health/route.ts
+│   │   ├── charterers/
+│   │   │   ├── page.tsx                          # Charterer list
+│   │   │   └── [id]/page.tsx                     # Charterer detail
+│   │   └── api/
+│   │       ├── health/route.ts
+│   │       ├── charterers/
+│   │       │   ├── route.ts                      # GET list, POST create
+│   │       │   └── [id]/
+│   │       │       ├── route.ts                  # GET detail
+│   │       │       ├── requirements/route.ts     # GET requirements
+│   │       │       └── fixtures/route.ts         # GET fixtures
+│   │       ├── vessels/
+│   │       │   ├── route.ts                      # GET list
+│   │       │   └── [id]/route.ts                 # GET detail
+│   │       └── fixtures/
+│   │           ├── route.ts                      # GET list, POST create
+│   │           └── [id]/
+│   │               ├── route.ts                  # GET detail
+│   │               ├── status/route.ts           # PATCH status
+│   │               ├── recap/route.ts            # POST generate recap
+│   │               └── subjects/
+│   │                   ├── route.ts              # POST add subject
+│   │                   └── [subjectId]/route.ts  # PATCH update subject
 │   └── lib/
 │       ├── prisma.ts
 │       ├── health.ts
-│       └── health.test.ts
+│       ├── health.test.ts
+│       ├── services/
+│       │   ├── fixture-status-policy.ts          # FixtureStatusPolicy
+│       │   ├── fixture-status-policy.test.ts
+│       │   ├── recap-formatter.ts                # RecapFormatter
+│       │   └── recap-formatter.test.ts
+│       └── validators/
+│           ├── charterer.ts
+│           ├── vessel.ts
+│           ├── fixture.ts
+│           └── subject.ts
 ├── e2e/
 │   ├── global-setup.ts
 │   └── smoke.spec.ts
-└── docs/ (research, specs, decisions, journal)
+└── docs/ (research, specs, decisions, journal, architecture, roadmap)
 ```
+
+---
+
+## API Routes
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/health` | Health check |
+| GET | `/api/charterers` | List all charterers |
+| POST | `/api/charterers` | Register a charterer |
+| GET | `/api/charterers/[id]` | Charterer detail |
+| GET | `/api/charterers/[id]/requirements` | Requirements for a charterer |
+| GET | `/api/charterers/[id]/fixtures` | Fixtures for a charterer |
+| GET | `/api/vessels` | List vessels (filterable) |
+| GET | `/api/vessels/[id]` | Vessel detail |
+| GET | `/api/fixtures` | List fixtures |
+| POST | `/api/fixtures` | Create a fixture |
+| GET | `/api/fixtures/[id]` | Fixture detail |
+| PATCH | `/api/fixtures/[id]/status` | Transition fixture status |
+| POST | `/api/fixtures/[id]/recap` | Generate a SUPPLYTIME 2017 recap |
+| POST | `/api/fixtures/[id]/subjects` | Add a subject to a fixture |
+| PATCH | `/api/fixtures/[id]/subjects/[subjectId]` | Update subject status |
+
+---
+
+## Architecture
+
+### Service layer
+
+Business logic lives in pure TypeScript services under `src/lib/services/`:
+
+- **`FixtureStatusPolicy`** — enforces the canonical Fixture status machine (`DRAFT → NEGOTIATING → ON_SUBS → FIXED → COMPLETED`). The `ON_SUBS → FIXED` transition is **subject-gated**: it is only allowed when at least one SubjectItem exists on the fixture and every subject has status `LIFTED` or `WAIVED`. Rejected transitions return HTTP 400 with the count of outstanding subjects. Every successful transition writes a `FixtureStatusChange` audit row; transitioning to `FIXED` also stamps `Fixture.fixedAt`.
+- **`RecapFormatter`** — produces a deterministic SUPPLYTIME 2017 recap in Markdown and plain text from the fixture's structured terms. No runtime LLM.
+
+Both services have no framework imports and are instantiated with plain `new`. All domain rules are covered by unit tests.
 
 ---
 
