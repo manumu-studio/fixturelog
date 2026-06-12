@@ -1,6 +1,6 @@
 # FixtureLog — Project Context
 
-> **Status: PACKET-002 CORE VERTICAL SLICE COMPLETE (2026-06-12, v0.3.0).** 14 API routes, pure service layer (`FixtureStatusPolicy`, `RecapFormatter`), Zod validation at every boundary, subject-lift → FIXED workflow with full audit trail, and two server-component UI pages are in place. PACKET-003 (matching) is next.
+> **Status: PACKET-003 REQUIREMENT MATCHING COMPLETE (2026-06-12, v0.4.0).** 18 domain API endpoints plus the health endpoint, pure matching engine (`FixtureMatcher` + haversine + dp-class utils), Zod validation at every boundary, requirement → match → shortlist workflow, and four server-component UI pages are in place. PACKET-004 (weather/e2e) is next.
 >
 > **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`.
 
@@ -40,12 +40,14 @@ Only public role requirements and product/domain context are included in reposit
 | Final scope / spec | ✅ Done — ratified in `docs/specs/SPEC-001-mvp-build.md` |
 | Data model (canonical) | ✅ Done — canonical enums + schema in `docs/specs/SPEC-001-mvp-build.md` |
 | Application architecture | ✅ Done — ratified in `docs/decisions/ADR-0003-application-architecture.md` |
-| App code | ✅ Core vertical slice — 14 API routes, service layer, Zod validators, 2 UI pages (v0.3.0). FixtureMatcher and weather integration belong to PACKET-003. |
+| App code | ✅ Requirement matching complete — 18 domain API endpoints plus health, service layer + FixtureMatcher, Zod validators, 4 UI pages (v0.4.0). Weather integration belongs to PACKET-004. |
 | Packages / frameworks | ✅ Installed — Next.js 15, Prisma 6, Vitest, Playwright, Zod, TypeScript 5 |
-| Schema | ✅ 13+ models, 12+ enums — `SubjectItemStatus` enum, `FixtureStatusChange` audit model, and Charterer contact columns added in PACKET-002 migration |
-| Service layer | ✅ `FixtureStatusPolicy` (subject-gated status machine + audit writes) and `RecapFormatter` (deterministic SUPPLYTIME 2017) implemented as pure TypeScript services in `src/lib/services/` |
-| API surface | ✅ 14 dynamic routes — charterers (list, create, detail, requirements, fixtures), vessels (list, detail), fixtures (list, create, detail, status, recap, subjects, subject update). See `README.md` API Routes table. |
-| Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts` |
+| Schema | ✅ 13+ models, 12+ enums — `SubjectItemStatus` enum, `FixtureStatusChange` audit model, and Charterer contact columns added in PACKET-002 migration; no schema changes in PACKET-003 |
+| Service layer | ✅ `FixtureStatusPolicy` (subject-gated status machine + audit writes), `RecapFormatter` (deterministic SUPPLYTIME 2017), and `FixtureMatcher` (two-stage hard-filter + weighted scoring engine) — all pure TypeScript services in `src/lib/services/` |
+| Utilities | ✅ `haversine` (great-circle distance, nautical miles) and `dpClass` (rank, meets-minimum, headroom) in `src/lib/utils/` — both pure, independently tested |
+| API surface | ✅ 18 domain API endpoints plus `GET /api/health` — charterers (list, create, detail, requirements, fixtures), vessels (list, detail), fixtures (list, create, detail, status, recap, subjects, subject update), requirements (list, create, detail, match). See `README.md` API Routes table. |
+| Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts`, `requirement.validators.ts` (incl. sum-to-1.0 weights refine) |
+| Shortlist UI | ✅ `/requirements` (list with status badges) and `/requirements/[id]` (shortlist detail with per-factor breakdown) — Next.js 15 server components |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
 
 ---
@@ -101,6 +103,30 @@ These decisions were made during the Core Vertical Slice build and are recorded 
 - **`fixedAt` on Fixture only** — when a fixture transitions to `FIXED`, `Fixture.fixedAt` is stamped. The linked Requirement moves to `status: FIXED` but has no `fixedAt` column.
 - **Charterer contact columns** — `contactName`, `contactEmail`, `contactPhone` added as optional nullable columns via a non-destructive migration. Existing seed rows receive values; no data was lost.
 - **Node 20 pinned** — `package.json` `engines: ">=20.0.0"` and `.nvmrc 20.20.2` resolve the Vitest/Vite ESM startup incompatibility with Node 18.
+
+---
+
+## 9. PACKET-003 implementation notes (2026-06-12)
+
+These decisions were made during the Requirement Matching build and are recorded here as addenda to the ratified spec:
+
+- **`FixtureMatcher` pure service** — two-stage engine (hard filters → weighted composite). Takes plain objects, returns plain objects; no database calls inside the matcher. All I/O (fetch vessels, fetch benchmark, persist status transition) happens in the route handler. Follows the same pure-service pattern as `FixtureStatusPolicy` and `RecapFormatter`.
+
+- **Haversine utility** (`src/lib/utils/haversine.ts`) — great-circle distance in nautical miles. PostGIS remains deferred to post-MVP (SPEC-001, ADR-0002); at 30-vessel scale, Haversine in-process is correct, fast, and independently testable.
+
+- **DP class utility** (`src/lib/utils/dp-class.ts`) — rank ordering (`NONE < DP1 < DP2 < DP3`), meets-minimum check, and headroom helpers used by the hard-filter and capability-margin scoring stages.
+
+- **rateFit limitation** — `rateFit` compares the requirement's `dayRateBudget` against the regional rate benchmark for the vessel type (`RateBenchmark` table). Because the schema has no per-vessel day-rate column, every candidate from the same `(vesselType, region)` cohort receives an identical `rateFit` score. This is a documented limitation; per-vessel rate data would require a schema extension (post-MVP).
+
+- **Neutral 0.5 for absent budget/benchmark** — when `dayRateBudget` is null or no benchmark row exists, `rateFit` defaults to 0.5. Missing data never inflates or deflates the composite score.
+
+- **`ENQUIRY → SHORTLISTED` on first match** — the status transition fires only when `requirement.status === 'ENQUIRY'`. Subsequent match calls on any later status run scoring and return results without touching status. `MatchResponse.status` is the actual post-operation `RequirementStatus` — never hard-coded.
+
+- **Tunable weights, Zod-validated** — `POST /api/requirements/[id]/match` accepts an optional `weights` body (`{ distance, rateFit, capabilityMargin }`). The validator uses `.refine()` to ensure the three values sum to 1.0 (± floating-point tolerance); invalid requests return HTTP 400 `"Weights must sum to 1.0"`. Default: distance 0.40 / rateFit 0.35 / capabilityMargin 0.25.
+
+- **`ShortlistView` extracted** — the shortlist detail page (`/requirements/[id]`) extracted its render logic into `ShortlistView.tsx` (a presentational server component) to keep both files under the 150-line average target.
+
+- **No Prisma migration** — `Requirement`, `Region`, and `RateBenchmark` existed in the PACKET-002 schema. PACKET-003 required no schema changes.
 
 ---
 
