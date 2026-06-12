@@ -1,4 +1,4 @@
-# PR-0.2.0 — Spine foundation (schema, seed, CI, test infra)
+# PR-0.1.0 — Spine foundation (schema, seed, CI, test infra)
 
 **Branch:** `feat/spine-foundation` → `main`
 **Version:** `0.1.0`
