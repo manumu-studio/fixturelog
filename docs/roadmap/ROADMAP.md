@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: PACKET-004 Weather Enrichment + Happy-Path E2E complete (2026-06-12, v0.5.0).** 20 domain API endpoints plus the health endpoint, weather enrichment layer (Open-Meteo proxy + workability verdict + persisted snapshots + fixture-detail exposure), hermetic full-workflow E2E (3 specs), and 239 unit tests are in place. PACKET-005 (weather UI / visual demo polish) is next.
+> **Status: MVP v1.0.0 COMPLETE (2026-06-13).** All five build packets shipped. Regional Leaflet vessel map, 21 domain API endpoints plus the health endpoint, weather enrichment layer, full service layer, hermetic full-workflow E2E (4 specs), and 250 unit tests are in place. Configured for Vercel + Neon deploy (deploy-ready; not yet deployed).
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -52,11 +52,19 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 - [x] 239 unit tests (42 added this packet); 94.92% statement coverage; 0 TypeScript errors; 0 lint errors; 102 kB First Load JS
 - **Future concern:** rate limiting on the weather proxy — Open-Meteo has undocumented limits; a per-IP rate limiter or backoff strategy should be added before production traffic exposure (not an in-code TODO)
 
-### PACKET-005: Weather UI / Visual Demo Polish (next)
+### PACKET-005: Map + Deploy + Polish — v1.0.0 ✅ COMPLETE (2026-06-13)
+- [x] Regional Leaflet map at `/map`: color-coded `CircleMarker` per vessel, popup with name, type, owner, status, port, source, and confidence; `SEEDED` label
+- [x] `GET /api/vessels/positions` — lightweight latest-position-per-vessel endpoint with Zod validators
+- [x] Real landing page at `/` replacing the Next.js default
+- [x] Vercel + Neon deploy configuration: `NEXT_PUBLIC_APP_URL`, `postinstall: prisma generate`, Leaflet deps
+- [x] `e2e/map.spec.ts` — hermetic map E2E; OSM tile requests aborted
+- [x] Documentation closeout: `docs/GLOSSARY.md`, `docs/AI-USAGE.md`, comprehensive `README.md`, `CHANGELOG.md` v1.0.0
+- [x] 250 unit tests; 4 E2E specs; 103 kB shared First Load JS; 0 TypeScript errors; 0 lint errors
+- **Known gap (deferred):** port markers (SPEC-001 §4.8) — no standalone `Port` model with coordinates; ports are string fields on `PositionSnapshot`. Future: derive port locations from `PositionSnapshot.portName` + lat/lng or a static map.
 
-## Phase 3: Polish & Deploy (planned)
-- [ ] Deploy (Vercel + Neon)
-- [ ] Screenshots / demo recording; AI-usage note
+## Phase 3: Post-MVP (planned)
+- [ ] Deploy verification: screenshots / demo recording after Vercel + Neon deploy
+- [ ] Rate limiting on the weather proxy (Open-Meteo has undocumented limits)
 
 ## Nice-to-have (only if core lands with time to spare)
 - [ ] Dashboard (summary cards + recent activity, live `/api/dashboard` aggregation if built)

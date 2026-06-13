@@ -1,6 +1,6 @@
 # FixtureLog — Project Context
 
-> **Status: PACKET-004 WEATHER ENRICHMENT + HAPPY-PATH E2E COMPLETE (2026-06-12, v0.5.0).** 20 domain API endpoints plus the health endpoint, weather enrichment layer (`computeVerdict()` + `WeatherEnricher` + two weather routes), fixture-detail `weatherSnapshots` exposure, hermetic full-workflow E2E (3 specs), and 239 unit tests are in place. PACKET-005 (weather UI / visual demo polish) is next.
+> **Status: MVP v1.0.0 COMPLETE (2026-06-13).** 21 domain API endpoints plus the health endpoint, a regional Leaflet vessel map, a vessel-positions endpoint, a real landing page, Vercel + Neon deploy configuration, weather enrichment layer, hermetic full-workflow E2E (4 specs), and 250 unit tests are in place.
 >
 > **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`.
 
@@ -40,14 +40,17 @@ Only public role requirements and product/domain context are included in reposit
 | Final scope / spec | ✅ Done — ratified in `docs/specs/SPEC-001-mvp-build.md` |
 | Data model (canonical) | ✅ Done — canonical enums + schema in `docs/specs/SPEC-001-mvp-build.md` |
 | Application architecture | ✅ Done — ratified in `docs/decisions/ADR-0003-application-architecture.md` |
-| App code | ✅ Weather enrichment + E2E complete — 20 domain API endpoints plus health, service layer + FixtureMatcher + WeatherEnricher + computeVerdict(), Zod validators, 4 UI pages, hermetic happy-path E2E (v0.5.0). |
+| App code | ✅ MVP complete — 21 domain API endpoints plus health, service layer (FixtureMatcher + WeatherEnricher + computeVerdict() + FixtureStatusPolicy + RecapFormatter), Zod validators, regional Leaflet map (`/map`), 6 UI pages, hermetic full-workflow E2E (4 specs), Vercel + Neon deploy (v1.0.0). |
 | Packages / frameworks | ✅ Installed — Next.js 15, Prisma 6, Vitest, Playwright, Zod, TypeScript 5 |
 | Schema | ✅ 13+ models, 12+ enums — `SubjectItemStatus` enum, `FixtureStatusChange` audit model, and Charterer contact columns added in PACKET-002 migration; no schema changes in PACKET-003 |
 | Service layer | ✅ `FixtureStatusPolicy` (subject-gated status machine + audit writes), `RecapFormatter` (deterministic SUPPLYTIME 2017), `FixtureMatcher` (two-stage hard-filter + weighted scoring engine), `computeVerdict()` (pure workability verdict function), and `WeatherEnricher` (Open-Meteo fetch + TTL cache) — all pure TypeScript services in `src/lib/services/` |
 | Utilities | ✅ `haversine` (great-circle distance, nautical miles) and `dpClass` (rank, meets-minimum, headroom) in `src/lib/utils/` — both pure, independently tested |
-| API surface | ✅ 20 domain API endpoints plus `GET /api/health` — charterers (list, create, detail, requirements, fixtures), vessels (list, detail), fixtures (list, create, detail, status, recap, weather snapshot persist, subjects, subject update), weather proxy (`GET /api/weather/marine`), requirements (list, create, detail, match). Fixture detail now includes `weatherSnapshots`. See `README.md` API Routes table. |
-| Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts`, `requirement.validators.ts` (incl. sum-to-1.0 weights refine), `weather.validators.ts` (query params, external-response schema, snapshot shape) |
+| API surface | ✅ 21 domain API endpoints plus `GET /api/health` — charterers (list, create, detail, requirements, fixtures), vessels (list, detail, **positions**), fixtures (list, create, detail, status, recap, weather snapshot persist, subjects, subject update), weather proxy (`GET /api/weather/marine`), requirements (list, create, detail, match). Fixture detail includes `weatherSnapshots`. See `README.md` API Routes table. |
+| Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts`, `requirement.validators.ts` (incl. sum-to-1.0 weights refine), `weather.validators.ts` (query params, external-response schema, snapshot shape), `vessel-position.validators.ts` (`VesselPositionItem` + positions response) |
 | Shortlist UI | ✅ `/requirements` (list with status badges) and `/requirements/[id]` (shortlist detail with per-factor breakdown) — Next.js 15 server components |
+| Map UI | ✅ `/map` — server component page with metadata; `RegionalMapClient` (client component) owns `useRegionalMap` hook and lazy-loads `RegionalMap` via `next/dynamic({ ssr: false })`; `RegionalMap` renders `CircleMarker` per vessel (color-coded by type) with popups; Leaflet + react-leaflet in a separate dynamic chunk (not in shared bundle) |
+| Landing page | ✅ `/` — real landing page replacing the Next.js default; links to map, requirements, charterers |
+| Deployment | ✅ Vercel + Neon; `NEXT_PUBLIC_APP_URL` in `.env.example`; `postinstall: prisma generate` in `package.json`; deploy runbook in `README.md` and `docs/pull-requests/PR-1.0.0.md` |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
 
 ---
@@ -155,6 +158,22 @@ These decisions were made during the Weather Enrichment + E2E build and are reco
 - **`response.ok` handling** — the `WeatherEnricher` checks `response.ok` before parsing the body and throws a structured error on non-2xx. This prevents Zod from receiving an error body from Open-Meteo and producing a misleading validation error.
 
 - **No migration** — `WeatherSnapshot` (with nullable `fixtureId`) existed in the PACKET-002 schema. PACKET-004 required no schema changes.
+
+---
+
+## 11. PACKET-005 implementation notes (2026-06-13)
+
+These decisions were made during the map, deploy, and closeout build and are recorded here as addenda to the ratified spec:
+
+- **`ssr: false` dynamic import in `RegionalMapClient`** — Next.js 15 forbids `ssr: false` in Server Components; it is only valid inside a Client Component. The `/map` page is a server component (keeping `metadata`) and cannot hold the `next/dynamic` call. `RegionalMapClient` (marked `"use client"`) owns both the `useRegionalMap` hook and the lazy-loaded `RegionalMap` component. The page is a thin server wrapper.
+
+- **`CircleMarker` only** — Leaflet's default `L.icon` markers require static PNG assets and bundler configuration to resolve their paths in a Next.js environment. `CircleMarker` is a pure geometric marker with zero asset dependencies, making the bundle hermetic and tests straightforward.
+
+- **Single-source `VesselPositionItem` type via `z.enum`** — `VesselPositionItem` is `z.infer`-derived from the Zod schema in `vessel-position.validators.ts`. The `vesselType` field uses `z.enum` (a string-literal tuple) rather than `z.nativeEnum` with a Prisma enum, which would pull `@prisma/client` into the client bundle. The validators file is the single source of truth for both the runtime schema and the TypeScript type.
+
+- **`renderToStaticMarkup` + inline `vi.mock` for map unit tests** — the repo uses `environment: node` in Vitest; jsdom and `@testing-library/react` are not available. Component tests for `RegionalMap` use `renderToStaticMarkup` from `react-dom/server` for JSX structure verification and `vi.mock` stubs for react-leaflet primitives. Playwright E2E covers actual browser rendering.
+
+- **Port markers deferred** — SPEC-001 §4.8 mentions vessel and port markers. No standalone `Port` model with coordinate columns exists in the schema; port data is a string field on `PositionSnapshot`. Port markers require a schema extension and are deferred to post-MVP. Noted in `CHANGELOG.md` and `ROADMAP.md`.
 
 ---
 
