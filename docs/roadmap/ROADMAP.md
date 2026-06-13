@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: PACKET-003 Requirement Matching complete (2026-06-12, v0.4.0).** 18 domain API endpoints plus the health endpoint, FixtureMatcher engine (haversine + dp-class utils), Zod validators, and four UI pages are in place. PACKET-004 (weather/e2e) is next.
+> **Status: PACKET-004 Weather Enrichment + Happy-Path E2E complete (2026-06-12, v0.5.0).** 20 domain API endpoints plus the health endpoint, weather enrichment layer (Open-Meteo proxy + workability verdict + persisted snapshots + fixture-detail exposure), hermetic full-workflow E2E (3 specs), and 239 unit tests are in place. PACKET-005 (weather UI / visual demo polish) is next.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -40,15 +40,23 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 - [x] `POST /api/requirements/[id]/match` — ranked shortlist with per-factor breakdown; `ENQUIRY → SHORTLISTED` transition; tunable weights (0.40/0.35/0.25) with sum-to-1.0 Zod validation
 - [x] Shortlist UI: `/requirements` list page + `/requirements/[id]` detail page with per-factor score breakdown (server components)
 - [x] 98 unit tests added; 197 total; 94.76% statement coverage; 0 TypeScript errors; 0 lint errors; 106 kB First Load JS
-- [ ] Open-Meteo marine weather-window panel (persisted decision-time WeatherSnapshot) — **PACKET-004**
-- [ ] Regional map (Leaflet + OpenStreetMap, vessel + port markers) — **CORE**, built last and lazy-loaded; first must-have to slip if time-pressed — **PACKET-004+**
 
-### PACKET-004: Weather & E2E (next)
+### PACKET-004: Weather Enrichment + Happy-Path E2E — v0.5.0 (COMPLETE — 2026-06-12)
+- [x] Open-Meteo Marine weather proxy: `GET /api/weather/marine` with 5-minute in-memory TTL cache, SSRF-safe validated coordinates, `current`-conditions source
+- [x] `computeVerdict()` pure function — workability verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`) from North Sea thresholds
+- [x] `WeatherEnricher` service — Open-Meteo fetch + TTL cache; no database writes
+- [x] `POST /api/fixtures/:id/weather` — persists a fixture-linked `WeatherSnapshot`; `fixtureId: null` for ad-hoc proxy lookups
+- [x] `GET /api/fixtures/:id` now includes `weatherSnapshots` (additive, non-breaking)
+- [x] 2 seeded `WeatherSnapshot` rows for hermetic testing
+- [x] `e2e/happy-path.spec.ts` — first full-workflow broker E2E covering requirement → match → fixture → weather → subject-lift gate → `ON_SUBS → FIXED` → recap; hermetic (zero live Open-Meteo calls)
+- [x] 239 unit tests (42 added this packet); 94.92% statement coverage; 0 TypeScript errors; 0 lint errors; 102 kB First Load JS
+- **Future concern:** rate limiting on the weather proxy — Open-Meteo has undocumented limits; a per-IP rate limiter or backoff strategy should be added before production traffic exposure (not an in-code TODO)
+
+### PACKET-005: Weather UI / Visual Demo Polish (next)
 
 ## Phase 3: Polish & Deploy (planned)
-- [ ] Playwright E2E (requirement → match → fixture → recap)
 - [ ] Deploy (Vercel + Neon)
-- [ ] README + glossary + AI-usage note; screenshots / demo recording
+- [ ] Screenshots / demo recording; AI-usage note
 
 ## Nice-to-have (only if core lands with time to spare)
 - [ ] Dashboard (summary cards + recent activity, live `/api/dashboard` aggregation if built)

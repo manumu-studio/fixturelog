@@ -2,6 +2,29 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] — 2026-06-12 (PACKET-004: Weather Enrichment + Happy-Path E2E)
+
+### Added
+
+- Open-Meteo Marine weather proxy: `GET /api/weather/marine?lat=&lng=` with 5-minute in-memory TTL cache; SSRF-safe Zod-validated coordinates; `current`-conditions source (not `hourly[0]`) so the values represent the present moment, not midnight
+- `computeVerdict()` pure function producing a workability verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`) from North Sea thresholds (wave height, swell height, wind-wave height)
+- `WeatherEnricher` service — thin layer wrapping the Open-Meteo fetch + TTL cache; no database calls
+- Zod validator module `weather.validators.ts` covering query params, external-response schema, and snapshot shapes
+- `POST /api/fixtures/:id/weather` — persists a `WeatherSnapshot` linked to the fixture and returns the snapshot with `fixtureId`; ad-hoc lookups via the proxy route return `fixtureId: null`
+- `GET /api/fixtures/:id` now includes `weatherSnapshots` in the response
+- 2 seeded `WeatherSnapshot` rows attached to fixture2 and fixture3 for hermetic testing
+- `e2e/happy-path.spec.ts` — first full-workflow broker E2E: requirement creation → matching → fixture creation → weather snapshot verification → subject creation + lift → `ON_SUBS → FIXED` transition → recap generation; hermetic via seeded data (zero live Open-Meteo calls)
+
+### Quality Gates
+
+- 42 unit tests added this packet; 239 total across 26 files
+- Coverage: 94.92% statements / 85.03% branches / 93.61% functions / 94.92% lines (thresholds 70/60/70/70)
+- TypeScript: 0 errors; ESLint: 0 errors
+- First Load JS shared: 102 kB (budget < 200 kB)
+- No Prisma migration — `WeatherSnapshot` existed in the PACKET-002 schema; no schema changes in PACKET-004
+
+---
+
 ## [0.4.0] — 2026-06-12 (PACKET-003: Requirement Matching)
 
 ### Added
