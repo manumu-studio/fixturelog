@@ -28,6 +28,7 @@ export async function GET(
       recaps: { orderBy: { version: 'desc' } },
       statusChanges: { orderBy: { createdAt: 'asc' } },
       requirement: true,
+      weatherSnapshots: { orderBy: { fetchedAt: 'desc' } },
     },
   });
 

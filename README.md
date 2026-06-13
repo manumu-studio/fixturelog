@@ -1,6 +1,6 @@
 # FixtureLog
 
-> **Status: v0.4.0 — PACKET-003 Requirement Matching complete.** 18 domain API endpoints plus the health endpoint, a pure matching engine (FixtureMatcher + haversine + dp-class utils), Zod validation at every boundary, and four server-component UI pages are in place. PACKET-004 (weather & E2E) is next.
+> **Status: v0.5.0 — PACKET-004 Weather Enrichment + Happy-Path E2E complete.** 20 domain API endpoints plus the health endpoint, a pure matching engine (FixtureMatcher + haversine + dp-class utils), a weather enrichment layer (proxy + workability verdict + persisted snapshots), Zod validation at every boundary, four server-component UI pages, and a hermetic full-workflow E2E are in place. PACKET-005 (weather UI / visual demo polish) is next.
 
 FixtureLog is a portfolio demo project: a small, realistic **offshore shipbroking workflow application**, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role. It is an **Offshore Fixture Board + Recap Generator with a marine "weather window" check** — letting a broker capture a client requirement, match available offshore vessels, record the fixture (the agreed deal), generate the recap (the deal summary), and check whether marine weather supports the work window. The scope, architecture, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md).
 
@@ -31,9 +31,9 @@ FixtureLog is a portfolio demo project: a small, realistic **offshore shipbrokin
 | `npm run build` | Production build |
 | `npm run lint` | ESLint check |
 | `npm run typecheck` | TypeScript strict check |
-| `npm run test` | Run unit tests |
+| `npm run test` | Run unit tests (240 unit tests across 26 files; 94.9% coverage) |
 | `npm run test:coverage` | Unit tests + coverage report |
-| `npm run test:e2e` | Playwright E2E tests |
+| `npm run test:e2e` | Playwright E2E tests (3 specs) |
 | `npm run db:seed` | Seed database |
 | `npm run db:studio` | Open Prisma Studio |
 
@@ -104,9 +104,12 @@ fixturelog/
 │   │       │       ├── route.ts                  # GET detail
 │   │       │       ├── status/route.ts           # PATCH status
 │   │       │       ├── recap/route.ts            # POST generate recap
+│   │       │       ├── weather/route.ts          # POST persist WeatherSnapshot
 │   │       │       └── subjects/
 │   │       │           ├── route.ts              # POST add subject
 │   │       │           └── [subjectId]/route.ts  # PATCH update subject
+│   │       ├── weather/
+│   │       │   └── marine/route.ts              # GET marine weather proxy (Open-Meteo)
 │   │       └── requirements/
 │   │           ├── route.ts                      # GET list, POST create
 │   │           └── [id]/
@@ -123,7 +126,12 @@ fixturelog/
 │       │   ├── fixture-matcher.types.ts
 │       │   ├── fixture-matcher.test.ts
 │       │   ├── recap-formatter.ts                # RecapFormatter
-│       │   └── recap-formatter.test.ts
+│       │   ├── recap-formatter.test.ts
+│       │   ├── weather-verdict.ts                # computeVerdict() pure function
+│       │   ├── weather-verdict.test.ts
+│       │   ├── weather-enricher.ts               # WeatherEnricher (fetch + TTL cache)
+│       │   ├── weather-enricher.types.ts
+│       │   └── weather-enricher.test.ts
 │       ├── utils/
 │       │   ├── haversine.ts                      # Great-circle distance (nautical miles)
 │       │   ├── haversine.test.ts
@@ -134,10 +142,12 @@ fixturelog/
 │           ├── vessel.ts
 │           ├── fixture.ts
 │           ├── subject.ts
-│           └── requirement.validators.ts
+│           ├── requirement.validators.ts
+│           └── weather.validators.ts
 ├── e2e/
 │   ├── global-setup.ts
-│   └── smoke.spec.ts
+│   ├── smoke.spec.ts
+│   └── happy-path.spec.ts
 └── docs/ (research, specs, decisions, journal, architecture, roadmap)
 ```
 
@@ -145,7 +155,7 @@ fixturelog/
 
 ## API Routes
 
-18 domain API endpoints + 1 health endpoint.
+20 domain API endpoints + 1 health endpoint.
 
 | Method | Route | Description |
 |--------|-------|-------------|
@@ -159,11 +169,13 @@ fixturelog/
 | GET | `/api/vessels/[id]` | Vessel detail |
 | GET | `/api/fixtures` | List fixtures |
 | POST | `/api/fixtures` | Create a fixture |
-| GET | `/api/fixtures/[id]` | Fixture detail |
+| GET | `/api/fixtures/[id]` | Fixture detail (includes `weatherSnapshots`) |
 | PATCH | `/api/fixtures/[id]/status` | Transition fixture status |
 | POST | `/api/fixtures/[id]/recap` | Generate a SUPPLYTIME 2017 recap |
 | POST | `/api/fixtures/[id]/subjects` | Add a subject to a fixture |
 | PATCH | `/api/fixtures/[id]/subjects/[subjectId]` | Update subject status |
+| GET | `/api/weather/marine` | Open-Meteo marine weather proxy — returns workability verdict + wave/swell/wind-wave data; `fixtureId: null` (ad-hoc) |
+| POST | `/api/fixtures/[id]/weather` | Persist a WeatherSnapshot linked to the fixture; returns snapshot with `fixtureId` |
 | GET | `/api/requirements` | List requirements (filterable by status) |
 | POST | `/api/requirements` | Create a requirement (`status: ENQUIRY`) |
 | GET | `/api/requirements/[id]` | Requirement detail |
@@ -211,6 +223,18 @@ Both services have no framework imports and are instantiated with plain `new`. A
 Two supporting utilities:
 - **`haversine`** (`src/lib/utils/haversine.ts`) — great-circle distance in nautical miles; pure function, independently tested.
 - **`dpClass`** (`src/lib/utils/dp-class.ts`) — DP class rank, meets-minimum check, and headroom helpers for the `NONE < DP1 < DP2 < DP3` ordering.
+
+### Weather Enrichment
+
+Three-layer design keeping concerns cleanly separated:
+
+- **`computeVerdict()`** (`src/lib/services/weather-verdict.ts`) — pure function; takes raw wave/swell/wind-wave heights and returns a `WorkabilityVerdict` (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`) against North Sea thresholds. No I/O, no state; trivially unit-testable.
+- **`WeatherEnricher`** (`src/lib/services/weather-enricher.ts`) — wraps the Open-Meteo Marine API call with a 5-minute in-memory TTL cache. Uses the `current` conditions block (not `hourly[0]`, which is midnight, not now). Calls `computeVerdict()` and returns a structured snapshot. No database writes.
+- **Route persistence** — the route handler (`POST /api/fixtures/:id/weather`) is the only layer that writes to the database. It calls `WeatherEnricher`, receives the snapshot, and persists a `WeatherSnapshot` row linked to the fixture. The `GET /api/fixtures/:id` route includes `weatherSnapshots` in its response. Ad-hoc lookups via `GET /api/weather/marine` return `fixtureId: null` — no persistence.
+
+Zod validation at both the query boundary (lat/lng params, SSRF-safe) and the external-response boundary (Open-Meteo response schema).
+
+The E2E (`e2e/happy-path.spec.ts`) verifies weather through 2 seeded `WeatherSnapshot` rows on the fixture-detail response — zero live Open-Meteo calls in the automated suite.
 
 ---
 

@@ -335,6 +335,42 @@ async function main() {
     },
   });
 
+  // --- Weather Snapshots ---
+  // Snapshot 1: WORKABLE conditions for the FIXED fixture (Havila Guardian → BP)
+  // wave 1.2 < 2.0 threshold, swell 1.8 < 2.5 threshold → WORKABLE
+  await prisma.weatherSnapshot.create({
+    data: {
+      fixtureId: fixture3.id,
+      lat: 57.12,
+      lng: -2.05,
+      waveHeightM: 1.2,
+      swellHeightM: 1.8,
+      windWaveHeightM: 0.6,
+      workabilityVerdict: 'WORKABLE',
+      laycanFrom: new Date('2026-07-01'),
+      laycanTo: new Date('2026-12-28'),
+      fetchedAt: new Date('2026-06-10T09:00:00Z'),
+    },
+  });
+
+  // Snapshot 2: MARGINAL conditions for the ON_SUBS fixture (Island Challenger → Shell)
+  // wave 2.5 ≥ 2.0 (above WORKABLE), swell 3.2 ≥ 2.5 (above WORKABLE) → MARGINAL
+  // wave 2.5 < 3.0 threshold, swell 3.2 < 4.0 threshold → not NOT_WORKABLE
+  await prisma.weatherSnapshot.create({
+    data: {
+      fixtureId: fixture2.id,
+      lat: 57.50,
+      lng: -1.78,
+      waveHeightM: 2.5,
+      swellHeightM: 3.2,
+      windWaveHeightM: 1.5,
+      workabilityVerdict: 'MARGINAL',
+      laycanFrom: new Date('2026-07-15'),
+      laycanTo: new Date('2026-07-29'),
+      fetchedAt: new Date('2026-06-10T09:30:00Z'),
+    },
+  });
+
   // Recap for FIXED fixture (minimal until RecapFormatter ships)
   await prisma.recap.create({
     data: {
@@ -402,6 +438,7 @@ async function main() {
   console.log(`  3 fixtures (NEGOTIATING, ON_SUBS, FIXED)`);
   console.log(`  3 subject items`);
   console.log(`  1 recap`);
+  console.log(`  2 weather snapshots`);
 }
 
 main()
