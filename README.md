@@ -1,41 +1,32 @@
 # FixtureLog
 
-> **Status: v0.5.0 — PACKET-004 Weather Enrichment + Happy-Path E2E complete.** 20 domain API endpoints plus the health endpoint, a pure matching engine (FixtureMatcher + haversine + dp-class utils), a weather enrichment layer (proxy + workability verdict + persisted snapshots), Zod validation at every boundary, four server-component UI pages, and a hermetic full-workflow E2E are in place. PACKET-005 (weather UI / visual demo polish) is next.
+> **Status: v1.0.0 — MVP complete.** Regional Leaflet map, vessel-positions endpoint, real landing page, Vercel + Neon deploy, 21 domain API endpoints plus the health endpoint, a pure matching engine, a weather enrichment layer, Zod validation at every boundary, five server-component UI pages, and a hermetic full-workflow E2E are in place.
 
-FixtureLog is a portfolio demo project: a small, realistic **offshore shipbroking workflow application**, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role. It is an **Offshore Fixture Board + Recap Generator with a marine "weather window" check** — letting a broker capture a client requirement, match available offshore vessels, record the fixture (the agreed deal), generate the recap (the deal summary), and check whether marine weather supports the work window. The scope, architecture, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md).
+FixtureLog is a portfolio demo project: a small, realistic **offshore shipbroking workflow application**, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role. It is an **Offshore Fixture Board + Recap Generator with a marine "weather window" check and a regional vessel map** — letting a broker capture a client requirement, match available offshore vessels, record the fixture (the agreed deal), generate the recap (the deal summary), check whether marine weather supports the work window, and visualise where vessels are on a live Leaflet map. The scope, architecture, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md).
 
----
+For offshore shipbroking terminology used throughout the app, see [docs/GLOSSARY.md](docs/GLOSSARY.md).
 
-## Getting started
-
-### Prerequisites
-- Node.js 20+
-- Neon Postgres database (or any PostgreSQL 16+)
-
-### Setup
-1. Clone the repo
-2. `npm install`
-3. `cp .env.example .env` — edit with your `DATABASE_URL`
-4. `npx prisma generate`
-5. `npx prisma migrate dev --name init`
-6. `npx prisma db seed`
-7. `npm run dev` — visit http://localhost:3000
+**Live demo:** _deploy-ready — URL added after first Vercel deploy_
 
 ---
 
-## Scripts
+## Architecture
 
-| Script | What it does |
-|--------|-------------|
-| `npm run dev` | Start dev server (Turbopack) |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint check |
-| `npm run typecheck` | TypeScript strict check |
-| `npm run test` | Run unit tests (240 unit tests across 26 files; 94.9% coverage) |
-| `npm run test:coverage` | Unit tests + coverage report |
-| `npm run test:e2e` | Playwright E2E tests (3 specs) |
-| `npm run db:seed` | Seed database |
-| `npm run db:studio` | Open Prisma Studio |
+```
+Browser
+  └── Next.js 15 (App Router, server + client components)
+        ├── /map  ──►  RegionalMapClient (client)
+        │               ├── useRegionalMap (hook)
+        │               └── RegionalMap / VesselMarker (Leaflet, ssr:false)
+        ├── /charterers, /requirements, ...  ──►  Server components
+        └── API Routes (Route Handlers, Node runtime)
+              ├── /api/vessels/positions  ──►  PositionSnapshot (Prisma)
+              ├── /api/requirements/[id]/match  ──►  FixtureMatcher (service)
+              ├── /api/fixtures/[id]/recap  ──►  RecapFormatter (service)
+              ├── /api/fixtures/[id]/weather  ──►  WeatherEnricher (service)
+              └── ... (19 more endpoints)
+                    └── Prisma 6  ──►  PostgreSQL 16 (Neon)
+```
 
 ---
 
@@ -47,10 +38,45 @@ FixtureLog is a portfolio demo project: a small, realistic **offshore shipbrokin
 | Language | TypeScript 5 (strict mode) |
 | Database | PostgreSQL 16 (Neon) |
 | ORM | Prisma 6 |
+| Map | Leaflet ^1.9.4 + react-leaflet ^5 + OpenStreetMap tiles |
+| Validation | Zod |
 | Unit tests | Vitest + v8 coverage |
 | E2E tests | Playwright |
 | CI | GitHub Actions (4-job pipeline) |
-| Deploy | Vercel + Neon (target) |
+| Deploy | Vercel + Neon |
+
+---
+
+## Getting started
+
+### Prerequisites
+- Node.js 20+
+- Neon Postgres database (or any PostgreSQL 16+)
+
+### Setup
+1. Clone the repo
+2. `npm install` (runs `prisma generate` via `postinstall`)
+3. `cp .env.example .env` — edit with your `DATABASE_URL` and `NEXT_PUBLIC_APP_URL`
+4. `npx prisma migrate dev --name init`
+5. `npx prisma db seed`
+6. `npm run dev` — visit http://localhost:3000
+
+---
+
+## Scripts
+
+| Script | What it does |
+|--------|-------------|
+| `npm run dev` | Start dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint check |
+| `npm run typecheck` | TypeScript strict check |
+| `npm run test` | Run unit tests (250 unit tests across 30 files) |
+| `npm run test:coverage` | Unit tests + coverage report |
+| `npm run test:e2e` | Playwright E2E tests (4 specs) |
+| `npm run db:seed` | Seed database |
+| `npm run db:studio` | Open Prisma Studio |
+| `postinstall` | `prisma generate` (runs automatically after `npm install`) |
 
 ---
 
@@ -60,7 +86,7 @@ FixtureLog is a portfolio demo project: a small, realistic **offshore shipbrokin
 fixturelog/
 ├── .github/workflows/ci.yml
 ├── .nvmrc
-├── .env.example
+├── .env.example                                      # incl. NEXT_PUBLIC_APP_URL
 ├── .gitignore
 ├── eslint.config.mjs
 ├── next.config.ts
@@ -77,65 +103,85 @@ fixturelog/
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx
-│   │   ├── page.tsx
+│   │   ├── page.tsx                                  # Real landing page
 │   │   ├── globals.css
+│   │   ├── map/
+│   │   │   └── page.tsx                              # /map server component + metadata
 │   │   ├── charterers/
-│   │   │   ├── page.tsx                          # Charterer list
-│   │   │   └── [id]/page.tsx                     # Charterer detail
+│   │   │   ├── page.tsx                              # Charterer list
+│   │   │   └── [id]/page.tsx                         # Charterer detail
 │   │   ├── requirements/
-│   │   │   ├── page.tsx                          # Requirement list
+│   │   │   ├── page.tsx                              # Requirement list
 │   │   │   └── [id]/
-│   │   │       ├── page.tsx                      # Shortlist detail
-│   │   │       └── ShortlistView.tsx             # Per-factor breakdown component
+│   │   │       ├── page.tsx                          # Shortlist detail
+│   │   │       └── ShortlistView.tsx                 # Per-factor breakdown component
 │   │   └── api/
 │   │       ├── health/route.ts
 │   │       ├── charterers/
-│   │       │   ├── route.ts                      # GET list, POST create
+│   │       │   ├── route.ts                          # GET list, POST create
 │   │       │   └── [id]/
-│   │       │       ├── route.ts                  # GET detail
-│   │       │       ├── requirements/route.ts     # GET requirements
-│   │       │       └── fixtures/route.ts         # GET fixtures
+│   │       │       ├── route.ts                      # GET detail
+│   │       │       ├── requirements/route.ts         # GET requirements
+│   │       │       └── fixtures/route.ts             # GET fixtures
 │   │       ├── vessels/
-│   │       │   ├── route.ts                      # GET list
-│   │       │   └── [id]/route.ts                 # GET detail
+│   │       │   ├── route.ts                          # GET list
+│   │       │   ├── [id]/route.ts                     # GET detail
+│   │       │   └── positions/route.ts                # GET latest position per vessel
 │   │       ├── fixtures/
-│   │       │   ├── route.ts                      # GET list, POST create
+│   │       │   ├── route.ts                          # GET list, POST create
 │   │       │   └── [id]/
-│   │       │       ├── route.ts                  # GET detail
-│   │       │       ├── status/route.ts           # PATCH status
-│   │       │       ├── recap/route.ts            # POST generate recap
-│   │       │       ├── weather/route.ts          # POST persist WeatherSnapshot
+│   │       │       ├── route.ts                      # GET detail (incl. weatherSnapshots)
+│   │       │       ├── status/route.ts               # PATCH status
+│   │       │       ├── recap/route.ts                # POST generate recap
+│   │       │       ├── weather/route.ts              # POST persist WeatherSnapshot
 │   │       │       └── subjects/
-│   │       │           ├── route.ts              # POST add subject
-│   │       │           └── [subjectId]/route.ts  # PATCH update subject
+│   │       │           ├── route.ts                  # POST add subject
+│   │       │           └── [subjectId]/route.ts      # PATCH update subject
 │   │       ├── weather/
-│   │       │   └── marine/route.ts              # GET marine weather proxy (Open-Meteo)
+│   │       │   └── marine/route.ts                   # GET marine weather proxy (Open-Meteo)
 │   │       └── requirements/
-│   │           ├── route.ts                      # GET list, POST create
+│   │           ├── route.ts                          # GET list, POST create
 │   │           └── [id]/
-│   │               ├── route.ts                  # GET detail
-│   │               └── match/route.ts            # POST match → ranked shortlist
+│   │               ├── route.ts                      # GET detail
+│   │               └── match/route.ts                # POST match → ranked shortlist
+│   ├── features/
+│   │   └── map/
+│   │       ├── api.ts                                # Zod-parsed fetch helper for positions
+│   │       ├── hooks/
+│   │       │   └── useRegionalMap.ts                 # Data fetching + loading/error state
+│   │       ├── RegionalMap/                          # Presentational Leaflet map component
+│   │       │   ├── RegionalMap.tsx
+│   │       │   ├── RegionalMap.types.ts
+│   │       │   └── index.ts
+│   │       ├── RegionalMapClient/                    # Client wrapper; owns hook; ssr:false lazy-load
+│   │       │   ├── RegionalMapClient.tsx
+│   │       │   ├── RegionalMapClient.types.ts
+│   │       │   └── index.ts
+│   │       └── VesselMarker/                         # CircleMarker + popup; color-coded by type
+│   │           ├── VesselMarker.tsx
+│   │           ├── VesselMarker.types.ts
+│   │           └── index.ts
 │   └── lib/
 │       ├── prisma.ts
 │       ├── health.ts
 │       ├── health.test.ts
 │       ├── services/
-│       │   ├── fixture-status-policy.ts          # FixtureStatusPolicy
+│       │   ├── fixture-status-policy.ts              # FixtureStatusPolicy
 │       │   ├── fixture-status-policy.test.ts
-│       │   ├── fixture-matcher.ts                # FixtureMatcher (two-stage engine)
+│       │   ├── fixture-matcher.ts                    # FixtureMatcher (two-stage engine)
 │       │   ├── fixture-matcher.types.ts
 │       │   ├── fixture-matcher.test.ts
-│       │   ├── recap-formatter.ts                # RecapFormatter
+│       │   ├── recap-formatter.ts                    # RecapFormatter
 │       │   ├── recap-formatter.test.ts
-│       │   ├── weather-verdict.ts                # computeVerdict() pure function
+│       │   ├── weather-verdict.ts                    # computeVerdict() pure function
 │       │   ├── weather-verdict.test.ts
-│       │   ├── weather-enricher.ts               # WeatherEnricher (fetch + TTL cache)
+│       │   ├── weather-enricher.ts                   # WeatherEnricher (fetch + TTL cache)
 │       │   ├── weather-enricher.types.ts
 │       │   └── weather-enricher.test.ts
 │       ├── utils/
-│       │   ├── haversine.ts                      # Great-circle distance (nautical miles)
+│       │   ├── haversine.ts                          # Great-circle distance (nautical miles)
 │       │   ├── haversine.test.ts
-│       │   ├── dp-class.ts                       # DP class rank / meets-minimum / headroom
+│       │   ├── dp-class.ts                           # DP class rank / meets-minimum / headroom
 │       │   └── dp-class.test.ts
 │       └── validators/
 │           ├── charterer.ts
@@ -143,19 +189,30 @@ fixturelog/
 │           ├── fixture.ts
 │           ├── subject.ts
 │           ├── requirement.validators.ts
-│           └── weather.validators.ts
+│           ├── weather.validators.ts
+│           └── vessel-position.validators.ts         # VesselPositionItem + positions response
 ├── e2e/
 │   ├── global-setup.ts
 │   ├── smoke.spec.ts
-│   └── happy-path.spec.ts
-└── docs/ (research, specs, decisions, journal, architecture, roadmap)
+│   ├── happy-path.spec.ts
+│   └── map.spec.ts                                   # Hermetic map E2E; OSM tiles aborted
+└── docs/
+    ├── GLOSSARY.md                                   # Offshore shipbroking + app-specific terms
+    ├── AI-USAGE.md                                   # AI-assisted development; no runtime AI
+    ├── specs/SPEC-001-mvp-build.md
+    ├── decisions/ (ADR-0001 – ADR-0003)
+    ├── research/ (domain + technical research)
+    ├── architecture/PROJECT-CONTEXT.md
+    ├── roadmap/ROADMAP.md
+    ├── journal/ (ENTRY-001 – ENTRY-005)
+    └── pull-requests/ (PR-0.2.0 – PR-1.0.0)
 ```
 
 ---
 
 ## API Routes
 
-20 domain API endpoints + 1 health endpoint.
+21 domain API endpoints + 1 health endpoint.
 
 | Method | Route | Description |
 |--------|-------|-------------|
@@ -167,6 +224,7 @@ fixturelog/
 | GET | `/api/charterers/[id]/fixtures` | Fixtures for a charterer |
 | GET | `/api/vessels` | List vessels (filterable) |
 | GET | `/api/vessels/[id]` | Vessel detail |
+| GET | `/api/vessels/positions` | Latest position snapshot per vessel (for map) |
 | GET | `/api/fixtures` | List fixtures |
 | POST | `/api/fixtures` | Create a fixture |
 | GET | `/api/fixtures/[id]` | Fixture detail (includes `weatherSnapshots`) |
@@ -185,6 +243,8 @@ fixturelog/
 
 | Route | Description |
 |-------|-------------|
+| `/` | Landing page — introduces FixtureLog with navigation to key sections |
+| `/map` | Regional vessel map — color-coded Leaflet CircleMarkers from seeded position data |
 | `/charterers` | Charterer list |
 | `/charterers/[id]` | Charterer detail with linked requirements and fixtures |
 | `/requirements` | Requirement list with status badges |
@@ -192,49 +252,53 @@ fixturelog/
 
 ---
 
-## Architecture
-
-### Service layer
+## Services
 
 Business logic lives in pure TypeScript services under `src/lib/services/`:
 
-- **`FixtureStatusPolicy`** — enforces the canonical Fixture status machine (`DRAFT → NEGOTIATING → ON_SUBS → FIXED → COMPLETED`). The `ON_SUBS → FIXED` transition is **subject-gated**: it is only allowed when at least one SubjectItem exists on the fixture and every subject has status `LIFTED` or `WAIVED`. Rejected transitions return HTTP 400 with the count of outstanding subjects. Every successful transition writes a `FixtureStatusChange` audit row; transitioning to `FIXED` also stamps `Fixture.fixedAt`.
+- **`FixtureStatusPolicy`** — enforces the canonical Fixture status machine (`DRAFT → NEGOTIATING → ON_SUBS → FIXED → COMPLETED`). The `ON_SUBS → FIXED` transition is subject-gated: it is only allowed when at least one SubjectItem exists on the fixture and every subject has status `LIFTED` or `WAIVED`. Rejected transitions return HTTP 400 with the count of outstanding subjects. Every successful transition writes a `FixtureStatusChange` audit row; transitioning to `FIXED` also stamps `Fixture.fixedAt`.
 - **`RecapFormatter`** — produces a deterministic SUPPLYTIME 2017 recap in Markdown and plain text from the fixture's structured terms. No runtime LLM.
+- **`FixtureMatcher`** — pure two-stage matching engine (hard filters → weighted composite score). Haversine distance, rate fit, and capability margin factors; tunable weights validated to sum to 1.0.
+- **`WeatherEnricher`** — wraps the Open-Meteo Marine API call with a 5-minute in-memory TTL cache; calls `computeVerdict()` and returns a structured snapshot. No database writes.
+- **`computeVerdict()`** — pure function; applies North Sea wave/swell thresholds to return `WORKABLE`, `MARGINAL`, or `NOT_WORKABLE`. No I/O, no state.
 
-Both services have no framework imports and are instantiated with plain `new`. All domain rules are covered by unit tests.
+---
 
-### FixtureMatcher
+## Testing
 
-`FixtureMatcher` (`src/lib/services/fixture-matcher.ts`) is a pure two-stage matching engine:
+```bash
+npm run test          # 250 unit tests across 30 files
+npm run test:coverage # coverage report (thresholds 70/60/70/70)
+npm run test:e2e      # 4 E2E specs (2 smoke + 1 happy-path + 1 map)
+```
 
-**Stage 1 — Hard filters:** eliminates candidates that fail any of: vessel type, availability date, region, minimum deck area, minimum bollard pull, or DP class minimum. Only candidates that pass all filters proceed to scoring.
+**Unit tests** cover every service, utility, validator, and API route handler. The map render test mocks react-leaflet components inline (the repo uses `environment: node`, not jsdom/@testing-library). **E2E tests** use Playwright; the map spec aborts OSM tile requests so no network calls are made during CI.
 
-**Stage 2 — Weighted composite score (0–100):**
-- `distance` (default weight 0.40) — haversine distance from the vessel's home region to the requirement's region port, normalised against the maximum distance in the passing candidate set.
-- `rateFit` (default weight 0.35) — charter day-rate budget vs. the regional rate benchmark for the vessel type. Clamped to [0, 1]. **Known limitation:** `rateFit` is uniform across all candidates of the same `(vesselType, region)` cohort — the schema has no per-vessel day-rate column. Defaults to 0.5 when budget or benchmark is absent.
-- `capabilityMargin` (default weight 0.25) — DP class headroom above the requirement's minimum DP, normalised against the maximum headroom in the candidate set. Rewards vessels that comfortably exceed the DP requirement.
+---
 
-**Tie-break:** vessel name ascending (deterministic).
+## Deployment
 
-**Tunable weights:** callers may supply custom `{ distance, rateFit, capabilityMargin }` weights in the POST body. Weights are Zod-validated to sum to 1.0 — invalid requests return HTTP 400.
+### Environment variables
 
-**Status transition:** `ENQUIRY → SHORTLISTED` fires on the first match call. Re-matching a `SHORTLISTED` requirement returns the current status without re-transitioning. `MatchResponse.status` always reflects the actual post-operation `RequirementStatus`.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | Neon Postgres connection string |
+| `NEXT_PUBLIC_APP_URL` | Yes (production) | The deployed origin URL (e.g. `https://fixturelog.vercel.app`) — used by server components to build absolute fetch URLs to API routes |
 
-Two supporting utilities:
-- **`haversine`** (`src/lib/utils/haversine.ts`) — great-circle distance in nautical miles; pure function, independently tested.
-- **`dpClass`** (`src/lib/utils/dp-class.ts`) — DP class rank, meets-minimum check, and headroom helpers for the `NONE < DP1 < DP2 < DP3` ordering.
+### Vercel + Neon runbook
 
-### Weather Enrichment
+1. Create a Neon project; copy the connection string to `DATABASE_URL` in Vercel environment variables.
+2. Set `NEXT_PUBLIC_APP_URL` to the Vercel deployment URL.
+3. Add a Vercel deploy hook or rely on the `postinstall: prisma generate` script — Prisma client is generated automatically on `npm install`.
+4. Run `npx prisma migrate deploy` — applies all migrations to the production database.
+5. Run `npx prisma db seed` — seeds vessels, owners, charterers, fixtures, requirements, and position snapshots.
+6. Verify: visit `/api/health` (returns `{ status: "ok" }`), `/map` (vessel markers appear), `/requirements` (list loads).
 
-Three-layer design keeping concerns cleanly separated:
+---
 
-- **`computeVerdict()`** (`src/lib/services/weather-verdict.ts`) — pure function; takes raw wave/swell/wind-wave heights and returns a `WorkabilityVerdict` (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`) against North Sea thresholds. No I/O, no state; trivially unit-testable.
-- **`WeatherEnricher`** (`src/lib/services/weather-enricher.ts`) — wraps the Open-Meteo Marine API call with a 5-minute in-memory TTL cache. Uses the `current` conditions block (not `hourly[0]`, which is midnight, not now). Calls `computeVerdict()` and returns a structured snapshot. No database writes.
-- **Route persistence** — the route handler (`POST /api/fixtures/:id/weather`) is the only layer that writes to the database. It calls `WeatherEnricher`, receives the snapshot, and persists a `WeatherSnapshot` row linked to the fixture. The `GET /api/fixtures/:id` route includes `weatherSnapshots` in its response. Ad-hoc lookups via `GET /api/weather/marine` return `fixtureId: null` — no persistence.
+## Domain context
 
-Zod validation at both the query boundary (lat/lng params, SSRF-safe) and the external-response boundary (Open-Meteo response schema).
-
-The E2E (`e2e/happy-path.spec.ts`) verifies weather through 2 seeded `WeatherSnapshot` rows on the fixture-detail response — zero live Open-Meteo calls in the automated suite.
+FixtureLog models the shortest credible path from an offshore enquiry to a fixed deal and its recap, with a marine weather check and a regional vessel map. Key domain vocabulary: **charterer** hires the vessel, **owner** provides it, the **shipbroker** negotiates the deal, the **fixture** is the agreed hire contract, the **recap** summarises the terms, and **subjects** are conditions that must be lifted before the deal is clean fixed. See [docs/GLOSSARY.md](docs/GLOSSARY.md) for the full offshore shipbroking glossary.
 
 ---
 

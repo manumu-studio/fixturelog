@@ -2,6 +2,40 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] — 2026-06-13 (MVP: Regional Map + Vessel Positions + Deploy)
+
+### Added
+
+- Regional Leaflet map at `/map`: color-coded `CircleMarker` per vessel, popup with name, type, owner, status, port (when present), source, and confidence; `SEEDED` label in the page header makes the data provenance clear. No Leaflet icon assets — hermetic by design.
+- `GET /api/vessels/positions` — lightweight endpoint returning the latest position snapshot per vessel; Zod-validated response schema (`VesselPositionItem`) sourced from `src/lib/validators/vessel-position.validators.ts`.
+- `src/features/map/` feature slice: `api.ts` (Zod-parsed fetch helper), `hooks/useRegionalMap.ts` (data fetching + loading/error state), `VesselMarker/` (CircleMarker + popup), `RegionalMap/` (presentational Leaflet map), `RegionalMapClient/` (client component; owns hook; lazy-loads `RegionalMap` via `next/dynamic` with `ssr: false`).
+- `src/app/map/page.tsx` — server component with `metadata`; renders `RegionalMapClient`.
+- Real landing page at `/` replacing the Next.js default (`src/app/page.tsx`): introduces FixtureLog to visitors with navigation links to the key sections.
+- `docs/GLOSSARY.md` — offshore shipbroking glossary (domain terms + app-specific terms); all 9 vessel-type abbreviations (PSV, AHTS, MPSV, CSV, ERRV, DSV, CTV, SOV, OTHER).
+- `docs/AI-USAGE.md` — honest account of AI-assisted development workflow and confirmation that no AI runs at runtime.
+- Comprehensive `README.md` — architecture diagram, full tech stack (incl. Leaflet + OpenStreetMap), complete project structure tree, all 21 API endpoints, services documentation, getting started guide, deployment runbook.
+- `NEXT_PUBLIC_APP_URL` in `.env.example` — required for server components to build absolute fetch URLs in production.
+- `postinstall: prisma generate` in `package.json` — ensures the Prisma client is generated after `npm install` on deploy platforms.
+- leaflet `^1.9.4` and react-leaflet `^5.0.0` in `dependencies`; `@types/leaflet` in `devDependencies`.
+- `e2e/map.spec.ts` — hermetic map E2E; OSM tile requests are aborted so the test never hits the network; asserts vessel markers render.
+
+### Quality Gates
+
+- ~10 unit tests added this packet; 250 total across 30 files.
+- Coverage: above thresholds (70/60/70/70) despite `useRegionalMap` and `RegionalMapClient` being covered by E2E rather than unit tests.
+- TypeScript: 0 errors; ESLint: 0 errors.
+- First Load JS shared: 103 kB (budget < 200 kB); `/map` route 118 kB (Leaflet + react-leaflet in a separate dynamic chunk, not in the shared bundle).
+- E2E: 4 specs (2 smoke + 1 happy-path + 1 map).
+- No Prisma migration — `PositionSnapshot` existed in the v0.3.0 schema; no schema changes in this packet.
+
+### Deferred
+
+- Port markers (SPEC-001 §4.8) — the spec mentions vessel AND port markers; port markers are deferred in
+  v1.0.0 because the schema has no standalone Port model with coordinates (ports are string fields). Vessel
+  markers only in v1.0.0. Future: derive port locations from PositionSnapshot.portName + lat/lng or a static map.
+
+---
+
 ## [0.5.0] — 2026-06-12 (PACKET-004: Weather Enrichment + Happy-Path E2E)
 
 ### Added
