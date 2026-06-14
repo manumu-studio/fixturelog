@@ -2,6 +2,36 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-06-14 (Public Landing Page)
+
+### Added
+
+- Public FixtureLog landing page at `/` with maritime editorial styling (SSY-inspired navy/cyan palette, Fraunces display-serif + Geist sans), an animated marine-chart hero canvas, feature showcase, how-it-works workflow steps, tech badges, final CTA band, and portfolio-safe footer.
+- `src/components/landing/` — eight landing components following the 4-file pattern: `LandingNav`, `LandingHero`, `MarineTrafficCanvas`, `FeatureShowcase`, `HowItWorks`, `TechBadges`, `CtaFooter`, `LandingFooter`.
+- `src/lib/constants/landing-copy.ts` — single source of truth for all landing copy; no copy is hard-coded in components.
+- CSS design tokens for landing palette, typography, borders, surfaces, and motion durations in `src/app/globals.css`.
+- `motion@^12` dependency added — used for staggered hero entrance, `whileInView` feature-row reveals, scroll-drawn how-it-works connector, and badge stagger. Canvas animation uses raw `requestAnimationFrame`.
+- Marine hero canvas (`MarineTrafficCanvas`) — procedural vessel tracks, port nodes, route/laycan arcs, and a cyan route ribbon. Reduced-motion safe; CTA hover increases canvas intensity.
+- Landing unit tests: `src/app/page.test.tsx` (15 tests covering copy, links, disabled auth teaser, and no-auth-route guarantees).
+- Landing E2E spec: `e2e/landing.spec.ts` (3 tests covering desktop/mobile render, route navigation, and non-blank canvas).
+- Landing screenshots: `public/assets/landing/landing-desktop-1440.png` and `landing-mobile-390.png`.
+
+### Changed
+
+- `/` now presents FixtureLog as an offshore fixture workflow demo with animated marine canvas instead of a plain navigation list.
+- Proof-strip unit-test count corrected to 264 (from stale 250+) in `src/lib/constants/landing-copy.ts`.
+- README, roadmap, project context, AI usage, and CONTEXT now describe the polished public landing as current state at v1.1.0.
+- Total unit tests: 264 across 31 files. E2E specs: 4.
+
+### Notes
+
+- Auth integration remains a separate future packet (PACKET-008). No `next-auth`, OAuth, sessions, middleware, `AppUser` model, or `/api/auth/*` routes were added.
+- Runtime AI remains unbuilt. SPEC-002 is still the planned copilot architecture.
+- Design is a hybrid: Helical Bio Explorer motion pattern (primary) + SSY editorial skin (navy `#000061` / cyan `#00e2fd` / white). SSY is used as a style reference only — no SSY branding, logo, or affiliation claim.
+- `docs/research/SSY-GLOBAL-LANDING-CSS-PATTERN-REPORT.md` was the design input for palette, typography, and editorial spacing cues.
+
+---
+
 ## [1.0.1] — 2026-06-14 (Docs: AI Broker Copilot Safety Spec)
 
 ### Added

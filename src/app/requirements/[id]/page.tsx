@@ -1,18 +1,18 @@
 // /requirements/:id — ranked shortlist detail for a requirement
 import Link from 'next/link';
 import { z } from 'zod';
+import { getRequestOrigin } from '@/lib/server-origin';
 import { ShortlistView, MatchResponseSchema, RequirementDetailSchema } from './ShortlistView';
-
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
 const IdSchema = z.string().cuid();
 
 async function fetchJson<S extends z.ZodTypeAny>(
+  origin: string,
   path: string,
   method: 'GET' | 'POST',
   schema: S,
 ): Promise<{ ok: true; data: z.infer<S> } | { ok: false; status: number }> {
-  const res = await fetch(`${BASE_URL}${path}`, { method, cache: 'no-store' });
+  const res = await fetch(`${origin}${path}`, { method, cache: 'no-store' });
   if (!res.ok) return { ok: false, status: res.status };
   return { ok: true, data: schema.parse(await res.json()) };
 }
@@ -23,6 +23,7 @@ export default async function RequirementDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const origin = await getRequestOrigin();
 
   const idResult = IdSchema.safeParse(id);
   if (!idResult.success) {
@@ -31,11 +32,13 @@ export default async function RequirementDetailPage({
 
   const [reqResult, matchResult] = await Promise.all([
     fetchJson(
+      origin,
       `/api/requirements/${id}`,
       'GET',
       z.object({ data: RequirementDetailSchema }),
     ),
     fetchJson(
+      origin,
       `/api/requirements/${id}/match`,
       'POST',
       MatchResponseSchema,

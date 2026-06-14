@@ -1,0 +1,164 @@
+/* LandingNav.module.css — scroll-aware fixed nav styles. */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transition: background-color var(--fl-motion-base) var(--fl-ease-out),
+              border-color var(--fl-motion-base) var(--fl-ease-out),
+              backdrop-filter var(--fl-motion-base) var(--fl-ease-out);
+  border-bottom: 1px solid transparent;
+}
+
+.navTransparent {
+  background-color: transparent;
+}
+
+.navScrolled {
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: var(--fl-border-subtle);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fl-unit-16) var(--fl-gutter);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Brand */
+.brand {
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--fl-navy);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.brand:hover {
+  text-decoration: none;
+  color: var(--fl-navy-hover);
+}
+
+/* Nav links */
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-unit-32);
+}
+
+.link {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fl-navy);
+  text-decoration: none;
+  transition: color var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.link:hover {
+  color: var(--fl-cyan-hover);
+  text-decoration: none;
+}
+
+/* Disabled auth teaser */
+.authTeaser {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(0, 0, 97, 0.35);
+  cursor: default;
+  letter-spacing: 0.05em;
+  user-select: none;
+  padding: var(--fl-unit-6) var(--fl-unit-16);
+  border: 1px solid var(--fl-border-navy);
+  border-radius: var(--fl-pill);
+}
+
+/* ── Mobile hamburger toggle ─────────────────────────────────────────── */
+
+.menuToggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--fl-radius);
+  cursor: pointer;
+  /* Inherits button reset from globals.css */
+}
+
+.menuToggle:focus-visible {
+  outline: 2px solid var(--fl-navy);
+  outline-offset: 2px;
+}
+
+.hamburgerLine {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--fl-navy);
+  border-radius: 1px;
+  transition: background-color var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+/* ── Mobile layout ───────────────────────────────────────────────────── */
+
+@media (max-width: 639px) {
+  .inner {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .menuToggle {
+    display: flex;
+  }
+
+  .links {
+    /* Hidden by default; revealed when .linksOpen is added. */
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: var(--fl-unit-4);
+    padding: var(--fl-unit-12) 0 var(--fl-unit-16);
+    border-top: 1px solid var(--fl-border-subtle);
+  }
+
+  .linksOpen {
+    display: flex;
+  }
+
+  .link {
+    padding: var(--fl-unit-10) 0;
+    font-size: 0.875rem;
+  }
+
+  .authTeaser {
+    margin-top: var(--fl-unit-8);
+    font-size: 0.8125rem;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    transition: none;
+  }
+
+  .hamburgerLine {
+    transition: none;
+  }
+}

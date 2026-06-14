@@ -1,0 +1,68 @@
+/* TechBadges.module.css — staggered technology badge grid on a light surface. */
+
+.section {
+  padding: var(--fl-unit-80) var(--fl-gutter);
+  background-color: var(--fl-surface-light);
+  border-top: 1px solid var(--fl-border-subtle);
+  border-bottom: 1px solid var(--fl-border-subtle);
+}
+
+.inner {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fl-blue);
+  margin-bottom: var(--fl-unit-32);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-12);
+  justify-content: center;
+}
+
+/* Navy pill base — default for most badges */
+.badge {
+  display: inline-block;
+  padding: var(--fl-unit-8) var(--fl-unit-20);
+  background-color: var(--fl-navy);
+  color: var(--fl-white);
+  border-radius: var(--fl-pill);
+  font-family: var(--fl-font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* Cyan accent on every 3rd badge for visual rhythm — avoids monotone blue */
+.badge:nth-child(3n + 1) {
+  background-color: var(--fl-cyan);
+  color: var(--fl-navy);
+}
+
+/* Ensure no underline on list items inside motion wrappers */
+.badge:hover {
+  text-decoration: none;
+}
+
+/* Mobile — compact badge sizing on 320px */
+@media (max-width: 479px) {
+  .badges {
+    gap: var(--fl-unit-8);
+  }
+
+  .badge {
+    font-size: 0.8125rem;
+    padding: var(--fl-unit-6) var(--fl-unit-16);
+  }
+}

@@ -1,0 +1,228 @@
+/* LandingHero.module.css — full-viewport hero section styles. */
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  background-color: var(--fl-white);
+  overflow: hidden;
+  /* Hint at next section on desktop and mobile */
+  padding-bottom: var(--fl-unit-80);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 2;
+  /* Narrower top padding on mobile so content doesn't start too far down on 320px. */
+  padding: var(--fl-unit-96) var(--fl-gutter) var(--fl-unit-64);
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .inner {
+    padding-top: var(--fl-unit-128);
+  }
+}
+
+/* ── Typography ──────────────────────────────────────────────────────── */
+
+.eyebrow {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  /* Use --fl-blue (#0087cb) for AA contrast on white — cyan variants fail AA for small text. */
+  color: var(--fl-blue);
+  margin-bottom: var(--fl-unit-16);
+}
+
+.headline {
+  font-family: var(--fl-font-display);
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--fl-navy);
+  max-width: 640px;
+  margin-bottom: var(--fl-unit-24);
+}
+
+.subline {
+  font-family: var(--fl-font-sans);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--fl-ink);
+  max-width: 560px;
+  margin-bottom: var(--fl-unit-40);
+  opacity: 0.85;
+}
+
+/* ── CTAs ─────────────────────────────────────────────────────────────── */
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-16);
+  align-items: center;
+  margin-bottom: var(--fl-unit-32);
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fl-unit-6);
+  padding: var(--fl-unit-12) var(--fl-unit-40);
+  background-color: var(--fl-navy);
+  color: var(--fl-white);
+  border-radius: var(--fl-pill);
+  font-family: var(--fl-font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  transition:
+    background-color var(--fl-motion-base) var(--fl-ease-out),
+    transform var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.ctaPrimary:hover {
+  background-color: var(--fl-navy-hover);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fl-unit-6);
+  padding: var(--fl-unit-12) var(--fl-unit-40);
+  border: 1.5px solid var(--fl-navy);
+  color: var(--fl-navy);
+  border-radius: var(--fl-pill);
+  font-family: var(--fl-font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  transition:
+    background-color var(--fl-motion-base) var(--fl-ease-out),
+    color var(--fl-motion-base) var(--fl-ease-out),
+    transform var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.ctaSecondary:hover {
+  background-color: var(--fl-navy);
+  color: var(--fl-white);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* ── Utility links ───────────────────────────────────────────────────── */
+
+.utility {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fl-unit-20);
+}
+
+.utilityLink {
+  font-family: var(--fl-font-sans);
+  font-size: 0.8125rem;
+  color: var(--fl-blue);
+  opacity: 0.75;
+  transition: opacity var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.utilityLink:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.authTeaser {
+  font-family: var(--fl-font-sans);
+  font-size: 0.8125rem;
+  color: var(--fl-ink);
+  opacity: 0.38;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+/* ── Scroll hint ─────────────────────────────────────────────────────── */
+
+.scrollHint {
+  position: absolute;
+  bottom: var(--fl-unit-24);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: var(--fl-navy);
+}
+
+/* ── Focus-visible overrides for CTAs (dark background-color buttons) ── */
+
+.ctaPrimary:focus-visible {
+  outline: 2px solid var(--fl-cyan);
+  outline-offset: 3px;
+}
+
+.ctaSecondary:focus-visible {
+  outline: 2px solid var(--fl-navy);
+  outline-offset: 3px;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaPrimary,
+  .ctaSecondary,
+  .utilityLink {
+    transition: none;
+    transform: none;
+  }
+
+  /* Prevent bounce on scroll hint */
+  .scrollHint {
+    animation: none;
+  }
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 639px) {
+  .headline {
+    /* Prevent long headlines from overflowing on 320px */
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  .ctas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary {
+    width: 100%;
+    justify-content: center;
+    /* Reduce horizontal padding so text fits on 320px */
+    padding-left: var(--fl-unit-24);
+    padding-right: var(--fl-unit-24);
+  }
+
+  .utility {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fl-unit-12);
+  }
+}
