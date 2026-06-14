@@ -1,5 +1,6 @@
 // PATCH /api/fixtures/:id/subjects/:subjectId — update/lift a subject (status -> LIFTED/WAIVED)
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { SubjectUpdateSchema } from '@/lib/validators/fixture.validators';
@@ -13,6 +14,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; subjectId: string }> },
 ) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const resolved = await params;
   const paramsParsed = SubjectParamsSchema.safeParse(resolved);
   if (!paramsParsed.success) {

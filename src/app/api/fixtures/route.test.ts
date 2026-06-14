@@ -16,6 +16,15 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
+// Acting broker is resolved from the session; isolate handler tests from provisioning.
+vi.mock('@/lib/auth/provision-actor', () => ({
+  resolveActor: vi.fn(async () => ({
+    ok: true,
+    brokerId: 'clxxxxxxxxxxxxxxxxxxxxxx04',
+    appUserId: 'appuser-1',
+  })),
+}));
+
 import { GET, POST } from './route';
 import { prisma } from '@/lib/prisma';
 
@@ -29,7 +38,6 @@ const FIXTURE_ID = 'clxxxxxxxxxxxxxxxxxxxxxx01';
 const VALID_BODY = {
   vesselId: VESSEL_ID,
   chartererId: CHARTERER_ID,
-  brokerId: BROKER_ID,
   regionId: REGION_ID,
   workscopeId: WORKSCOPE_ID,
   charterType: 'SPOT',
@@ -67,10 +75,9 @@ beforeEach(() => {
 });
 
 describe('POST /api/fixtures', () => {
-  it('creates a fixture with DRAFT status and writes audit record', async () => {
+  it('creates a fixture with DRAFT status, session broker, and audit record', async () => {
     vi.mocked(prisma.vessel.findUnique).mockResolvedValue({ id: VESSEL_ID } as never);
     vi.mocked(prisma.charterer.findUnique).mockResolvedValue({ id: CHARTERER_ID } as never);
-    vi.mocked(prisma.broker.findUnique).mockResolvedValue({ id: BROKER_ID } as never);
     vi.mocked(prisma.region.findUnique).mockResolvedValue({ id: REGION_ID } as never);
     vi.mocked(prisma.workscope.findUnique).mockResolvedValue({ id: WORKSCOPE_ID } as never);
     vi.mocked(prisma.$transaction).mockImplementation(async (cb) => cb(prisma as never));
@@ -95,6 +102,10 @@ describe('POST /api/fixtures', () => {
 
     expect(res.status).toBe(201);
     expect(json.data.status).toBe('DRAFT');
+    // Broker on the fixture and the audit actor both come from the resolved session.
+    expect(prisma.fixture.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ brokerId: BROKER_ID, status: 'DRAFT' }),
+    });
     expect(prisma.fixtureStatusChange.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         fromStatus: 'DRAFT',
@@ -103,6 +114,39 @@ describe('POST /api/fixtures', () => {
         notes: 'Fixture created',
       }),
     });
+  });
+
+  it('ignores a brokerId in the body — uses the session broker (no impersonation)', async () => {
+    vi.mocked(prisma.vessel.findUnique).mockResolvedValue({ id: VESSEL_ID } as never);
+    vi.mocked(prisma.charterer.findUnique).mockResolvedValue({ id: CHARTERER_ID } as never);
+    vi.mocked(prisma.region.findUnique).mockResolvedValue({ id: REGION_ID } as never);
+    vi.mocked(prisma.workscope.findUnique).mockResolvedValue({ id: WORKSCOPE_ID } as never);
+    vi.mocked(prisma.$transaction).mockImplementation(async (cb) => cb(prisma as never));
+    vi.mocked(prisma.fixture.create).mockResolvedValue(FIXTURE_STUB);
+    vi.mocked(prisma.fixtureStatusChange.create).mockResolvedValue({
+      id: 'clxxxxxxxxxxxxxxxxxxxxxx99',
+      fixtureId: FIXTURE_ID,
+      fromStatus: 'DRAFT',
+      toStatus: 'DRAFT',
+      actor: BROKER_ID,
+      notes: 'Fixture created',
+      createdAt: new Date(),
+    });
+
+    const req = new NextRequest('http://localhost/api/fixtures', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...VALID_BODY, brokerId: 'clxxxxxxxxxxxxxxxxxxxxxxEV' }),
+    });
+    const res = await POST(req);
+
+    expect(res.status).toBe(201);
+    expect(prisma.fixture.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ brokerId: BROKER_ID }),
+    });
+    expect(prisma.fixture.create).not.toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ brokerId: 'clxxxxxxxxxxxxxxxxxxxxxxEV' }) }),
+    );
   });
 
   it('returns 400 when required field is missing (no vesselId)', async () => {
@@ -122,7 +166,6 @@ describe('POST /api/fixtures', () => {
   it('returns 404 when vessel FK does not exist', async () => {
     vi.mocked(prisma.vessel.findUnique).mockResolvedValue(null);
     vi.mocked(prisma.charterer.findUnique).mockResolvedValue({ id: CHARTERER_ID } as never);
-    vi.mocked(prisma.broker.findUnique).mockResolvedValue({ id: BROKER_ID } as never);
     vi.mocked(prisma.region.findUnique).mockResolvedValue({ id: REGION_ID } as never);
     vi.mocked(prisma.workscope.findUnique).mockResolvedValue({ id: WORKSCOPE_ID } as never);
 

@@ -1,7 +1,7 @@
 // /charterers — charterer list: table of Name, Contact, Requirements, Fixtures + Register button
 import Link from 'next/link';
 import { z } from 'zod';
-import { getRequestOrigin } from '@/lib/server-origin';
+import { serverFetch } from '@/lib/server-fetch';
 
 const ApiResponseSchema = z.object({
   data: z.array(
@@ -18,11 +18,7 @@ const ApiResponseSchema = z.object({
 type ApiResponse = z.infer<typeof ApiResponseSchema>;
 
 async function fetchCharterers(): Promise<ApiResponse> {
-  const origin = await getRequestOrigin();
-  const res = await fetch(
-    `${origin}/api/charterers?limit=100`,
-    { cache: 'no-store' },
-  );
+  const res = await serverFetch('/api/charterers?limit=100');
   if (!res.ok) throw new Error('Failed to fetch charterers');
   return ApiResponseSchema.parse(await res.json());
 }

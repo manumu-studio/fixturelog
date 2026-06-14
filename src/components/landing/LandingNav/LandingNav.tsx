@@ -1,19 +1,16 @@
 // LandingNav.tsx — scroll-aware fixed nav: transparent on load, blurred on scroll.
 // Includes a mobile hamburger toggle so nav links are accessible at all widths.
-// No auth functions called.
+// Renders a server-injected auth CTA slot (AuthCta) in place of the old disabled teaser.
 
 'use client';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import {
-  LANDING_NAV_AUTH_TEASER,
-  LANDING_NAV_LINKS,
-} from '@/lib/constants/landing-copy';
+import { LANDING_NAV_LINKS } from '@/lib/constants/landing-copy';
 import type { LandingNavProps } from './LandingNav.types';
 import styles from './LandingNav.module.css';
 
-export function LandingNav({ className }: LandingNavProps) {
+export function LandingNav({ className, authSlot }: LandingNavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -85,16 +82,8 @@ export function LandingNav({ className }: LandingNavProps) {
             </li>
           ))}
 
-          {/* Disabled auth teaser — no auth function called */}
-          <li>
-            <span
-              className={styles.authTeaser}
-              aria-disabled="true"
-              title={LANDING_NAV_AUTH_TEASER.label}
-            >
-              {LANDING_NAV_AUTH_TEASER.label}
-            </span>
-          </li>
+          {/* Real auth CTA, server-rendered and injected by the page. */}
+          {authSlot ? <li>{authSlot}</li> : null}
         </ul>
       </div>
     </nav>

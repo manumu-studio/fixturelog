@@ -1,5 +1,6 @@
 // POST /api/fixtures/:id/weather — fetch marine weather via enricher, persist WeatherSnapshot linked to fixture
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
 import { FixtureWeatherRequestSchema } from '@/lib/validators/weather.validators';
@@ -9,6 +10,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   // 1. Validate route param
   const { id } = await params;
   const paramParsed = CuidParamSchema.safeParse({ id });

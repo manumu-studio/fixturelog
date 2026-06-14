@@ -78,6 +78,14 @@ vi.mock('react', async () => {
   };
 });
 
+// AuthCta is an async server component (calls auth()); stub it so the sync static render works.
+vi.mock('@/components/landing/AuthCta', () => {
+  function AuthCta({ variant }: { variant: string }) {
+    return <div data-testid={`auth-cta-${variant}`}>auth-cta</div>;
+  }
+  return { AuthCta };
+});
+
 import Home from './page';
 
 // ---------------------------------------------------------------------------
@@ -95,29 +103,25 @@ describe('renders the public product story', () => {
     expect(html.toLowerCase()).toContain('offshore');
   });
 
-  it('contains the primary CTA label "Explore Requirements"', () => {
+  it('renders the auth CTA in both the nav and the hero', () => {
     const html = renderToStaticMarkup(<Home />);
-    expect(html).toContain('Explore Requirements');
-  });
-
-  it('contains the secondary CTA label "View Regional Map"', () => {
-    const html = renderToStaticMarkup(<Home />);
-    expect(html).toContain('View Regional Map');
+    expect(html).toContain('data-testid="auth-cta-nav"');
+    expect(html).toContain('data-testid="auth-cta-hero"');
   });
 });
 
-describe('links only to public demo routes and planned disabled auth UI', () => {
+describe('links to workflow routes and renders real auth CTAs', () => {
   let html: string;
 
   beforeAll(() => {
     html = renderToStaticMarkup(<Home />);
   });
 
-  it('primary CTA links to /requirements', () => {
+  it('nav links to /requirements', () => {
     expect(html).toContain('href="/requirements"');
   });
 
-  it('secondary CTA links to /map', () => {
+  it('nav links to /map', () => {
     expect(html).toContain('href="/map"');
   });
 
@@ -134,18 +138,11 @@ describe('links only to public demo routes and planned disabled auth UI', () => 
     expect(html).toContain('href="/api/health"');
   });
 
-  it('"Sign in coming next" teaser text is present', () => {
-    expect(html).toContain('Sign in coming next');
+  it('no longer renders the old disabled "coming next" auth teaser', () => {
+    expect(html).not.toContain('coming next');
   });
 
-  it('"Sign in coming next" teaser is NOT an anchor/link — triggers no auth', () => {
-    // Extract all <a> tags and confirm none contain the auth teaser text.
-    const anchorMatches = html.match(/<a [^>]*>[\s\S]*?<\/a>/g) ?? [];
-    const authAnchor = anchorMatches.find((tag) => tag.includes('Sign in coming next'));
-    expect(authAnchor).toBeUndefined();
-  });
-
-  it('no element links to /api/auth or any auth route', () => {
+  it('page markup itself links to no bespoke /api/auth or login route', () => {
     expect(html).not.toContain('/api/auth');
     expect(html).not.toContain('href="/auth');
     expect(html).not.toContain('href="/login');
