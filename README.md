@@ -1,6 +1,6 @@
 # FixtureLog
 
-> **Status: v1.0.0 — MVP complete.** Regional Leaflet map, vessel-positions endpoint, real landing page, Vercel + Neon deploy, 21 domain API endpoints plus the health endpoint, a pure matching engine, a weather enrichment layer, Zod validation at every boundary, five server-component UI pages, and a hermetic full-workflow E2E are in place.
+> **Status: v1.1.0 — MVP complete + polished public landing.** Animated maritime landing page, regional Leaflet map, vessel-positions endpoint, Vercel + Neon deploy, 21 domain API endpoints plus the health endpoint, a pure matching engine, a weather enrichment layer, Zod validation at every boundary, five server-component UI pages, and a hermetic full-workflow E2E are in place. No account required — all routes are public. Auth integration is planned as PACKET-008.
 
 FixtureLog is a portfolio demo project: a small, realistic **offshore shipbroking workflow application**, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role. It is an **Offshore Fixture Board + Recap Generator with a marine "weather window" check and a regional vessel map** — letting a broker capture a client requirement, match available offshore vessels, record the fixture (the agreed deal), generate the recap (the deal summary), check whether marine weather supports the work window, and visualise where vessels are on a live Leaflet map. The scope, architecture, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md).
 
@@ -39,6 +39,7 @@ Browser
 | Database | PostgreSQL 16 (Neon) |
 | ORM | Prisma 6 |
 | Map | Leaflet ^1.9.4 + react-leaflet ^5 + OpenStreetMap tiles |
+| Animation | motion@^12 (landing page entrance/scroll animations) |
 | Validation | Zod |
 | Unit tests | Vitest + v8 coverage |
 | E2E tests | Playwright |
@@ -71,7 +72,7 @@ Browser
 | `npm run build` | Production build |
 | `npm run lint` | ESLint check |
 | `npm run typecheck` | TypeScript strict check |
-| `npm run test` | Run unit tests (250 unit tests across 30 files) |
+| `npm run test` | Run unit tests (264 unit tests across 31 files) |
 | `npm run test:coverage` | Unit tests + coverage report |
 | `npm run test:e2e` | Playwright E2E tests (4 specs) |
 | `npm run db:seed` | Seed database |
@@ -100,11 +101,16 @@ fixturelog/
 │   ├── schema.prisma
 │   ├── seed.ts
 │   └── migrations/
+├── public/
+│   └── assets/
+│       └── landing/
+│           ├── landing-desktop-1440.png              # Landing screenshot (desktop)
+│           └── landing-mobile-390.png                # Landing screenshot (mobile)
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx
-│   │   ├── page.tsx                                  # Real landing page
-│   │   ├── globals.css
+│   │   ├── page.tsx                                  # Public landing page (animated)
+│   │   ├── globals.css                               # Design tokens (palette, motion, typography)
 │   │   ├── map/
 │   │   │   └── page.tsx                              # /map server component + metadata
 │   │   ├── charterers/
@@ -144,6 +150,16 @@ fixturelog/
 │   │           └── [id]/
 │   │               ├── route.ts                      # GET detail
 │   │               └── match/route.ts                # POST match → ranked shortlist
+│   ├── components/
+│   │   └── landing/
+│   │       ├── LandingNav/                           # Scroll-aware fixed nav (4-file pattern)
+│   │       ├── LandingHero/                          # Full-bleed hero with staggered copy entrance
+│   │       ├── MarineTrafficCanvas/                  # Procedural marine canvas (vessel tracks, arcs)
+│   │       ├── FeatureShowcase/                      # Alternating whileInView feature rows
+│   │       ├── HowItWorks/                           # Scroll-drawn 4-step workflow connector
+│   │       ├── TechBadges/                           # Staggered technology badges
+│   │       ├── CtaFooter/                            # Final CTA band with demo links
+│   │       └── LandingFooter/                        # Portfolio disclaimer + navigation footer
 │   ├── features/
 │   │   └── map/
 │   │       ├── api.ts                                # Zod-parsed fetch helper for positions
@@ -183,6 +199,8 @@ fixturelog/
 │       │   ├── haversine.test.ts
 │       │   ├── dp-class.ts                           # DP class rank / meets-minimum / headroom
 │       │   └── dp-class.test.ts
+│       ├── constants/
+│       │   └── landing-copy.ts                       # Single source of truth for all landing page copy
 │       └── validators/
 │           ├── charterer.ts
 │           ├── vessel.ts
@@ -195,7 +213,8 @@ fixturelog/
 │   ├── global-setup.ts
 │   ├── smoke.spec.ts
 │   ├── happy-path.spec.ts
-│   └── map.spec.ts                                   # Hermetic map E2E; OSM tiles aborted
+│   ├── map.spec.ts                                   # Hermetic map E2E; OSM tiles aborted
+│   └── landing.spec.ts                               # Landing page E2E (3 tests)
 └── docs/
     ├── GLOSSARY.md                                   # Offshore shipbroking + app-specific terms
     ├── AI-USAGE.md                                   # AI-assisted development; no runtime AI
@@ -204,8 +223,8 @@ fixturelog/
     ├── research/ (domain + technical research)
     ├── architecture/PROJECT-CONTEXT.md
     ├── roadmap/ROADMAP.md
-    ├── journal/ (ENTRY-001 – ENTRY-006)
-    └── pull-requests/ (PR-0.2.0 – PR-1.0.1)
+    ├── journal/ (ENTRY-001 – ENTRY-007)
+    └── pull-requests/ (PR-0.2.0 – PR-1.1.0)
 ```
 
 ---
@@ -243,7 +262,7 @@ fixturelog/
 
 | Route | Description |
 |-------|-------------|
-| `/` | Landing page — introduces FixtureLog with navigation to key sections |
+| `/` | Public landing page — animated maritime landing with marine-chart hero canvas, feature showcase, and real public route CTAs (no account required) |
 | `/map` | Regional vessel map — color-coded Leaflet CircleMarkers from seeded position data |
 | `/charterers` | Charterer list |
 | `/charterers/[id]` | Charterer detail with linked requirements and fixtures |
@@ -267,12 +286,12 @@ Business logic lives in pure TypeScript services under `src/lib/services/`:
 ## Testing
 
 ```bash
-npm run test          # 250 unit tests across 30 files
+npm run test          # 264 unit tests across 31 files
 npm run test:coverage # coverage report (thresholds 70/60/70/70)
-npm run test:e2e      # 4 E2E specs (2 smoke + 1 happy-path + 1 map)
+npm run test:e2e      # 4 E2E specs (smoke + happy-path + map + landing)
 ```
 
-**Unit tests** cover every service, utility, validator, and API route handler. The map render test mocks react-leaflet components inline (the repo uses `environment: node`, not jsdom/@testing-library). **E2E tests** use Playwright; the map spec aborts OSM tile requests so no network calls are made during CI.
+**Unit tests** cover every service, utility, validator, API route handler, and landing page structure. The map render test mocks react-leaflet components inline (the repo uses `environment: node`, not jsdom/@testing-library). **E2E tests** use Playwright; the map spec aborts OSM tile requests so no network calls are made during CI. The landing spec verifies desktop/mobile render, route navigation, and non-blank canvas.
 
 ---
 
@@ -302,9 +321,15 @@ FixtureLog models the shortest credible path from an offshore enquiry to a fixed
 
 ---
 
+## Roadmap
+
+**Next:** PACKET-008 — auth integration (OAuth/OIDC, sign-in CTAs, protected routes). The public landing already includes a disabled "Sign in coming next" teaser; PACKET-008 will wire it to a real provider.
+
+**After auth:** AI Broker Copilot runtime (natural-language requirement intake, typed backend tools, human confirmation before writes) followed by AI evals + observability hardening.
+
 ## Future AI Broker Copilot
 
-The planned AI Broker Copilot is specified in [SPEC-002](docs/specs/SPEC-002-ai-broker-copilot.md). It is **not built in v1.0.x** and no AI runs at runtime today.
+The planned AI Broker Copilot is specified in [SPEC-002](docs/specs/SPEC-002-ai-broker-copilot.md). It is **not built in v1.1.x** and no AI runs at runtime today.
 
 The future design keeps the LLM as an interface and the backend as the source of truth: free-text requirement intake, typed backend tools, evidence-backed shortlist explanations, weather interpretation through backend verdicts, and human confirmation before any write. Follow-on work is split into a post-MVP AI Broker Copilot implementation and AI evals + observability hardening.
 
@@ -349,6 +374,17 @@ FixtureLog uses a **research-first, packet-based methodology**:
 - **Tests** before work is considered complete
 - **Living docs** (this README, etc.) kept in sync with reality
 - **No speculative implementation** before research and decisions are clear
+
+---
+
+## Landing page design
+
+The public landing page uses a hybrid design direction:
+
+1. **Helical Bio Explorer motion pattern (primary):** page structure, full-bleed hero, procedural canvas, staggered entrance, scroll-aware nav, `whileInView` reveals, and CTA-hover canvas intensity are ported from the author's Helical Bio Explorer project.
+2. **SSY-inspired maritime editorial skin (secondary):** display-serif typography (Fraunces), deep navy `#000061` / cyan `#00e2fd` palette, full-width grid rhythm, generous spacing, pill CTAs, and editorial tone are informed by the SSY Global public homepage. The design input is the internal `docs/research/SSY-GLOBAL-LANDING-CSS-PATTERN-REPORT.md` CSS audit. No SSY brand assets, logos, or trademark treatments were copied.
+
+The canvas rethemes the Helical animation into FixtureLog's domain: vessel tracks, port nodes, laycan arcs, weather bands, and a cyan route ribbon.
 
 ---
 

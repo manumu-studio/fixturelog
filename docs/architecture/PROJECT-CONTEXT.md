@@ -1,6 +1,6 @@
 # FixtureLog — Project Context
 
-> **Status: MVP v1.0.0 COMPLETE (2026-06-13).** 21 domain API endpoints plus the health endpoint, a regional Leaflet vessel map, a vessel-positions endpoint, a real landing page, Vercel + Neon deploy configuration, weather enrichment layer, hermetic full-workflow E2E (4 specs), and 250 unit tests are in place.
+> **Status: v1.1.0 — MVP complete + polished public landing (2026-06-14).** Animated maritime landing page with marine-chart hero canvas, regional Leaflet vessel map, 21 domain API endpoints plus the health endpoint, weather enrichment layer, hermetic full-workflow E2E (4 specs), and 264 unit tests across 31 files are in place. All routes are public; no account required. Auth integration is planned as PACKET-008.
 >
 > **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`. Future AI Broker Copilot architecture is specified in `docs/specs/SPEC-002-ai-broker-copilot.md`.
 
@@ -49,10 +49,11 @@ Only public role requirements and product/domain context are included in reposit
 | Validators | ✅ Zod schemas at every route boundary — `src/lib/validators/charterer.ts`, `vessel.ts`, `fixture.ts`, `subject.ts`, `requirement.validators.ts` (incl. sum-to-1.0 weights refine), `weather.validators.ts` (query params, external-response schema, snapshot shape), `vessel-position.validators.ts` (`VesselPositionItem` + positions response) |
 | Shortlist UI | ✅ `/requirements` (list with status badges) and `/requirements/[id]` (shortlist detail with per-factor breakdown) — Next.js 15 server components |
 | Map UI | ✅ `/map` — server component page with metadata; `RegionalMapClient` (client component) owns `useRegionalMap` hook and lazy-loads `RegionalMap` via `next/dynamic({ ssr: false })`; `RegionalMap` renders `CircleMarker` per vessel (color-coded by type) with popups; Leaflet + react-leaflet in a separate dynamic chunk (not in shared bundle) |
-| Landing page | ✅ `/` — real landing page replacing the Next.js default; links to map, requirements, charterers |
+| Landing page | ✅ `/` — polished public landing page: animated marine-chart hero canvas (vessel tracks, port nodes, laycan arcs, cyan ribbon), Helical motion pattern + SSY editorial skin (navy/cyan), feature showcase, how-it-works, tech badges, CTA footer, portfolio disclaimer. `motion@^12` added. No account required; all CTAs link to real public routes. Auth teaser ("Sign in coming next") is a disabled placeholder — no auth behavior. |
 | Deployment | ✅ Vercel + Neon; `NEXT_PUBLIC_APP_URL` in `.env.example`; `postinstall: prisma generate` in `package.json`; deploy runbook in `README.md` and `docs/pull-requests/PR-1.0.0.md` |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
-| AI Broker Copilot | 📋 Planned — `docs/specs/SPEC-002-ai-broker-copilot.md` defines the future architecture: LLM as interface, backend/tools as source of truth, human confirmation before writes, provider-neutral tool errors, safety risk model, and future eval/observability strategy. No runtime AI exists in v1.0.x. |
+| Auth integration | 📋 Planned — PACKET-008. Will cover OAuth/OIDC provider registration, Auth.js/NextAuth integration, `/api/auth/*` routes, protected route groups, session-aware shell, and `AppUser`/actor identity model. The landing page's "Sign in coming next" teaser will be wired to a real provider in PACKET-008. No auth exists in v1.1.x. |
+| AI Broker Copilot | 📋 Planned — `docs/specs/SPEC-002-ai-broker-copilot.md` defines the future architecture: LLM as interface, backend/tools as source of truth, human confirmation before writes, provider-neutral tool errors, safety risk model, and future eval/observability strategy. No runtime AI exists in v1.1.x. |
 
 ---
 
@@ -175,6 +176,20 @@ These decisions were made during the map, deploy, and closeout build and are rec
 - **`renderToStaticMarkup` + inline `vi.mock` for map unit tests** — the repo uses `environment: node` in Vitest; jsdom and `@testing-library/react` are not available. Component tests for `RegionalMap` use `renderToStaticMarkup` from `react-dom/server` for JSX structure verification and `vi.mock` stubs for react-leaflet primitives. Playwright E2E covers actual browser rendering.
 
 - **Port markers deferred** — SPEC-001 §4.8 mentions vessel and port markers. No standalone `Port` model with coordinate columns exists in the schema; port data is a string field on `PositionSnapshot`. Port markers require a schema extension and are deferred to post-MVP. Noted in `CHANGELOG.md` and `ROADMAP.md`.
+
+---
+
+## 12. Public Landing Implementation Notes (2026-06-14)
+
+These decisions were made during the PACKET-007 public landing build:
+
+- **Hybrid design direction** — Helical Bio Explorer motion pattern is the primary animation source (frame loop architecture, reduced-motion branch, CTA hover/intensity response). SSY editorial skin (display-serif Fraunces, navy `#000061`, cyan `#00e2fd`, full-width grid, pill CTAs) provides the visual tone. Neither reference is used as a brand affiliation.
+- **`motion@^12` added** — used for staggered hero entrance, `whileInView` feature-row reveals, scroll-drawn how-it-works connector, and badge stagger. The marine canvas uses raw `requestAnimationFrame` (not `motion`), matching the Helical `HeroCanvas` architecture.
+- **`MarineTrafficCanvas`** — procedural canvas drawing vessel dots/tracks, port node circles, route arcs, and a cyan route/laycan ribbon. Reduced-motion users receive a static pre-drawn frame. CTA hover increases track opacity/intensity.
+- **`src/lib/constants/landing-copy.ts`** — all landing copy (nav links, hero, proof strip, features, how-it-works steps, tech badges, CTA footer, footer disclaimer) is centralised here. No copy is hard-coded in component files.
+- **Auth split** — PACKET-007 is public landing only. PACKET-008 owns auth. The "Sign in coming next" teaser on the landing is a disabled `<button>` with no auth behavior.
+- **Proof-strip correction** — unit test count corrected from stale `250+` to `264` in `landing-copy.ts` during the documentation closeout.
+- **Screenshot timing** — visual verification screenshots were captured after `next build` + `next start` to avoid Turbopack canvas timing differences during dev.
 
 ---
 

@@ -1,6 +1,7 @@
 // /charterers — charterer list: table of Name, Contact, Requirements, Fixtures + Register button
 import Link from 'next/link';
 import { z } from 'zod';
+import { getRequestOrigin } from '@/lib/server-origin';
 
 const ApiResponseSchema = z.object({
   data: z.array(
@@ -17,8 +18,9 @@ const ApiResponseSchema = z.object({
 type ApiResponse = z.infer<typeof ApiResponseSchema>;
 
 async function fetchCharterers(): Promise<ApiResponse> {
+  const origin = await getRequestOrigin();
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/charterers?limit=100`,
+    `${origin}/api/charterers?limit=100`,
     { cache: 'no-store' },
   );
   if (!res.ok) throw new Error('Failed to fetch charterers');

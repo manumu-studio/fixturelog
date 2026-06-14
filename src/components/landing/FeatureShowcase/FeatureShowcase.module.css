@@ -1,0 +1,478 @@
+/* FeatureShowcase.module.css — alternating feature rows + CSS mock panels.
+   All values use locked --fl-* tokens from globals.css. */
+
+/* ─── Section shell ─────────────────────────────────────────────────────── */
+
+.section {
+  /* Reduced vertical padding on mobile to prevent excessive whitespace at 320px */
+  padding: var(--fl-unit-64) var(--fl-gutter);
+  background-color: var(--fl-surface-light);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-top: var(--fl-unit-96);
+    padding-bottom: var(--fl-unit-96);
+  }
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ─── Section heading block ─────────────────────────────────────────────── */
+
+.headingBlock {
+  text-align: center;
+  margin-bottom: var(--fl-unit-80);
+}
+
+.sectionEyebrow {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fl-blue);
+  margin-bottom: var(--fl-unit-12);
+}
+
+.sectionHeading {
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-weight: 400;
+  color: var(--fl-navy);
+  margin-bottom: var(--fl-unit-16);
+  line-height: 1.15;
+}
+
+.sectionSubline {
+  font-size: 1.0625rem;
+  color: var(--fl-ink);
+  opacity: 0.7;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ─── Feature rows ──────────────────────────────────────────────────────── */
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-64);
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-32);
+  align-items: center;
+  padding-bottom: var(--fl-unit-56);
+  border-bottom: 1px solid var(--fl-border-navy);
+}
+
+.feature:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+@media (min-width: 960px) {
+  .feature {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--fl-unit-64);
+  }
+
+  .featureReverse {
+    direction: rtl;
+  }
+
+  .featureReverse > * {
+    direction: ltr;
+  }
+}
+
+/* ─── Text column ───────────────────────────────────────────────────────── */
+
+.textCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.eyebrow {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fl-blue);
+  margin-bottom: var(--fl-unit-12);
+}
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.875rem);
+  font-weight: 400;
+  color: var(--fl-navy);
+  line-height: 1.25;
+  margin-bottom: var(--fl-unit-16);
+}
+
+.body {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--fl-ink);
+  margin-bottom: var(--fl-unit-24);
+}
+
+.cta {
+  display: inline-block;
+  align-self: flex-start;
+  padding: var(--fl-unit-10) var(--fl-unit-32);
+  border: 1.5px solid var(--fl-navy);
+  color: var(--fl-navy);
+  border-radius: var(--fl-pill);
+  font-family: var(--fl-font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color var(--fl-motion-base) var(--fl-ease-out),
+    color var(--fl-motion-base) var(--fl-ease-out);
+}
+
+.cta:hover {
+  background-color: var(--fl-navy);
+  color: var(--fl-white);
+  text-decoration: none;
+}
+
+/* ─── Reduced motion ────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .cta {
+    transition: none;
+  }
+}
+
+/* ─── Panel column ──────────────────────────────────────────────────────── */
+
+.panelCol {
+  min-height: 0;
+  /* Prevent mock panels from overflowing on narrow screens */
+  overflow: hidden;
+}
+
+/* ─── Mock panel base ───────────────────────────────────────────────────── */
+
+.mockPanel {
+  background-color: var(--fl-white);
+  border: 1px solid var(--fl-border-navy);
+  border-radius: var(--fl-radius);
+  overflow: hidden;
+  box-shadow: var(--fl-shadow-card);
+  font-family: var(--fl-font-sans);
+}
+
+.mockPanelBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fl-unit-10) var(--fl-unit-16);
+  background-color: var(--fl-navy);
+  color: var(--fl-white);
+}
+
+.mockPanelTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.mockSeedBadge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fl-cyan);
+  border: 1px solid rgba(0, 226, 253, 0.5);
+  border-radius: var(--fl-pill);
+  padding: 2px var(--fl-unit-8);
+}
+
+/* ─── Requirements panel ────────────────────────────────────────────────── */
+
+.mockList {
+  list-style: none;
+  margin: 0;
+  padding: var(--fl-unit-12) 0;
+}
+
+.mockListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fl-unit-10) var(--fl-unit-16);
+  border-bottom: 1px solid var(--fl-border-subtle);
+  font-size: 0.8125rem;
+  color: var(--fl-ink);
+}
+
+.mockListItem:last-child {
+  border-bottom: none;
+}
+
+.mockListLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: var(--fl-unit-12);
+}
+
+.mockScore {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--fl-navy);
+  font-size: 0.8125rem;
+}
+
+.mockEvidenceRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-8);
+  padding: var(--fl-unit-12) var(--fl-unit-16);
+  background-color: var(--fl-surface-light);
+  border-top: 1px solid var(--fl-border-subtle);
+}
+
+.mockEvidenceChip {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--fl-navy);
+  background-color: rgba(0, 0, 97, 0.07);
+  border-radius: var(--fl-pill);
+  padding: 3px var(--fl-unit-10);
+}
+
+/* ─── Map panel ─────────────────────────────────────────────────────────── */
+
+.mockMapArea {
+  position: relative;
+  height: 200px;
+  background: linear-gradient(160deg, #e8f4f8 0%, #d0e8f0 100%);
+  overflow: hidden;
+}
+
+.mockMapGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 0, 97, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 97, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.mockVesselDot {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transform: translate(-50%, -50%);
+}
+
+.mockDotCore {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--fl-navy);
+  border: 2px solid var(--fl-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 226, 253, 0.25);
+}
+
+.mockDotLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--fl-navy);
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+
+.mockMapNote {
+  position: absolute;
+  bottom: var(--fl-unit-8);
+  left: var(--fl-unit-12);
+  font-size: 0.625rem;
+  color: var(--fl-navy);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* ─── Lifecycle panel ───────────────────────────────────────────────────── */
+
+.mockStatusFlow {
+  display: flex;
+  align-items: center;
+  padding: var(--fl-unit-20) var(--fl-unit-16);
+  gap: 0;
+  flex-wrap: wrap;
+  row-gap: var(--fl-unit-12);
+  /* Prevent label overflow on 320px */
+  overflow: hidden;
+}
+
+.mockStatusStep {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-unit-6);
+}
+
+.mockStatusDotDone {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--fl-navy);
+  flex-shrink: 0;
+}
+
+.mockStatusDotPending {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 2px solid var(--fl-border-navy);
+  flex-shrink: 0;
+}
+
+.mockStatusLabelDone {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+  letter-spacing: 0.04em;
+}
+
+.mockStatusLabelPending {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--fl-ink);
+  opacity: 0.45;
+  letter-spacing: 0.04em;
+}
+
+.mockStatusConnector {
+  width: 20px;
+  height: 1px;
+  background-color: var(--fl-border-navy);
+  margin: 0 var(--fl-unit-4);
+  flex-shrink: 0;
+}
+
+.mockSubjectBox {
+  margin: 0 var(--fl-unit-16) var(--fl-unit-16);
+  padding: var(--fl-unit-12) var(--fl-unit-16);
+  background-color: var(--fl-surface-light);
+  border-radius: var(--fl-radius);
+  border: 1px solid var(--fl-border-subtle);
+}
+
+.mockSubjectHeading {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fl-navy);
+  margin-bottom: var(--fl-unit-10);
+}
+
+.mockSubjectItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-8);
+}
+
+.mockSubjectItem {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fl-navy);
+}
+
+.mockSubjectItemPending {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fl-ink);
+  opacity: 0.5;
+}
+
+/* ─── Weather + Recap panel ─────────────────────────────────────────────── */
+
+.mockWeatherRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fl-unit-12);
+  padding: var(--fl-unit-16);
+  border-bottom: 1px solid var(--fl-border-subtle);
+}
+
+.mockWeatherCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-4);
+  background-color: var(--fl-surface-light);
+  border-radius: var(--fl-radius);
+  padding: var(--fl-unit-12);
+}
+
+.mockWeatherLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fl-ink);
+  opacity: 0.6;
+}
+
+.mockWeatherValue {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+  line-height: 1;
+}
+
+.mockWeatherVerdict {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+}
+
+.mockRecapBox {
+  padding: var(--fl-unit-16);
+}
+
+.mockRecapHeading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fl-navy);
+  margin-bottom: var(--fl-unit-10);
+}
+
+.mockRecapLine {
+  font-size: 0.8125rem;
+  color: var(--fl-ink);
+  line-height: 1.6;
+}
+
+.mockRecapNote {
+  font-size: 0.6875rem;
+  font-style: italic;
+  color: var(--fl-ink);
+  opacity: 0.55;
+  margin-top: var(--fl-unit-8);
+}
