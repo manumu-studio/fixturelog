@@ -1,0 +1,174 @@
+/* HowItWorks.module.css — numbered pipeline steps with scroll-drawn connector. */
+
+.section {
+  padding: var(--fl-unit-96) var(--fl-gutter);
+  background-color: var(--fl-surface-navy);
+  color: var(--fl-white);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  color: var(--fl-white);
+  text-align: center;
+  margin-bottom: var(--fl-unit-64);
+}
+
+/* Pipeline wrapper — relative positioning context for the SVG overlay */
+.pipeline {
+  display: none; /* hidden on mobile */
+  position: relative;
+  margin-bottom: calc(-1 * var(--fl-unit-48));
+}
+
+@media (min-width: 960px) {
+  .pipeline {
+    display: block;
+  }
+}
+
+/* SVG connector line — stretches full width, centered at step number height */
+.connector {
+  display: block;
+  width: 100%;
+  height: 4px;
+  overflow: visible;
+}
+
+/*
+  Scroll-drawn connector degrades automatically:
+  - Mobile: .pipeline is display:none so SVG never renders.
+  - prefers-reduced-motion: the motion.line pathLength animation is
+    suppressed by the motion library's own reduced-motion handling
+    (it snaps to final value instantly), revealing the full line.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .connector line:last-child {
+    /* Force fully drawn state — pathLength transition won't run anyway,
+       but this ensures a visible static connector on older browsers. */
+    stroke-dasharray: none;
+  }
+}
+
+/* Step grid */
+.steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-40);
+}
+
+@media (min-width: 960px) {
+  .steps {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--fl-unit-32);
+    padding-top: var(--fl-unit-48);
+  }
+}
+
+/* Individual step */
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-12);
+}
+
+@media (min-width: 960px) {
+  .step {
+    text-align: center;
+    align-items: center;
+  }
+}
+
+/* Large display number */
+.stepNumber {
+  font-family: var(--fl-font-display);
+  font-size: 3rem;
+  font-weight: 300;
+  color: var(--fl-cyan);
+  line-height: 1;
+
+  /* On desktop the number sits as the connector "node" — give it a bg */
+  position: relative;
+}
+
+@media (min-width: 960px) {
+  .stepNumber {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--fl-pill);
+    border: 2px solid var(--fl-cyan);
+    font-size: 1.5rem;
+    background-color: var(--fl-surface-navy);
+    /* Sit on top of the SVG connector */
+    z-index: 1;
+  }
+}
+
+.phase {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fl-cyan);
+}
+
+.stepHeading {
+  font-family: var(--fl-font-display);
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--fl-white);
+  line-height: 1.3;
+}
+
+.stepBody {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Mobile timeline: left border as vertical connector */
+@media (max-width: 959px) {
+  .steps {
+    position: relative;
+    padding-left: var(--fl-unit-24);
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: var(--fl-unit-8);
+    bottom: var(--fl-unit-8);
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      var(--fl-cyan),
+      rgba(0, 226, 253, 0.2)
+    );
+    border-radius: 1px;
+  }
+
+  /* Prevent body text wrapping below 320px */
+  .stepBody {
+    word-break: break-word;
+  }
+}
+
+/* Reduced-motion: suppress the scroll connector animation */
+@media (prefers-reduced-motion: reduce) {
+  .connector line {
+    /* Reveal full connector statically */
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

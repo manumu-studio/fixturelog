@@ -1,4 +1,8 @@
-/* globals.css — minimal reset for the spine foundation */
+/* globals.css — design tokens (reset + CSS variables). No per-section sprawl. */
+
+/* ---------------------------------------------------------------------------
+   Box model reset
+   --------------------------------------------------------------------------- */
 *,
 *::before,
 *::after {
@@ -10,5 +14,158 @@
 html,
 body {
   height: 100%;
-  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   --------------------------------------------------------------------------- */
+:root {
+  /* Palette */
+  --fl-white:           #ffffff;
+  --fl-white-hover:     #f3f3f3;
+  --fl-ink:             #0d0d0d;
+  --fl-navy:            #000061;
+  --fl-navy-hover:      #000043;
+  --fl-cyan:            #00e2fd;
+  --fl-cyan-hover:      #02b5ca;
+  --fl-blue:            #0087cb;
+
+  /* Surfaces */
+  --fl-surface-white:   #ffffff;
+  --fl-surface-light:   #f8f9fb;
+  --fl-surface-navy:    #000061;
+  --fl-surface-cyan:    #00e2fd;
+
+  /* Borders */
+  --fl-border-navy:     rgba(0, 0, 97, 0.2);
+  --fl-border-subtle:   rgba(13, 13, 13, 0.12);
+
+  /* Shadows */
+  --fl-shadow:          0 2px 16px rgba(0, 0, 97, 0.10);
+  --fl-shadow-card:     0 1px 4px rgba(0, 0, 97, 0.08);
+
+  /* Border radius */
+  --fl-radius:          8px;
+  --fl-pill:            9999px;
+
+  /* Typography — set by next/font in layout.tsx via CSS vars */
+  --fl-font-display:    var(--font-display, "Playfair Display", ui-serif, Georgia, serif);
+  --fl-font-sans:       var(--font-sans, "Geist", ui-sans-serif, system-ui, sans-serif);
+  --fl-font-base-size:  16px;
+
+  /* ---------------------------------------------------------------------------
+     Spacing scale (static px — no viewport-scaled font sizes).
+     12-column grid rhythm: 20px mobile gutter / 40px desktop gutter.
+     --------------------------------------------------------------------------- */
+  --fl-unit-4:   4px;
+  --fl-unit-6:   6px;
+  --fl-unit-8:   8px;
+  --fl-unit-10:  10px;
+  --fl-unit-12:  12px;
+  --fl-unit-16:  16px;
+  --fl-unit-20:  20px;
+  --fl-unit-24:  24px;
+  --fl-unit-32:  32px;
+  --fl-unit-40:  40px;
+  --fl-unit-48:  48px;
+  --fl-unit-56:  56px;
+  --fl-unit-64:  64px;
+  --fl-unit-80:  80px;
+  --fl-unit-88:  88px;
+  --fl-unit-96:  96px;
+  --fl-unit-128: 128px;
+
+  /* Grid gutters (mirrors SSY 12-col grid: 20px mobile / 40px desktop) */
+  --fl-gutter: var(--fl-unit-20);
+
+  /* Motion */
+  --fl-motion-fast:   150ms;
+  --fl-motion-base:   300ms;
+  --fl-motion-slow:   600ms;
+  --fl-ease-out:      cubic-bezier(0.215, 0.61, 0.355, 1);
+  --fl-ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Desktop gutter upgrade */
+@media (min-width: 960px) {
+  :root {
+    --fl-gutter: var(--fl-unit-40);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Base styles
+   --------------------------------------------------------------------------- */
+html {
+  font-size: var(--fl-font-base-size);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--fl-font-sans);
+  color: var(--fl-ink);
+  background-color: var(--fl-white);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Keyboard focus for all interactive elements.
+   Navy ring on light surfaces; cyan ring on dark (navy/ink) surfaces. */
+:focus-visible {
+  outline: 2px solid var(--fl-navy);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* On dark (navy) backgrounds — use cyan so the ring is visible. */
+.fl-surface-navy :focus-visible,
+[data-surface="navy"] :focus-visible {
+  outline-color: var(--fl-cyan);
+}
+
+/* Block display defaults */
+img,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* List reset (components re-style as needed) */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Button reset (components re-style as needed) */
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion — global suppression.
+   motion/react also handles this internally, but this catches CSS-only
+   animations and any components that use animation/transition directly.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

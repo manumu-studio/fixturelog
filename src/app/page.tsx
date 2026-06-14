@@ -1,51 +1,47 @@
-// src/app/page.tsx — FixtureLog landing page (project overview + navigation)
+// page.tsx — public landing page for FixtureLog. Route `/` remains public with no auth.
+// Composed from landing section components; all copy sourced from landing-copy.ts.
 
-const FEATURES: readonly string[] = [
-  'Vessel tracking with seeded North Sea positions and provenance labels',
-  'Charterer requirement capture and weighted FixtureMatcher shortlists',
-  'Fixture lifecycle with enforced status transitions and subject-lift gating',
-  'Marine weather enrichment and deterministic workability verdicts',
-  'SUPPLYTIME 2017 recap generation from structured fixture terms',
-];
-
-const NAV_LINKS: ReadonlyArray<{ href: string; label: string }> = [
-  { href: '/map', label: 'Regional Map' },
-  { href: '/api/health', label: 'Health Check' },
-  { href: '/api/vessels', label: 'Vessel API' },
-  { href: '/api/fixtures', label: 'Fixture API' },
-  { href: '/api/requirements', label: 'Requirement API' },
-];
-
-const TECH_STACK = 'Next.js 15 · Prisma 6 · PostgreSQL (Neon) · TypeScript (strict) · Zod';
+import { CtaFooter } from '@/components/landing/CtaFooter';
+import { FeatureShowcase } from '@/components/landing/FeatureShowcase';
+import { HowItWorks } from '@/components/landing/HowItWorks';
+import { LandingFooter } from '@/components/landing/LandingFooter';
+import { LandingHero } from '@/components/landing/LandingHero';
+import { LandingNav } from '@/components/landing/LandingNav';
+import { TechBadges } from '@/components/landing/TechBadges';
+import { LANDING_PROOF_POINTS } from '@/lib/constants/landing-copy';
+import styles from './page.module.css';
 
 export default function Home() {
   return (
-    <main style={{ maxWidth: 720, margin: '0 auto', padding: '2rem', lineHeight: 1.6 }}>
-      <h1>FixtureLog</h1>
-      <p style={{ fontSize: '1.1rem' }}>Offshore vessel fixture management for shipbrokers.</p>
+    <>
+      <LandingNav />
 
-      <h2>What it does</h2>
-      <ul>
-        {FEATURES.map((f) => (
-          <li key={f}>{f}</li>
-        ))}
-      </ul>
+      <main id="main-content">
+        <LandingHero />
 
-      <h2>Explore</h2>
-      <ul>
-        {NAV_LINKS.map((l) => (
-          <li key={l.href}>
-            <a href={l.href}>{l.label}</a>
-          </li>
-        ))}
-      </ul>
+        {/* Proof strip — concise metrics from MVP v1.0.0 */}
+        <section className={styles.proofStrip} aria-label="Key metrics">
+          <div className={styles.proofInner}>
+            {/* Visually-hidden h2 preserves heading order for screen readers */}
+            <h2 className={styles.proofHeading}>Key metrics</h2>
+            <ul className={styles.proofList} role="list">
+              {LANDING_PROOF_POINTS.map((point) => (
+                <li key={point.label} className={styles.proofItem}>
+                  <span className={styles.proofValue}>{point.value}</span>
+                  <span className={styles.proofLabel}>{point.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
 
-      <h2>Tech stack</h2>
-      <p>{TECH_STACK}</p>
+        <FeatureShowcase />
+        <HowItWorks />
+        <TechBadges />
+        <CtaFooter />
+      </main>
 
-      <footer style={{ marginTop: '2rem', color: '#666', fontSize: '0.9rem' }}>
-        Built as a portfolio project demonstrating offshore shipbroking domain expertise.
-      </footer>
-    </main>
+      <LandingFooter />
+    </>
   );
 }
