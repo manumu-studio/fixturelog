@@ -32,7 +32,12 @@ export default defineConfig({
     },
   },
   resolve: {
+    // More specific aliases must precede the "@" prefix alias (first match wins).
     alias: {
+      // next-auth cannot be imported under vitest (its internals import `next/server`).
+      "@/features/auth/auth": path.resolve(__dirname, "./src/test/auth-test-double.ts"),
+      // The real `server-only` package throws when imported outside an RSC server.
+      "server-only": path.resolve(__dirname, "./src/test/server-only-stub.ts"),
       "@": path.resolve(__dirname, "./src"),
     },
   },

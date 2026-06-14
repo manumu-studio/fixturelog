@@ -1,5 +1,6 @@
 // POST /api/fixtures/:id/recap — generate and persist SUPPLYTIME 2017 recap
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
@@ -10,6 +11,9 @@ export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const resolved = await params;
   const parsed = CuidParamSchema.safeParse(resolved);
   if (!parsed.success) {

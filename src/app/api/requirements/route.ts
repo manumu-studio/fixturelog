@@ -1,5 +1,6 @@
 // POST /api/requirements (create) and GET /api/requirements (paginated list)
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
@@ -8,6 +9,9 @@ import {
 } from '@/lib/validators/requirement.validators';
 
 export async function POST(request: NextRequest) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const body: unknown = await request.json();
   const parsed = RequirementCreateSchema.safeParse(body);
   if (!parsed.success) {
@@ -57,6 +61,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const raw = Object.fromEntries(request.nextUrl.searchParams);
   const parsed = RequirementListQuerySchema.safeParse(raw);
   if (!parsed.success) {

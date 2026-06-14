@@ -2,11 +2,11 @@
 
 import { z } from 'zod';
 
-/** POST /api/fixtures request body */
+/** POST /api/fixtures request body. The acting broker is resolved from the session
+ *  (see resolveActor), never trusted from the body — so brokerId is intentionally absent. */
 export const FixtureCreateSchema = z.object({
   vesselId: z.string().cuid(),
   chartererId: z.string().cuid(),
-  brokerId: z.string().cuid(),
   regionId: z.string().cuid(),
   workscopeId: z.string().cuid(),
   requirementId: z.string().cuid().optional(),
@@ -35,12 +35,12 @@ export const FixtureListQuerySchema = z.object({
 
 export type FixtureListQuery = z.infer<typeof FixtureListQuerySchema>;
 
-/** PATCH /api/fixtures/:id/status request body */
+/** PATCH /api/fixtures/:id/status request body. The actor is resolved from the session
+ *  (see resolveActor), never trusted from the body — so actor is intentionally absent. */
 export const FixtureStatusTransitionSchema = z.object({
   toStatus: z.enum([
     'DRAFT', 'NEGOTIATING', 'ON_SUBS', 'FIXED', 'COMPLETED', 'FAILED',
   ]),
-  actor: z.string().min(1),
   notes: z.string().optional(),
 });
 

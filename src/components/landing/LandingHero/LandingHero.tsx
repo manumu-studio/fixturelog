@@ -68,7 +68,7 @@ function ScrollHint({ reduced }: { reduced: boolean }) {
 }
 
 function UtilityLinks({ reduced }: { reduced: boolean }) {
-  const { utilityLinks, authTeaser } = LANDING_HERO_COPY;
+  const { utilityLinks } = LANDING_HERO_COPY;
   return (
     <motion.div
       className={styles.utility}
@@ -81,23 +81,15 @@ function UtilityLinks({ reduced }: { reduced: boolean }) {
           {link.label}
         </Link>
       ))}
-      {/* Not an interactive element — aria-disabled signals it is not actionable; tabIndex -1 prevents focus */}
-      <span
-        className={styles.authTeaser}
-        aria-disabled="true"
-        tabIndex={-1}
-      >
-        {authTeaser}
-      </span>
     </motion.div>
   );
 }
 
 /* ── Main component ───────────────────────────────────────────────────── */
 
-export function LandingHero({ className }: LandingHeroProps) {
+export function LandingHero({ className, authSlot }: LandingHeroProps) {
   const [canvasIntensity, setCanvasIntensity] = useState<'calm' | 'active'>('calm');
-  const { eyebrow, headline, subline, primaryCta, secondaryCta } = LANDING_HERO_COPY;
+  const { eyebrow, headline, subline } = LANDING_HERO_COPY;
   const reduced = useReducedMotion() ?? false;
 
   const handleCtaEnter = () => { setCanvasIntensity('active'); };
@@ -149,14 +141,7 @@ export function LandingHero({ className }: LandingHeroProps) {
           onMouseEnter={handleCtaEnter}
           onMouseLeave={handleCtaLeave}
         >
-          <Link href={primaryCta.href} className={styles.ctaPrimary}>
-            {primaryCta.label}
-            <span aria-hidden="true"> →</span>
-          </Link>
-          <Link href={secondaryCta.href} className={styles.ctaSecondary}>
-            {secondaryCta.label}
-            <span aria-hidden="true"> →</span>
-          </Link>
+          {authSlot}
         </motion.div>
 
         <UtilityLinks reduced={reduced} />

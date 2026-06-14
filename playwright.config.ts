@@ -34,5 +34,9 @@ export default defineConfig({
     url: `${E2E_BASE_URL}/api/health`,
     reuseExistingServer: false,
     timeout: IS_CI ? 120_000 : 180_000,
+    // Activate the non-production auth bypass so gated pages/APIs are reachable in E2E
+    // (route protection added in PACKET-008). Playwright merges process.env automatically.
+    // The bypass is inert when NODE_ENV=production.
+    env: { E2E_TEST_USER: 'true' },
   },
 });

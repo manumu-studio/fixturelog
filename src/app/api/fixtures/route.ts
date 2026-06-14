@@ -1,5 +1,7 @@
 // GET /api/fixtures (paginated list) + POST /api/fixtures (create in DRAFT)
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
+import { resolveActor } from '@/lib/auth/provision-actor';
 import { prisma } from '@/lib/prisma';
 import {
   FixtureCreateSchema,
@@ -7,6 +9,9 @@ import {
 } from '@/lib/validators/fixture.validators';
 
 export async function GET(request: NextRequest) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const parsed = FixtureListQuerySchema.safeParse(
     Object.fromEntries(request.nextUrl.searchParams),
   );
@@ -40,6 +45,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
+  // Acting broker comes from the session, never the body — prevents impersonation.
+  const actor = await resolveActor(session.user);
+  if (!actor.ok) return actor.response;
+
   const body: unknown = await request.json();
   const parsed = FixtureCreateSchema.safeParse(body);
   if (!parsed.success) {
@@ -49,41 +61,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const {
-    vesselId,
-    chartererId,
-    brokerId,
-    regionId,
-    workscopeId,
-    requirementId,
-    mobilizationFee,
-    demobilizationFee,
-    durationDays,
-    deliveryPort,
-    redeliveryPort,
-    commencement,
-    charterType,
-    agreedDayRate,
-    currency,
-    charterPartyForm,
-  } = parsed.data;
+  const data = parsed.data;
 
-  const [vessel, charterer, broker, region, workscope] = await Promise.all([
-    prisma.vessel.findUnique({ where: { id: vesselId } }),
-    prisma.charterer.findUnique({ where: { id: chartererId } }),
-    prisma.broker.findUnique({ where: { id: brokerId } }),
-    prisma.region.findUnique({ where: { id: regionId } }),
-    prisma.workscope.findUnique({ where: { id: workscopeId } }),
+  const [vessel, charterer, region, workscope] = await Promise.all([
+    prisma.vessel.findUnique({ where: { id: data.vesselId } }),
+    prisma.charterer.findUnique({ where: { id: data.chartererId } }),
+    prisma.region.findUnique({ where: { id: data.regionId } }),
+    prisma.workscope.findUnique({ where: { id: data.workscopeId } }),
   ]);
 
   if (!vessel) return NextResponse.json({ error: 'Vessel not found' }, { status: 404 });
   if (!charterer) return NextResponse.json({ error: 'Charterer not found' }, { status: 404 });
-  if (!broker) return NextResponse.json({ error: 'Broker not found' }, { status: 404 });
   if (!region) return NextResponse.json({ error: 'Region not found' }, { status: 404 });
   if (!workscope) return NextResponse.json({ error: 'Workscope not found' }, { status: 404 });
 
-  if (requirementId !== undefined) {
-    const requirement = await prisma.requirement.findUnique({ where: { id: requirementId } });
+  if (data.requirementId !== undefined) {
+    const requirement = await prisma.requirement.findUnique({ where: { id: data.requirementId } });
     if (!requirement) {
       return NextResponse.json({ error: 'Requirement not found' }, { status: 404 });
     }
@@ -92,23 +85,23 @@ export async function POST(request: NextRequest) {
   const fixture = await prisma.$transaction(async (tx) => {
     const created = await tx.fixture.create({
       data: {
-        vesselId,
-        chartererId,
-        brokerId,
-        regionId,
-        workscopeId,
-        requirementId: requirementId ?? null,
+        vesselId: data.vesselId,
+        chartererId: data.chartererId,
+        brokerId: actor.brokerId,
+        regionId: data.regionId,
+        workscopeId: data.workscopeId,
+        requirementId: data.requirementId ?? null,
         status: 'DRAFT',
-        charterType,
-        agreedDayRate,
-        currency,
-        charterPartyForm,
-        mobilizationFee: mobilizationFee ?? null,
-        demobilizationFee: demobilizationFee ?? null,
-        durationDays: durationDays ?? null,
-        deliveryPort: deliveryPort ?? null,
-        redeliveryPort: redeliveryPort ?? null,
-        commencement: commencement ?? null,
+        charterType: data.charterType,
+        agreedDayRate: data.agreedDayRate,
+        currency: data.currency,
+        charterPartyForm: data.charterPartyForm,
+        mobilizationFee: data.mobilizationFee ?? null,
+        demobilizationFee: data.demobilizationFee ?? null,
+        durationDays: data.durationDays ?? null,
+        deliveryPort: data.deliveryPort ?? null,
+        redeliveryPort: data.redeliveryPort ?? null,
+        commencement: data.commencement ?? null,
       },
     });
     await tx.fixtureStatusChange.create({
@@ -116,7 +109,7 @@ export async function POST(request: NextRequest) {
         fixtureId: created.id,
         fromStatus: 'DRAFT',
         toStatus: 'DRAFT',
-        actor: brokerId,
+        actor: actor.brokerId,
         notes: 'Fixture created',
       },
     });

@@ -11,6 +11,15 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
+// Audit actor is resolved from the session; isolate handler tests from provisioning.
+vi.mock('@/lib/auth/provision-actor', () => ({
+  resolveActor: vi.fn(async () => ({
+    ok: true,
+    brokerId: 'clxxxxxxxxxxxxxxxxxxxxxx04',
+    appUserId: 'appuser-1',
+  })),
+}));
+
 // Note: evaluateTransition is NOT mocked — pure function runs for real.
 import { PATCH } from './route';
 import { prisma } from '@/lib/prisma';
@@ -200,16 +209,34 @@ describe('PATCH /api/fixtures/:id/status', () => {
     expect(prisma.fixture.update).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when actor field is missing', async () => {
+  it('ignores an actor in the body — writes the session broker as actor (no spoofing)', async () => {
+    const auditRecord = {
+      id: 'clxxxxxxxxxxxxxxxxxxxxxx99',
+      fixtureId: FIXTURE_ID,
+      fromStatus: 'DRAFT',
+      toStatus: 'NEGOTIATING',
+      actor: BROKER_ID,
+      notes: null,
+      createdAt: new Date(),
+    };
+    vi.mocked(prisma.fixture.findUnique).mockResolvedValue(makeFixtureStub('DRAFT', []) as never);
+    vi.mocked(prisma.fixture.update).mockResolvedValue(
+      { ...makeFixtureStub('NEGOTIATING', []), subjects: undefined } as never,
+    );
+    vi.mocked(prisma.fixtureStatusChange.create).mockResolvedValue(auditRecord as never);
+
     const res = await PATCH(
-      makePatchRequest({ toStatus: 'NEGOTIATING' }),
+      makePatchRequest({ toStatus: 'NEGOTIATING', actor: 'evil@hacker.test' }),
       { params: Promise.resolve({ id: FIXTURE_ID }) },
     );
-    const json = await res.json() as { error: string; details: unknown[] };
 
-    expect(res.status).toBe(400);
-    expect(json.error).toBe('Validation failed');
-    expect(json.details).toBeDefined();
+    expect(res.status).toBe(200);
+    expect(prisma.fixtureStatusChange.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ actor: BROKER_ID }),
+    });
+    expect(prisma.fixtureStatusChange.create).not.toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ actor: 'evil@hacker.test' }) }),
+    );
   });
 
   it('returns 404 when fixture does not exist', async () => {

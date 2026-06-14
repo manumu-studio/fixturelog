@@ -12,7 +12,7 @@ build/
 dist/
 *.tsbuildinfo
 .tsbuildinfo.build
-
+src/app/page2/
 #Session continuity (private — not pushed)
 
 .clauderules
@@ -99,3 +99,6 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# FixtureLog is npm-only — guard against accidental pnpm installs
+pnpm-lock.yaml

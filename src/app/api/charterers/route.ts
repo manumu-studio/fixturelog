@@ -1,5 +1,6 @@
 // GET /api/charterers (list with search + pagination) and POST /api/charterers (create)
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import { prisma } from '@/lib/prisma';
 import {
   ChartererCreateSchema,
@@ -7,6 +8,9 @@ import {
 } from '@/lib/validators/charterer.validators';
 
 export async function GET(request: NextRequest) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const raw = Object.fromEntries(request.nextUrl.searchParams);
   const parsed = ChartererListQuerySchema.safeParse(raw);
   if (!parsed.success) {
@@ -33,6 +37,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const body: unknown = await request.json();
   const parsed = ChartererCreateSchema.safeParse(body);
   if (!parsed.success) {
