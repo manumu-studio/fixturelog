@@ -2,7 +2,7 @@
 
 > **Status: MVP v1.0.0 COMPLETE (2026-06-13).** 21 domain API endpoints plus the health endpoint, a regional Leaflet vessel map, a vessel-positions endpoint, a real landing page, Vercel + Neon deploy configuration, weather enrichment layer, hermetic full-workflow E2E (4 specs), and 250 unit tests are in place.
 >
-> **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`.
+> **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`. Future AI Broker Copilot architecture is specified in `docs/specs/SPEC-002-ai-broker-copilot.md`.
 
 ---
 
@@ -42,7 +42,7 @@ Only public role requirements and product/domain context are included in reposit
 | Application architecture | ✅ Done — ratified in `docs/decisions/ADR-0003-application-architecture.md` |
 | App code | ✅ MVP complete — 21 domain API endpoints plus health, service layer (FixtureMatcher + WeatherEnricher + computeVerdict() + FixtureStatusPolicy + RecapFormatter), Zod validators, regional Leaflet map (`/map`), 6 UI pages, hermetic full-workflow E2E (4 specs), Vercel + Neon deploy (v1.0.0). |
 | Packages / frameworks | ✅ Installed — Next.js 15, Prisma 6, Vitest, Playwright, Zod, TypeScript 5 |
-| Schema | ✅ 13+ models, 12+ enums — `SubjectItemStatus` enum, `FixtureStatusChange` audit model, and Charterer contact columns added in PACKET-002 migration; no schema changes in PACKET-003 |
+| Schema | ✅ 13+ models, 12+ enums — `SubjectItemStatus` enum, `FixtureStatusChange` audit model, and Charterer contact columns added during the core vertical slice; no schema changes in the requirement matching release |
 | Service layer | ✅ `FixtureStatusPolicy` (subject-gated status machine + audit writes), `RecapFormatter` (deterministic SUPPLYTIME 2017), `FixtureMatcher` (two-stage hard-filter + weighted scoring engine), `computeVerdict()` (pure workability verdict function), and `WeatherEnricher` (Open-Meteo fetch + TTL cache) — all pure TypeScript services in `src/lib/services/` |
 | Utilities | ✅ `haversine` (great-circle distance, nautical miles) and `dpClass` (rank, meets-minimum, headroom) in `src/lib/utils/` — both pure, independently tested |
 | API surface | ✅ 21 domain API endpoints plus `GET /api/health` — charterers (list, create, detail, requirements, fixtures), vessels (list, detail, **positions**), fixtures (list, create, detail, status, recap, weather snapshot persist, subjects, subject update), weather proxy (`GET /api/weather/marine`), requirements (list, create, detail, match). Fixture detail includes `weatherSnapshots`. See `README.md` API Routes table. |
@@ -52,6 +52,7 @@ Only public role requirements and product/domain context are included in reposit
 | Landing page | ✅ `/` — real landing page replacing the Next.js default; links to map, requirements, charterers |
 | Deployment | ✅ Vercel + Neon; `NEXT_PUBLIC_APP_URL` in `.env.example`; `postinstall: prisma generate` in `package.json`; deploy runbook in `README.md` and `docs/pull-requests/PR-1.0.0.md` |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
+| AI Broker Copilot | 📋 Planned — `docs/specs/SPEC-002-ai-broker-copilot.md` defines the future architecture: LLM as interface, backend/tools as source of truth, human confirmation before writes, provider-neutral tool errors, safety risk model, and future eval/observability strategy. No runtime AI exists in v1.0.x. |
 
 ---
 
@@ -97,7 +98,7 @@ The ten formerly-open items are now **resolved**, ratified in a grilling session
 
 ---
 
-## 8. PACKET-002 implementation notes (2026-06-12)
+## 8. Core Vertical Slice Implementation Notes (2026-06-12)
 
 These decisions were made during the Core Vertical Slice build and are recorded here as addenda to the ratified spec:
 
@@ -109,7 +110,7 @@ These decisions were made during the Core Vertical Slice build and are recorded 
 
 ---
 
-## 9. PACKET-003 implementation notes (2026-06-12)
+## 9. Requirement Matching Implementation Notes (2026-06-12)
 
 These decisions were made during the Requirement Matching build and are recorded here as addenda to the ratified spec:
 
@@ -129,11 +130,11 @@ These decisions were made during the Requirement Matching build and are recorded
 
 - **`ShortlistView` extracted** — the shortlist detail page (`/requirements/[id]`) extracted its render logic into `ShortlistView.tsx` (a presentational server component) to keep both files under the 150-line average target.
 
-- **No Prisma migration** — `Requirement`, `Region`, and `RateBenchmark` existed in the PACKET-002 schema. PACKET-003 required no schema changes.
+- **No Prisma migration** — `Requirement`, `Region`, and `RateBenchmark` already existed. Requirement matching required no schema changes.
 
 ---
 
-## 10. PACKET-004 implementation notes (2026-06-12)
+## 10. Weather Enrichment + E2E Implementation Notes (2026-06-12)
 
 These decisions were made during the Weather Enrichment + E2E build and are recorded here as addenda to the ratified spec:
 
@@ -157,11 +158,11 @@ These decisions were made during the Weather Enrichment + E2E build and are reco
 
 - **`response.ok` handling** — the `WeatherEnricher` checks `response.ok` before parsing the body and throws a structured error on non-2xx. This prevents Zod from receiving an error body from Open-Meteo and producing a misleading validation error.
 
-- **No migration** — `WeatherSnapshot` (with nullable `fixtureId`) existed in the PACKET-002 schema. PACKET-004 required no schema changes.
+- **No migration** — `WeatherSnapshot` (with nullable `fixtureId`) already existed. Weather enrichment required no schema changes.
 
 ---
 
-## 11. PACKET-005 implementation notes (2026-06-13)
+## 11. Map + Deploy Implementation Notes (2026-06-13)
 
 These decisions were made during the map, deploy, and closeout build and are recorded here as addenda to the ratified spec:
 

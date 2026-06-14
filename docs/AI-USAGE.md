@@ -24,6 +24,14 @@ No AI system is involved in the application's runtime behavior. Every function t
 
 ---
 
+## Planned Runtime AI
+
+`docs/specs/SPEC-002-ai-broker-copilot.md` defines a future AI Broker Copilot. That work is not built in v1.0.x. The planned design keeps the LLM as an interface while PostgreSQL, Prisma, existing services, and typed backend tools remain the source of truth.
+
+The future copilot must require human confirmation before any write, must refuse unsupported commercial claims, and must be evaluated for extraction accuracy, groundedness, refusal behavior, injection resistance, and recap completeness before it becomes a runtime feature.
+
+---
+
 ## Philosophy
 
 AI assistance accelerates implementation without replacing engineering judgment. The value of FixtureLog lies in the domain modeling decisions, the architectural choices (service layer decomposition, status machine design, the subject-gated transition), and the quality bars enforced (strict TypeScript, Zod validation at every boundary, hermetic tests). Those were made by the developer; they did not emerge from a model.
