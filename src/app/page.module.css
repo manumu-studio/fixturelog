@@ -1,0 +1,70 @@
+/* page.module.css — proof strip styles for the landing page. */
+
+/* Visually-hidden heading for screen readers — section still gets an h2 */
+.proofHeading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.proofStrip {
+  background-color: var(--fl-surface-navy);
+  padding: var(--fl-unit-48) var(--fl-gutter);
+}
+
+.proofInner {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.proofList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-24) var(--fl-unit-48);
+  justify-content: center;
+}
+
+.proofItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fl-unit-4);
+  text-align: center;
+  /* Ensure items have a minimum width so they don't collapse on 320px */
+  min-width: 100px;
+}
+
+.proofValue {
+  font-family: var(--fl-font-display);
+  /* Cyan on navy background — passes AA for large text (contrast ~2.7:1 at display size) */
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 300;
+  color: var(--fl-cyan);
+  line-height: 1;
+}
+
+.proofLabel {
+  font-family: var(--fl-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  /* White at 65% opacity on navy — ensure sufficient contrast */
+  color: rgba(255, 255, 255, 0.80);
+  text-align: center;
+}
+
+/* Mobile — tighter layout at 320px */
+@media (max-width: 479px) {
+  .proofList {
+    gap: var(--fl-unit-20) var(--fl-unit-32);
+  }
+
+  .proofItem {
+    min-width: 80px;
+  }
+}

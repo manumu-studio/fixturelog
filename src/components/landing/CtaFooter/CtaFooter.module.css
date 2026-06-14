@@ -1,0 +1,131 @@
+/* CtaFooter.module.css — deep navy CTA band with cyan/blue route-gradient overlay. */
+
+.section {
+  position: relative;
+  padding: var(--fl-unit-96) var(--fl-gutter) var(--fl-unit-128);
+  background-color: var(--fl-surface-navy);
+  color: var(--fl-white);
+  overflow: hidden;
+}
+
+/*
+  Subtle diagonal gradient pattern inspired by SSY "Get in touch" banner.
+  Uses cyan (#00e2fd) and mid-blue (#0087cb) at low opacity so the navy
+  base remains dominant. Purely decorative — aria-hidden in the component.
+*/
+.overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 80% 50%,
+      rgba(0, 226, 253, 0.10) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 80% at 20% 60%,
+      rgba(0, 135, 203, 0.08) 0%,
+      transparent 65%
+    );
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.875rem, 3.5vw, 3rem);
+  font-weight: 400;
+  color: var(--fl-white);
+  line-height: 1.15;
+  margin-bottom: var(--fl-unit-16);
+}
+
+.subline {
+  font-size: 1.0625rem;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: var(--fl-unit-48);
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-16);
+  justify-content: center;
+}
+
+.link {
+  display: inline-block;
+  padding: var(--fl-unit-12) var(--fl-unit-40);
+  border-radius: var(--fl-pill);
+  font-family: var(--fl-font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  transition:
+    background-color var(--fl-motion-base) var(--fl-ease-out),
+    color var(--fl-motion-base) var(--fl-ease-out),
+    border-color var(--fl-motion-base) var(--fl-ease-out);
+  text-decoration: none;
+}
+
+.linkPrimary {
+  background-color: var(--fl-cyan);
+  color: var(--fl-navy);
+}
+
+.linkPrimary:hover {
+  background-color: var(--fl-cyan-hover);
+  text-decoration: none;
+}
+
+.linkSecondary {
+  border: 1px solid rgba(255, 255, 255, 0.40);
+  color: var(--fl-white);
+}
+
+.linkSecondary:hover {
+  border-color: var(--fl-white);
+  text-decoration: none;
+}
+
+/* Focus ring on dark background — use cyan for visibility */
+.link:focus-visible {
+  outline: 2px solid var(--fl-cyan);
+  outline-offset: 3px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}
+
+/* Mobile — stack links vertically on narrow screens */
+@media (max-width: 639px) {
+  .section {
+    padding-left: var(--fl-gutter);
+    padding-right: var(--fl-gutter);
+  }
+
+  .links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--fl-unit-12);
+  }
+
+  .link {
+    padding-left: var(--fl-unit-24);
+    padding-right: var(--fl-unit-24);
+    text-align: center;
+  }
+}

@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: MVP v1.0.0 COMPLETE (2026-06-13).** All five MVP work packages shipped. Regional Leaflet vessel map, 21 domain API endpoints plus the health endpoint, weather enrichment layer, full service layer, hermetic full-workflow E2E (4 specs), and 250 unit tests are in place. Configured for Vercel + Neon deploy (deploy-ready; not yet deployed).
+> **Status: v1.1.0 — MVP complete + polished public landing (2026-06-14).** All five MVP work packages shipped, plus the PACKET-007 public landing. Animated maritime landing page, regional Leaflet vessel map, 21 domain API endpoints plus the health endpoint, weather enrichment layer, full service layer, hermetic full-workflow E2E (4 specs), and 264 unit tests across 31 files are in place. All routes are public. Configured for Vercel + Neon deploy. Next: PACKET-008 auth integration.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -62,10 +62,21 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 - [x] 250 unit tests; 4 E2E specs; 103 kB shared First Load JS; 0 TypeScript errors; 0 lint errors
 - **Known gap (deferred):** port markers (SPEC-001 §4.8) — no standalone `Port` model with coordinates; ports are string fields on `PositionSnapshot`. Future: derive port locations from `PositionSnapshot.portName` + lat/lng or a static map.
 
+### Public Landing — v1.1.0 ✅ COMPLETE (2026-06-14)
+- [x] Public landing page at `/` with animated marine-chart hero canvas (vessel tracks, port nodes, laycan arcs, cyan ribbon)
+- [x] Helical Bio Explorer motion pattern (primary) + SSY editorial skin (navy/cyan, Fraunces serif) — hybrid design direction
+- [x] Landing components: `LandingNav`, `LandingHero`, `MarineTrafficCanvas`, `FeatureShowcase`, `HowItWorks`, `TechBadges`, `CtaFooter`, `LandingFooter` (4-file pattern throughout)
+- [x] `motion@^12` added for staggered entrance, `whileInView` reveals, scroll-drawn connector, badge stagger
+- [x] All landing copy centralised in `src/lib/constants/landing-copy.ts`
+- [x] Landing unit tests: 15 tests in `src/app/page.test.tsx`; landing E2E: 3 tests in `e2e/landing.spec.ts`
+- [x] Screenshots under `public/assets/landing/`
+- [x] Total: 264 unit tests across 31 files; 4 E2E specs
+
 ## Phase 3: Post-MVP (planned)
+- [ ] **PACKET-008: Auth integration** — OAuth/OIDC provider registration, Auth.js/NextAuth integration, `/api/auth/*` routes, protected route groups, session-aware shell, `AppUser`/actor identity model; replaces landing "Sign in coming next" teaser with real sign-in behavior
 - [ ] Deploy verification: screenshots / demo recording after Vercel + Neon deploy
 - [ ] Rate limiting on the weather proxy (Open-Meteo has undocumented limits)
-- [ ] Post-MVP AI Broker Copilot implementation — natural-language requirement intake, typed backend tools, and human confirmation before writes
+- [ ] Post-MVP AI Broker Copilot implementation — natural-language requirement intake, typed backend tools, and human confirmation before writes (requires auth identity from PACKET-008)
 - [ ] AI evals + observability hardening — Langfuse/Braintrust strategy, golden datasets, groundedness checks, prompt/model regression gates
 
 ## Nice-to-have (only if core lands with time to spare)

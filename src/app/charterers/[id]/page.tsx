@@ -2,8 +2,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
-
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+import { getRequestOrigin } from '@/lib/server-origin';
 
 const ChartererSchema = z.object({
   id: z.string(),
@@ -35,8 +34,12 @@ type Requirement = z.infer<typeof RequirementSchema>;
 type Fixture = z.infer<typeof FixtureSchema>;
 
 // Validate the `{ data: ... }` envelope at the fetch boundary — no `as` on external data.
-async function fetchData<S extends z.ZodTypeAny>(path: string, dataSchema: S): Promise<z.infer<S>> {
-  const res = await fetch(`${BASE_URL}${path}`, { cache: 'no-store' });
+async function fetchData<S extends z.ZodTypeAny>(
+  origin: string,
+  path: string,
+  dataSchema: S,
+): Promise<z.infer<S>> {
+  const res = await fetch(`${origin}${path}`, { cache: 'no-store' });
   if (res.status === 404) notFound();
   if (!res.ok) throw new Error(`Fetch failed: ${path}`);
   return z.object({ data: dataSchema }).parse(await res.json()).data;
@@ -116,11 +119,12 @@ export default async function ChartererDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const origin = await getRequestOrigin();
 
   const [charterer, requirements, fixtures] = await Promise.all([
-    fetchData(`/api/charterers/${id}`, ChartererSchema),
-    fetchData(`/api/charterers/${id}/requirements`, z.array(RequirementSchema)),
-    fetchData(`/api/charterers/${id}/fixtures`, z.array(FixtureSchema)),
+    fetchData(origin, `/api/charterers/${id}`, ChartererSchema),
+    fetchData(origin, `/api/charterers/${id}/requirements`, z.array(RequirementSchema)),
+    fetchData(origin, `/api/charterers/${id}/fixtures`, z.array(FixtureSchema)),
   ]);
 
   return (
