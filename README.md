@@ -199,13 +199,13 @@ fixturelog/
 └── docs/
     ├── GLOSSARY.md                                   # Offshore shipbroking + app-specific terms
     ├── AI-USAGE.md                                   # AI-assisted development; no runtime AI
-    ├── specs/SPEC-001-mvp-build.md
+    ├── specs/                                       # SPEC-001 MVP + SPEC-002 planned AI copilot
     ├── decisions/ (ADR-0001 – ADR-0003)
     ├── research/ (domain + technical research)
     ├── architecture/PROJECT-CONTEXT.md
     ├── roadmap/ROADMAP.md
-    ├── journal/ (ENTRY-001 – ENTRY-005)
-    └── pull-requests/ (PR-0.2.0 – PR-1.0.0)
+    ├── journal/ (ENTRY-001 – ENTRY-006)
+    └── pull-requests/ (PR-0.2.0 – PR-1.0.1)
 ```
 
 ---
@@ -302,6 +302,14 @@ FixtureLog models the shortest credible path from an offshore enquiry to a fixed
 
 ---
 
+## Future AI Broker Copilot
+
+The planned AI Broker Copilot is specified in [SPEC-002](docs/specs/SPEC-002-ai-broker-copilot.md). It is **not built in v1.0.x** and no AI runs at runtime today.
+
+The future design keeps the LLM as an interface and the backend as the source of truth: free-text requirement intake, typed backend tools, evidence-backed shortlist explanations, weather interpretation through backend verdicts, and human confirmation before any write. Follow-on work is split into a post-MVP AI Broker Copilot implementation and AI evals + observability hardening.
+
+---
+
 ## Decisions & spec
 
 | Document | What it locks |
@@ -310,6 +318,7 @@ FixtureLog models the shortest credible path from an offshore enquiry to a fixed
 | [ADR-0002](docs/decisions/ADR-0002-data-and-integration-strategy.md) | Data & integration strategy — seeded Postgres + Open-Meteo; AIS deferred; weather persistence; honesty rule |
 | [ADR-0003](docs/decisions/ADR-0003-application-architecture.md) | Application architecture — Next.js full-stack + service layer; Vercel + Neon; CI/CD parity |
 | [SPEC-001](docs/specs/SPEC-001-mvp-build.md) | MVP build spec — scope tiers, canonical status enums, data model, feature contracts, CI/CD, build sequence |
+| [SPEC-002](docs/specs/SPEC-002-ai-broker-copilot.md) | Planned AI Broker Copilot — LLM as interface, backend/tools as truth, HITL writes, safety model, future eval/observability strategy |
 
 ---
 
@@ -321,6 +330,7 @@ FixtureLog models the shortest credible path from an offshore enquiry to a fixed
 | [SSY-OFFSHORE-FIXTURE-PROJECT-BLUEPRINT.md](docs/research/SSY-OFFSHORE-FIXTURE-PROJECT-BLUEPRINT.md) | Recommended project, data model, pages/routes, build plan, worked pipeline example |
 | [SSY-OFFSHORE-TECHNICAL-DECISION-RESEARCH.md](docs/research/SSY-OFFSHORE-TECHNICAL-DECISION-RESEARCH.md) | Real-vs-mock data strategy, API inventory, stack, deployment, seed figures |
 | [SSY-OFFSHORE-GLOSSARY.md](docs/research/SSY-OFFSHORE-GLOSSARY.md) | Plain-English glossary of broking/maritime/tech terms + cheat sheet |
+| [AI-BROKER-COPILOT-RESEARCH.md](docs/research/AI-BROKER-COPILOT-RESEARCH.md) | Planned copilot architecture, tool design, safety model, HITL flow, observability, and eval strategy |
 
 Project context and decision history: [docs/architecture/PROJECT-CONTEXT.md](docs/architecture/PROJECT-CONTEXT.md).
 

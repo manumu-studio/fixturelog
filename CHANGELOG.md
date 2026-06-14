@@ -2,6 +2,27 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] — 2026-06-14 (Docs: AI Broker Copilot Safety Spec)
+
+### Added
+
+- `docs/specs/SPEC-002-ai-broker-copilot.md` — future AI Broker Copilot architecture and safety spec: LLM as interface, backend/tools as source of truth, typed tool contracts, HITL write gates, provider-neutral `ToolResult`, risk model, eval strategy, and future audit/data model.
+- `docs/research/AI-BROKER-COPILOT-RESEARCH.md` — cleaned research source covering Vercel AI SDK orchestration, structured outputs, tool calling, Langfuse/Braintrust observability, eval strategy, Open-Meteo caveats, and human confirmation flow.
+- `docs/pull-requests/PR-1.0.1.md` and `docs/journal/ENTRY-006.md` for the docs-only spec packet.
+
+### Changed
+
+- README, roadmap, project context, AI usage, and local context now describe the copilot as planned, not built.
+- Public/current-state docs now use public feature wording instead of internal `PACKET-NNN` labels.
+- Glossary now includes the `OTHER` vessel type, matching the nine vessel-type enum values documented in the MVP.
+
+### Notes
+
+- No runtime AI was added.
+- No source code, Prisma schema, dependencies, environment variables, package lock, or `package.json` version were changed. `package.json` remains `1.0.0`; `1.0.1` is a changelog/PR/journal docs anchor only.
+
+---
+
 ## [1.0.0] — 2026-06-13 (MVP: Regional Map + Vessel Positions + Deploy)
 
 ### Added
