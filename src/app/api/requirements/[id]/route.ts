@@ -1,5 +1,6 @@
 // GET /api/requirements/:id — requirement detail with charterer, region, workscope, fixtures
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
 
@@ -7,6 +8,9 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const resolved = await params; // Next.js 15: params is a Promise
   const parsed = CuidParamSchema.safeParse(resolved);
   if (!parsed.success) {

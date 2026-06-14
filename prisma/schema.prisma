@@ -151,6 +151,23 @@ model Broker {
 
   fixtures       Fixture[]
   approvedRecaps Recap[]
+  appUsers       AppUser[]
+}
+
+// Maps an OIDC identity (stable `sub` = externalId) to a business Broker actor.
+// A broker may have multiple auth identities; seeded brokers can exist without one.
+model AppUser {
+  id         String   @id @default(cuid())
+  externalId String   @unique
+  email      String?
+  name       String?
+  brokerId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  broker Broker? @relation(fields: [brokerId], references: [id], onDelete: SetNull)
+
+  @@index([brokerId])
 }
 
 model Region {

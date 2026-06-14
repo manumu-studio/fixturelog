@@ -1,6 +1,7 @@
 // GET /api/vessels/positions — latest position per vessel, flattened for map markers
 
 import { NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import { prisma } from '@/lib/prisma';
 import {
   VesselPositionsResponseSchema,
@@ -8,6 +9,9 @@ import {
 } from '@/lib/validators/vessel-position.validators';
 
 export async function GET() {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const vessels = await prisma.vessel.findMany({
     where: { positions: { some: {} } }, // only vessels that have at least one position
     select: {

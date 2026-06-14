@@ -1,9 +1,13 @@
 // GET /api/weather/marine — Open-Meteo proxy; validates lat/lng, delegates to enricher, returns ad-hoc snapshot (no persistence)
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import { WeatherQuerySchema } from '@/lib/validators/weather.validators';
 import { fetchMarineWeather } from '@/lib/services/weather-enricher';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   // 1. Parse and validate query params
   const { searchParams } = request.nextUrl;
   const parseResult = WeatherQuerySchema.safeParse({

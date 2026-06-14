@@ -13,9 +13,11 @@ export const LANDING_NAV_LINKS = [
 
 export type LandingNavLink = (typeof LANDING_NAV_LINKS)[number];
 
-export const LANDING_NAV_AUTH_TEASER = {
-  label: 'Sign in — coming next',
-  disabled: true,
+// Real auth CTA labels — wired to Auth.js server actions via the AuthCta component.
+export const LANDING_AUTH_CTA = {
+  signIn: 'Sign in',
+  signUp: 'Create account',
+  workspace: 'Go to Workspace',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -34,6 +36,8 @@ export const LANDING_HERO_COPY = {
     { label: 'Add Charterer', href: '/charterers/new' },
     { label: 'Health', href: '/api/health' },
   ],
+  // Retained only for the untracked page2 WIP hero variant; the shipped landing (LandingHero)
+  // no longer renders this teaser — it shows the real AuthCta instead.
   authTeaser: 'Sign in coming next — no account required to explore.',
 } as const;
 
@@ -150,8 +154,8 @@ export type TechBadge = (typeof LANDING_TECH_BADGES)[number];
 // ---------------------------------------------------------------------------
 
 export const LANDING_CTA_FOOTER = {
-  heading: 'Explore the live workflow',
-  subline: 'No account required. All routes are public for the demo.',
+  heading: 'Enter the broker workspace',
+  subline: 'Sign in to work the live fixture workflow. All vessel data is synthetic and seeded for the demo.',
   links: [
     { label: 'View Requirements', href: '/requirements' },
     { label: 'Regional Map', href: '/map' },

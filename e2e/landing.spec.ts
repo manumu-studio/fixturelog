@@ -30,18 +30,12 @@ test('desktop (1440): landing page loads with hero, canvas, CTAs and no console 
   await expect(h1).toBeVisible();
   await expect(h1).toContainText('broker');
 
-  // Primary hero CTA visible (first match — hero section renders before feature showcase)
-  const primaryCta = page.getByRole('link', { name: /Explore Requirements/i }).first();
-  await expect(primaryCta).toBeVisible();
+  // E2E runs with the auth bypass, so the landing shows the authenticated workspace CTA.
+  const workspaceCta = page.getByRole('link', { name: /Go to Workspace/i }).first();
+  await expect(workspaceCta).toBeVisible();
 
-  // Secondary CTA visible
-  const secondaryCta = page.getByRole('link', { name: /View Regional Map/i }).first();
-  await expect(secondaryCta).toBeVisible();
-
-  // "Sign in coming next" teaser is visible and is NOT a link
-  await expect(page.getByText(/Sign in coming next/i)).toBeVisible();
-  const authLinks = page.locator('a', { hasText: /Sign in/i });
-  await expect(authLinks).toHaveCount(0);
+  // The old disabled "Sign in coming next" teaser has been removed.
+  await expect(page.getByText(/coming next/i)).toHaveCount(0);
 
   // Canvas is present and has drawn non-transparent pixels
   const canvas = page.locator('[data-testid="marine-canvas"]');
@@ -64,8 +58,8 @@ test('desktop (1440): landing page loads with hero, canvas, CTAs and no console 
   });
   expect(hasPixels).toBe(true);
 
-  // Primary hero CTA navigates to /requirements
-  await primaryCta.click();
+  // Authenticated workspace CTA navigates to /requirements
+  await workspaceCta.click();
   await expect(page).toHaveURL(/\/requirements/);
   await page.goBack();
 
@@ -97,7 +91,7 @@ test('desktop (1440): landing page loads with hero, canvas, CTAs and no console 
 // Mobile — 390 × 844 (iPhone 14 viewport)
 // ---------------------------------------------------------------------------
 
-test('mobile (390): heading visible, map CTA clickable and navigates to /map', async ({ page }) => {
+test('mobile (390): heading visible, workspace CTA clickable and navigates to /requirements', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   await page.goto('/');
@@ -112,11 +106,12 @@ test('mobile (390): heading visible, map CTA clickable and navigates to /map', a
     await menuToggle.click();
   }
 
-  // Secondary CTA (View Regional Map) is visible and clickable in hero section
-  const mapCta = page.getByRole('link', { name: /View Regional Map/i });
-  await expect(mapCta).toBeVisible({ timeout: 10_000 });
-  await mapCta.click();
-  await expect(page).toHaveURL(/\/map/);
+  // Authenticated workspace CTA (E2E bypass). Target the hero instance (last in DOM;
+  // nav renders first) so it is visible at mobile width without depending on the menu.
+  const workspaceCta = page.getByRole('link', { name: /Go to Workspace/i }).last();
+  await expect(workspaceCta).toBeVisible({ timeout: 10_000 });
+  await workspaceCta.click();
+  await expect(page).toHaveURL(/\/requirements/);
 
   // Mobile screenshot — scroll to top, wait for hero headline to finish fading in before capturing
   await page.goBack();

@@ -1,6 +1,6 @@
 # FixtureLog — Project Context
 
-> **Status: v1.1.0 — MVP complete + polished public landing (2026-06-14).** Animated maritime landing page with marine-chart hero canvas, regional Leaflet vessel map, 21 domain API endpoints plus the health endpoint, weather enrichment layer, hermetic full-workflow E2E (4 specs), and 264 unit tests across 31 files are in place. All routes are public; no account required. Auth integration is planned as PACKET-008.
+> **Status: v1.2.0 — MVP + public landing + auth integration (2026-06-14).** Authentication via the shared ManuMuStudio OIDC provider (Auth.js/NextAuth v5): operational pages live in a protected `(app)` route group, all 21 domain APIs are session-gated, and write routes resolve the acting broker from the session (`AppUser`→`Broker`, migration `auth_integration`). The landing stays public with real sign-in CTAs and security-headers middleware. 279 unit tests across 35 files; 7 E2E across 4 specs. Next: PACKET-009 client portal.
 >
 > **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`. Future AI Broker Copilot architecture is specified in `docs/specs/SPEC-002-ai-broker-copilot.md`.
 
@@ -52,7 +52,7 @@ Only public role requirements and product/domain context are included in reposit
 | Landing page | ✅ `/` — polished public landing page: animated marine-chart hero canvas (vessel tracks, port nodes, laycan arcs, cyan ribbon), Helical motion pattern + SSY editorial skin (navy/cyan), feature showcase, how-it-works, tech badges, CTA footer, portfolio disclaimer. `motion@^12` added. No account required; all CTAs link to real public routes. Auth teaser ("Sign in coming next") is a disabled placeholder — no auth behavior. |
 | Deployment | ✅ Vercel + Neon; `NEXT_PUBLIC_APP_URL` in `.env.example`; `postinstall: prisma generate` in `package.json`; deploy runbook in `README.md` and `docs/pull-requests/PR-1.0.0.md` |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
-| Auth integration | 📋 Planned — PACKET-008. Will cover OAuth/OIDC provider registration, Auth.js/NextAuth integration, `/api/auth/*` routes, protected route groups, session-aware shell, and `AppUser`/actor identity model. The landing page's "Sign in coming next" teaser will be wired to a real provider in PACKET-008. No auth exists in v1.1.x. |
+| Auth integration | ✅ Complete (v1.2.0, PACKET-008) — shared ManuMuStudio OIDC (Auth.js/NextAuth v5), `/api/auth/*` routes, `(app)` protected route group + API gating (`requireSession`/`requireApiSession`), `AppUser`→`Broker` actor mapping (migration `auth_integration`), real landing sign-in CTAs (`AuthCta`), and security-headers middleware. Write routes resolve the actor from the session, not the request body. |
 | AI Broker Copilot | 📋 Planned — `docs/specs/SPEC-002-ai-broker-copilot.md` defines the future architecture: LLM as interface, backend/tools as source of truth, human confirmation before writes, provider-neutral tool errors, safety risk model, and future eval/observability strategy. No runtime AI exists in v1.1.x. |
 
 ---
