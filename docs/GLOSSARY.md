@@ -60,6 +60,9 @@ A versatile vessel combining several capabilities — dive support, construction
 **On subs (On Subjects)**
 A stage in fixture negotiations where the principal terms are agreed but the deal is conditional on outstanding subjects being lifted. Equivalent to `ON_SUBS` status.
 
+**OTHER**
+An app-level vessel type for offshore support vessels that do not fit the named PSV, AHTS, MPSV, CSV, ERRV, DSV, CTV, or SOV categories.
+
 **Owner**
 The company or individual that owns a vessel and makes it available for charter. The owner's representative negotiates terms with the shipbroker acting for the charterer.
 
