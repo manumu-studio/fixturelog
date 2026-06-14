@@ -1,5 +1,6 @@
 // POST /api/fixtures/:id/subjects — add a subject line item to a fixture (default status PENDING)
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/require-session';
 import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
 import { SubjectCreateSchema } from '@/lib/validators/fixture.validators';
@@ -8,6 +9,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await requireApiSession();
+  if (!session.ok) return session.response;
+
   const resolved = await params;
   const idParsed = CuidParamSchema.safeParse(resolved);
   if (!idParsed.success) {

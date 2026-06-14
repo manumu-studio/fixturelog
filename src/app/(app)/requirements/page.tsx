@@ -1,7 +1,7 @@
 // /requirements — requirement list: table of Charterer, Vessel Type, Region, Status, Start Date, Budget
 import Link from 'next/link';
 import { z } from 'zod';
-import { getRequestOrigin } from '@/lib/server-origin';
+import { serverFetch } from '@/lib/server-fetch';
 
 const RequirementListResponseSchema = z.object({
   data: z.array(z.object({
@@ -19,8 +19,7 @@ const RequirementListResponseSchema = z.object({
 type RequirementListResponse = z.infer<typeof RequirementListResponseSchema>;
 
 async function fetchRequirements(): Promise<RequirementListResponse> {
-  const origin = await getRequestOrigin();
-  const res = await fetch(`${origin}/api/requirements?limit=50`, { cache: 'no-store' });
+  const res = await serverFetch('/api/requirements?limit=50');
   if (!res.ok) throw new Error('Failed to fetch requirements');
   return RequirementListResponseSchema.parse(await res.json());
 }

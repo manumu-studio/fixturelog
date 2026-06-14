@@ -1,6 +1,7 @@
 // page.tsx — public landing page for FixtureLog. Route `/` remains public with no auth.
 // Composed from landing section components; all copy sourced from landing-copy.ts.
 
+import { AuthCta } from '@/components/landing/AuthCta';
 import { CtaFooter } from '@/components/landing/CtaFooter';
 import { FeatureShowcase } from '@/components/landing/FeatureShowcase';
 import { HowItWorks } from '@/components/landing/HowItWorks';
@@ -14,10 +15,10 @@ import styles from './page.module.css';
 export default function Home() {
   return (
     <>
-      <LandingNav />
+      <LandingNav authSlot={<AuthCta variant="nav" />} />
 
       <main id="main-content">
-        <LandingHero />
+        <LandingHero authSlot={<AuthCta variant="hero" />} />
 
         {/* Proof strip — concise metrics from MVP v1.0.0 */}
         <section className={styles.proofStrip} aria-label="Key metrics">

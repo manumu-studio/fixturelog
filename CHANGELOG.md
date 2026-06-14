@@ -2,6 +2,33 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] — 2026-06-14 (Auth Integration)
+
+### Added
+
+- **Authentication via the shared ManuMuStudio OIDC provider** (Auth.js / NextAuth v5 beta). `src/features/auth/` holds the NextAuth config (provider id `manumustudio`, JWT sessions, federated sign-out), client-safe `useSession`, and the sign-in/sign-up server actions.
+- **Split environment validation** — `src/lib/env.ts` (client-safe) and `src/lib/env.server.ts` / `env.server.schema.ts` (`server-only`, with a production placeholder guard) keep auth secrets out of the client bundle.
+- **Route protection** — operational pages moved into an authenticated `src/app/(app)/` route group whose layout calls `requireSession()` (redirects anonymous visitors to `/`); URLs are unchanged. New `src/lib/auth/require-session.ts` exposes `requireSession()` (pages) and `requireApiSession()` (401 JSON for APIs).
+- **API gating** — all 21 domain route handlers now require a session; `/`, `/api/auth/*`, and `/api/health` stay public. A cookie-forwarding `src/lib/server-fetch.ts` lets server components reach their own gated APIs as the signed-in user.
+- **Domain identity + actor model** — new `AppUser` Prisma model mapping OIDC `externalId` → `Broker` (migration `auth_integration`). `src/lib/auth/provision-actor.ts` provisions an `AppUser` on first access and resolves the broker (link by email; dev/demo auto-creates; production refuses with 403).
+- **Auth CTAs on the landing** — new `AuthCta` server component: anonymous visitors see Sign in / Create account (server actions), authenticated visitors see Go to Workspace → `/requirements`.
+- **`src/middleware.ts`** — baseline security headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS), edge-safe and excluding `/api/auth/*` and static assets.
+- Tests: `require-session`, `provision-actor`, and `AuthCta` unit tests, plus impersonation-prevention cases for `POST /api/fixtures` and `PATCH /api/fixtures/[id]/status`. Vitest aliases `server-only` and `@/features/auth/auth` so route handlers test without loading next-auth.
+
+### Changed
+
+- **Actor identity now comes from the session, not the request body.** `POST /api/fixtures` resolves the broker from the session (body `brokerId` removed/ignored) and `PATCH /api/fixtures/[id]/status` writes the audit actor from the session (body `actor` removed/ignored) — a caller can no longer impersonate another broker.
+- Landing copy no longer claims "no account required / all routes public"; the final CTA band now drives sign-in.
+- Playwright `webServer` runs with `E2E_TEST_USER=true` so the auth bypass keeps gated routes reachable in E2E.
+- Total unit tests: 279 across 35 files. E2E: 7 tests across 4 specs.
+
+### Notes
+
+- The deployed `auth.manumustudio.com` issuer and the FixtureLog `OAuthClient` (scopes openid/email/profile) were registered ahead of this packet.
+- Runtime AI Broker Copilot remains unbuilt; auth is its prerequisite (SPEC-002).
+
+---
+
 ## [1.1.0] — 2026-06-14 (Public Landing Page)
 
 ### Added

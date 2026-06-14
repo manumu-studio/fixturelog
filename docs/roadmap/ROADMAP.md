@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: v1.1.0 — MVP complete + polished public landing (2026-06-14).** All five MVP work packages shipped, plus the PACKET-007 public landing. Animated maritime landing page, regional Leaflet vessel map, 21 domain API endpoints plus the health endpoint, weather enrichment layer, full service layer, hermetic full-workflow E2E (4 specs), and 264 unit tests across 31 files are in place. All routes are public. Configured for Vercel + Neon deploy. Next: PACKET-008 auth integration.
+> **Status: v1.2.0 — MVP + public landing + auth integration (2026-06-14).** All five MVP packages, the PACKET-007 landing, and PACKET-008 auth are shipped. Operational routes are session-gated behind the shared ManuMuStudio OIDC provider; the landing stays public. 279 unit tests across 35 files; 7 E2E across 4 specs. Configured for Vercel + Neon deploy. Next: PACKET-009 client portal.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -72,8 +72,13 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 - [x] Screenshots under `public/assets/landing/`
 - [x] Total: 264 unit tests across 31 files; 4 E2E specs
 
-## Phase 3: Post-MVP (planned)
-- [ ] **PACKET-008: Auth integration** — OAuth/OIDC provider registration, Auth.js/NextAuth integration, `/api/auth/*` routes, protected route groups, session-aware shell, `AppUser`/actor identity model; replaces landing "Sign in coming next" teaser with real sign-in behavior
+## Phase 3: Post-MVP
+
+### Auth Integration — v1.2.0 ✅ COMPLETE (2026-06-14)
+- [x] **PACKET-008: Auth integration** — shared ManuMuStudio OIDC (Auth.js/NextAuth v5), `/api/auth/*` routes, `(app)` protected route group + API gating (`requireSession`/`requireApiSession`), `AppUser`→`Broker` actor mapping (migration `auth_integration`), real landing sign-in CTAs (`AuthCta`), security-headers middleware; write routes resolve the actor from the session, not the body
+
+### Planned
+- [ ] Deploy verification: screenshots / demo recording after Vercel + Neon deploy
 - [ ] Deploy verification: screenshots / demo recording after Vercel + Neon deploy
 - [ ] Rate limiting on the weather proxy (Open-Meteo has undocumented limits)
 - [ ] Post-MVP AI Broker Copilot implementation — natural-language requirement intake, typed backend tools, and human confirmation before writes (requires auth identity from PACKET-008)
