@@ -10,8 +10,12 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
+// Broker-only mutation: gate at the boundary so handler tests run as an authenticated broker.
+vi.mock('@/lib/auth/require-broker', () => ({ requireBrokerApi: vi.fn() }));
+
 import { PATCH } from './route';
 import { prisma } from '@/lib/prisma';
+import { requireBrokerApi } from '@/lib/auth/require-broker';
 import { NextRequest } from 'next/server';
 
 const FIXTURE_ID = 'clxxxxxxxxxxxxxxxxxxxxxx01';
@@ -30,6 +34,10 @@ const SUBJECT_STUB = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(requireBrokerApi).mockResolvedValue({
+    ok: true,
+    ctx: { brokerId: 'br-1', appUserId: 'au-1', email: null, name: null },
+  });
 });
 
 describe('PATCH /api/fixtures/:id/subjects/:subjectId', () => {

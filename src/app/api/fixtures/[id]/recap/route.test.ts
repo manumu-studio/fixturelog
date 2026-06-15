@@ -9,9 +9,13 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
+// Broker-only action: gate at the boundary so handler tests run as an authenticated broker.
+vi.mock('@/lib/auth/require-broker', () => ({ requireBrokerApi: vi.fn() }));
+
 // Note: formatRecap is NOT mocked — pure function runs for real.
 import { POST } from './route';
 import { prisma } from '@/lib/prisma';
+import { requireBrokerApi } from '@/lib/auth/require-broker';
 
 const FIXTURE_ID = 'clxxxxxxxxxxxxxxxxxxxxxx01';
 
@@ -68,6 +72,10 @@ const RECAP_STUB = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(requireBrokerApi).mockResolvedValue({
+    ok: true,
+    ctx: { brokerId: 'clxxxxxxxxxxxxxxxxxxxxxx04', appUserId: 'au-1', email: null, name: null },
+  });
 });
 
 describe('POST /api/fixtures/:id/recap', () => {

@@ -1,6 +1,6 @@
 // POST /api/fixtures/:id/recap — generate and persist SUPPLYTIME 2017 recap
 import { NextRequest, NextResponse } from 'next/server';
-import { requireApiSession } from '@/lib/auth/require-session';
+import { requireBrokerApi } from '@/lib/auth/require-broker';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
@@ -11,8 +11,10 @@ export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireApiSession();
-  if (!session.ok) return session.response;
+  // Broker-only action: anonymous -> 401, charterer -> 403. Charterers read persisted
+  // recaps through the scoped portal query; generating one is a broker-side step.
+  const guard = await requireBrokerApi();
+  if (!guard.ok) return guard.response;
 
   const resolved = await params;
   const parsed = CuidParamSchema.safeParse(resolved);

@@ -1,6 +1,6 @@
 // PATCH /api/fixtures/:id/subjects/:subjectId — update/lift a subject (status -> LIFTED/WAIVED)
 import { NextRequest, NextResponse } from 'next/server';
-import { requireApiSession } from '@/lib/auth/require-session';
+import { requireBrokerApi } from '@/lib/auth/require-broker';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { SubjectUpdateSchema } from '@/lib/validators/fixture.validators';
@@ -14,8 +14,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; subjectId: string }> },
 ) {
-  const session = await requireApiSession();
-  if (!session.ok) return session.response;
+  // Broker-only mutation: anonymous -> 401, charterer -> 403.
+  const guard = await requireBrokerApi();
+  if (!guard.ok) return guard.response;
 
   const resolved = await params;
   const paramsParsed = SubjectParamsSchema.safeParse(resolved);

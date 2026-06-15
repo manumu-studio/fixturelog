@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 
-// Literal arrays mirror prisma/schema.prisma enums (verified in TASK-040).
+// Literal arrays mirror prisma/schema.prisma enums (kept in sync with the schema).
 // z.enum (not z.nativeEnum) keeps @prisma/client out of the client bundle that imports this file.
 const VesselTypeSchema = z.enum(['PSV', 'AHTS', 'MPSV', 'CSV', 'ERRV', 'DSV', 'CTV', 'SOV', 'OTHER']);
 const VesselStatusSchema = z.enum(['OPEN', 'ON_HIRE', 'YARD', 'LAID_UP']);

@@ -1,6 +1,6 @@
 // FeatureShowcase.tsx — four alternating feature rows with whileInView reveal animations.
 // Reads copy from landing-copy.ts. Mock panels are CSS-rendered honest UI previews;
-// real Playwright screenshots are captured in TASK-067.
+// real Playwright screenshots back the showcase imagery.
 
 'use client';
 

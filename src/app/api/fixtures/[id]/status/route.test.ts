@@ -11,18 +11,14 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-// Audit actor is resolved from the session; isolate handler tests from provisioning.
-vi.mock('@/lib/auth/provision-actor', () => ({
-  resolveActor: vi.fn(async () => ({
-    ok: true,
-    brokerId: 'clxxxxxxxxxxxxxxxxxxxxxx04',
-    appUserId: 'appuser-1',
-  })),
-}));
+// Broker-only mutation: gate at the boundary so handler tests run as an authenticated broker
+// whose brokerId is the audit actor.
+vi.mock('@/lib/auth/require-broker', () => ({ requireBrokerApi: vi.fn() }));
 
 // Note: evaluateTransition is NOT mocked — pure function runs for real.
 import { PATCH } from './route';
 import { prisma } from '@/lib/prisma';
+import { requireBrokerApi } from '@/lib/auth/require-broker';
 
 const FIXTURE_ID = 'clxxxxxxxxxxxxxxxxxxxxxx01';
 const BROKER_ID = 'clxxxxxxxxxxxxxxxxxxxxxx04';
@@ -70,6 +66,10 @@ function makePatchRequest(body: Record<string, unknown>) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(requireBrokerApi).mockResolvedValue({
+    ok: true,
+    ctx: { brokerId: BROKER_ID, appUserId: 'appuser-1', email: null, name: null },
+  });
   vi.mocked(prisma.$transaction).mockImplementation(async (cb) => cb(prisma as never));
 });
 

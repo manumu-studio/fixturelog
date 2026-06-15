@@ -1,6 +1,6 @@
-// broker-queries.ts — broker-wide dashboard aggregate (PACKET-009 broker add-on, TASK-092).
-// Same DashboardData shape as the charterer dashboard, but NOT charterer-scoped: it is the
-// broker's incoming queue across every charterer. Reuses the portal mappers + selects.
+// broker-queries.ts — broker-wide dashboard aggregate. Same DashboardData shape as the
+// charterer dashboard, but NOT charterer-scoped: it is the brokerage's incoming queue across
+// every charterer. Reuses the portal mappers + selects.
 import 'server-only';
 import type { FixtureStatus, RequirementStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';

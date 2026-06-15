@@ -1,4 +1,4 @@
-# PR-1.2.0 — Auth Integration (PACKET-008)
+# PR-1.2.0 — Auth Integration
 
 **Branch:** `feat/auth-integration` → `main`
 **Version:** 1.2.0
