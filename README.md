@@ -8,7 +8,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
   <a href="#"><strong>Live Demo</strong></a> · <a href="docs/specs/SPEC-001-mvp-build.md"><strong>Build Spec</strong></a> · <a href="docs/GLOSSARY.md"><strong>Glossary</strong></a> · <a href="https://github.com/manumu-studio/fixturelog"><strong>Source Code</strong></a>
 </p>
 
-<p align="center"><em>v1.3.0 — two-sided product: a charterer Client Portal (<code>/portal</code>) and a broker Dashboard (<code>/dashboard</code>), both role-gated on the shared ManuMuStudio OIDC identity. The landing stays public.</em></p>
+<p align="center"><em>v1.4.0 — the AI Broker Copilot now takes actions on the broker's desk: grounded in the desk's real data, it can advance a fixture or draft a recap, but every write is gated behind an explicit broker approval. Built on the v1.3.0 two-sided product (charterer Client Portal <code>/portal</code> + broker Dashboard <code>/dashboard</code>), role-gated on the shared ManuMuStudio OIDC identity. The landing stays public.</em></p>
 
 ---
 
@@ -22,7 +22,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
 
 FixtureLog is a portfolio demo of a realistic **offshore shipbroking workflow** — an Offshore Fixture Board + Recap Generator with a marine weather check and a regional vessel map, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role.
 
-A broker captures a charterer's **requirement**, runs a pure two-stage **matching engine** (hard filters → weighted composite score) to produce a ranked vessel shortlist with a per-factor breakdown, records the **fixture** (the agreed deal) through a subject-gated status machine, generates a deterministic **SUPPLYTIME 2017 recap** in Markdown and plain text, checks whether marine weather supports the work window via an **Open-Meteo** verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`), and visualises seeded vessel positions on a **Leaflet** map. No runtime LLM — the backend is the source of truth. Scope, status enums, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md); domain vocabulary lives in the [glossary](docs/GLOSSARY.md).
+A broker captures a charterer's **requirement**, runs a pure two-stage **matching engine** (hard filters → weighted composite score) to produce a ranked vessel shortlist with a per-factor breakdown, records the **fixture** (the agreed deal) through a subject-gated status machine, generates a deterministic **SUPPLYTIME 2017 recap** in Markdown and plain text, checks whether marine weather supports the work window via an **Open-Meteo** verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`), and visualises seeded vessel positions on a **Leaflet** map. The AI Broker Copilot adds a grounded, confirm-gated runtime LLM on top, but the deterministic backend stays the only path to a write — the source of truth. Scope, status enums, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md); domain vocabulary lives in the [glossary](docs/GLOSSARY.md).
 
 ## Pages
 
@@ -175,10 +175,11 @@ The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/archit
 
 ## Roadmap
 
+- **Done (v1.4.0)** — AI Broker Copilot v2: the grounded broker-only chat becomes a bounded tool-using agent (`getFixture` / `findMatches` auto-run; `advanceFixtureStatus` / `generateRecap` are proposed-only and execute only after an explicit broker approval). The deterministic policy stays the only door to the DB
 - **Done (v1.3.0)** — two-sided product: charterer Client Portal (`/portal`) + broker Dashboard (`/dashboard`), role-gated identity (`AppUser` → Broker | Charterer), honesty-labelled vessel imagery, charterer-scoped + broker-wide dashboard APIs, and a token-only portal design kit
 - **Done (v1.2.0)** — auth integration (shared OIDC sign-in, protected route group + API gating, `AppUser`→`Broker` actor mapping, security-headers middleware)
 - **Next** — deepen the two-sided workflow (charterer-driven status visibility, richer documents) and harden role isolation
-- **Dropped** — the runtime AI Broker Copilot is no longer on the roadmap; the two-sided portal/dashboard is the product direction instead
+- **Shipped, not autonomous** — the runtime copilot is intentionally confirm-gated (a human checkpoint on every write), never an autonomous agent; rationale in [ADR-0004](docs/decisions/ADR-0004-copilot-human-in-the-loop.md)
 
 ## Built by
 
