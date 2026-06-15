@@ -4,11 +4,11 @@ All notable changes to FixtureLog are documented here. Versions follow [Semantic
 
 ## [1.3.0] — 2026-06-14 (Client Portal + Broker Dashboard)
 
-FixtureLog becomes a **two-sided product**: a charterer (client) portal and a broker dashboard, both authenticated and role-gated on top of PACKET-008's `AppUser` identity.
+FixtureLog becomes a **two-sided product**: a charterer (client) portal and a broker dashboard, both authenticated and role-gated on top of the v1.2.0 `AppUser` identity.
 
 ### Added
 
-- **Charterer Client Portal** (`/portal/*`, PACKET-009) — six server-rendered, charterer-scoped surfaces: **Dashboard** (active enquiries, pending actions, fixture/weather timeline), **Create Enquiry** (deterministic Zod-validated form), **My Enquiries** + detail with a recommended-vessel **shortlist** (reuses the PACKET-003 matcher read-only), **Fleet Explorer** (the reused Leaflet map + a vessel gallery + a shared modal — a marker and a card open the same `VesselModal`), **My Fixtures**, and **Documents** (recap copy/download).
+- **Charterer Client Portal** (`/portal/*`) — six server-rendered, charterer-scoped surfaces: **Dashboard** (active enquiries, pending actions, fixture/weather timeline), **Create Enquiry** (deterministic Zod-validated form), **My Enquiries** + detail with a recommended-vessel **shortlist** (reuses the broker matcher read-only), **Fleet Explorer** (the reused Leaflet map + a vessel gallery + a shared modal — a marker and a card open the same `VesselModal`), **My Fixtures**, and **Documents** (recap copy/download).
 - **Broker Dashboard** (`/dashboard`, broker home) — the same three dashboard zones fed by a **broker-wide** aggregate (every charterer's queue), reusing the portal component kit unchanged. The broker home moved from the bare `/requirements` list to `/dashboard`.
 - **Role-based identity** — `AppUser` gains `role` (`AppRole` = BROKER | CLIENT) + `chartererId`; `Vessel` gains honesty-labelled image fields (`imageUrl`, `images`, `imageSource` (`VesselImageSource`), `imageCredit`). Migration `client_portal`.
 - **Auth guards** — `require-charterer.ts` (charterer page/API guards + first-login provisioning: match `Charterer.contactEmail`, dev auto-links the demo charterer), `require-broker.ts` (broker mirror), `resolve-role.ts` / `resolve-home-route.ts`, and a `/api/auth/post-login` hop that routes each role to its home (charterer → `/portal`, broker → `/dashboard`).
@@ -28,7 +28,7 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
 ### Notes
 
 - The portal renders only the logged-in charterer's own data, proven isolated by test (cross-charterer reads 404). The whole fleet is visible read-only in Fleet Explorer; the portal has no write path to vessels/owners/other charterers.
-- The AI Broker Copilot (previously PACKET-010) is **dropped** from the roadmap; this packet delivers the two-sided product instead.
+- The AI Broker Copilot is **dropped** from the roadmap; this release delivers the two-sided product instead.
 
 ---
 
@@ -82,7 +82,7 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
 
 ### Notes
 
-- Auth integration remains a separate future packet (PACKET-008). No `next-auth`, OAuth, sessions, middleware, `AppUser` model, or `/api/auth/*` routes were added.
+- Auth integration remains a separate future release (v1.2.0). No `next-auth`, OAuth, sessions, middleware, `AppUser` model, or `/api/auth/*` routes were added.
 - Runtime AI remains unbuilt. SPEC-002 is still the planned copilot architecture.
 - Design is a hybrid: Helical Bio Explorer motion pattern (primary) + SSY editorial skin (navy `#000061` / cyan `#00e2fd` / white). SSY is used as a style reference only — no SSY branding, logo, or affiliation claim.
 - `docs/research/SSY-GLOBAL-LANDING-CSS-PATTERN-REPORT.md` was the design input for palette, typography, and editorial spacing cues.
@@ -144,7 +144,7 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
 
 ---
 
-## [0.5.0] — 2026-06-12 (PACKET-004: Weather Enrichment + Happy-Path E2E)
+## [0.5.0] — 2026-06-12 (Weather Enrichment + Happy-Path E2E)
 
 ### Added
 
@@ -163,11 +163,11 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
 - Coverage: 94.92% statements / 85.03% branches / 93.61% functions / 94.92% lines (thresholds 70/60/70/70)
 - TypeScript: 0 errors; ESLint: 0 errors
 - First Load JS shared: 102 kB (budget < 200 kB)
-- No Prisma migration — `WeatherSnapshot` existed in the PACKET-002 schema; no schema changes in PACKET-004
+- No Prisma migration — `WeatherSnapshot` existed in the core-vertical-slice schema; no schema changes in this release
 
 ---
 
-## [0.4.0] — 2026-06-12 (PACKET-003: Requirement Matching)
+## [0.4.0] — 2026-06-12 (Requirement Matching)
 
 ### Added
 
@@ -188,11 +188,11 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
 - Coverage: 94.76% statements / 84.52% branches / 92.68% functions / 94.76% lines (thresholds 70/60/70/70)
 - TypeScript: 0 errors; ESLint: 0 errors
 - First Load JS (`/requirements` pages): 106 kB (102 kB shared baseline; budget < 200 kB)
-- No Prisma migration (no schema changes in PACKET-003)
+- No Prisma migration (no schema changes in this release)
 
 ---
 
-## [0.3.0] — 2026-06-12 (PACKET-002: Core Vertical Slice)
+## [0.3.0] — 2026-06-12 (Core Vertical Slice)
 
 ### Added
 
@@ -244,7 +244,7 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
 
 ---
 
-## [0.2.0] — 2026-06-11 (PACKET-001: Spine Foundation)
+## [0.2.0] — 2026-06-11 (Spine Foundation)
 
 ### Added
 - Next.js 15 project initialized with App Router and strict TypeScript
@@ -292,7 +292,6 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
   - `SSY-OFFSHORE-TECHNICAL-DECISION-RESEARCH.md` — real-vs-mock data strategy, API inventory, stack, deployment, seed figures.
   - `SSY-OFFSHORE-GLOSSARY.md` — plain-English glossary + cheat sheet.
 - Methodology scaffolding: `docs/architecture/PROJECT-CONTEXT.md`, `docs/decisions/ADR-0001-research-first-methodology.md`, consolidated journal entry, `docs/roadmap/ROADMAP.md`, and project rules.
-- Agent/project rules: `.clauderules` and `.cursorrules` to keep future Claude Code and Cursor sessions aligned with the research-first methodology.
 - `README.md` (project overview, status, research index, methodology).
 
 ### Notes

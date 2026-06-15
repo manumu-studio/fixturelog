@@ -1,16 +1,16 @@
-# PR — v1.3.0 — Client Portal + Broker Dashboard (PACKET-009)
+# PR — v1.3.0 — Client Portal + Broker Dashboard
 
 **Branch:** `feat/client-portal` → `main`
 **Type:** Feature (minor release — adds a new authenticated audience; no breaking change to the broker workflow)
 
 ## What this PR does
 
-Turns FixtureLog into a **two-sided product**: a charterer **Client Portal** at `/portal/*` and a broker **Dashboard** at `/dashboard`, both role-gated on PACKET-008's `AppUser` identity.
+Turns FixtureLog into a **two-sided product**: a charterer **Client Portal** at `/portal/*` and a broker **Dashboard** at `/dashboard`, both role-gated on the `AppUser` identity from the auth-integration work.
 
 ### Charterer Client Portal (`/portal/*`)
 - **Dashboard** — active enquiries, pending actions (what needs the client's decision), and a fixture/weather timeline with the workability verdict + honesty/source label.
 - **Create Enquiry** — deterministic, Zod-validated form; writes a `Requirement` owned by the session charterer (`status: ENQUIRY`); supports a "Use in enquiry" prefill from a vessel.
-- **My Enquiries** + detail — the charterer's requirements, and a per-requirement **recommended-vessel shortlist** that reuses the PACKET-003 matcher read-only with "why this vessel" evidence.
+- **My Enquiries** + detail — the charterer's requirements, and a per-requirement **recommended-vessel shortlist** that reuses the broker matcher read-only with "why this vessel" evidence.
 - **My Fixtures** + **Documents** — the charterer's fixtures (status, subjects, weather) and recap documents (copy / download).
 - **Fleet Explorer components** — the reused Leaflet map (extended with an optional `onVesselClick`) plus a vessel gallery and a shared `VesselModal`; a map marker and a gallery card open the same modal.
 - **Fleet ordering** — `/map` sorts real-photo vessels first and places stock/no-image vessels at the end of the gallery/map data.

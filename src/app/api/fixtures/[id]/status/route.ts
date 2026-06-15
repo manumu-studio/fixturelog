@@ -1,7 +1,6 @@
 // PATCH /api/fixtures/:id/status — status transition through FixtureStatusPolicy
 import { NextRequest, NextResponse } from 'next/server';
-import { requireApiSession } from '@/lib/auth/require-session';
-import { resolveActor } from '@/lib/auth/provision-actor';
+import { requireBrokerApi } from '@/lib/auth/require-broker';
 import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
 import { FixtureStatusTransitionSchema } from '@/lib/validators/fixture.validators';
@@ -11,12 +10,10 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireApiSession();
-  if (!session.ok) return session.response;
-
-  // Audit actor comes from the session, never the body — prevents spoofing.
-  const actor = await resolveActor(session.user);
-  if (!actor.ok) return actor.response;
+  // Broker-only mutation: anonymous -> 401, charterer -> 403. The audit actor's brokerId
+  // comes from the provisioned session, never the body — prevents spoofing.
+  const guard = await requireBrokerApi();
+  if (!guard.ok) return guard.response;
 
   const resolved = await params;
   const idParsed = CuidParamSchema.safeParse(resolved);
@@ -72,7 +69,7 @@ export async function PATCH(
         fixtureId: id,
         fromStatus: fixture.status,
         toStatus,
-        actor: actor.brokerId,
+        actor: guard.ctx.brokerId,
         notes: notes ?? null,
       },
     });

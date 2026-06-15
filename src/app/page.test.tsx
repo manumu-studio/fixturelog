@@ -1,4 +1,4 @@
-// page.test.tsx — unit tests for the public landing page (PACKET-007 TASK-067).
+// page.test.tsx — unit tests for the public landing page.
 // Uses renderToStaticMarkup (node env) with mocks for client-only dependencies.
 
 import { describe, it, expect, vi, beforeAll } from 'vitest';

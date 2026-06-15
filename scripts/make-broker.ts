@@ -1,18 +1,20 @@
-// make-broker.ts — make manumustudio@gmail.com resolve to a BROKER on login.
-// Idempotent: safe to re-run. Run from the fixturelog repo root:
-//   npx tsx scripts/make-broker.ts
+// make-broker.ts — make a given email resolve to a BROKER on login.
+// Idempotent: safe to re-run. Set BROKER_EMAIL (and optionally BROKER_NAME) to override the
+// defaults. Run from the fixturelog repo root:
+//   BROKER_EMAIL=you@example.com npx tsx scripts/make-broker.ts
 // (or with the same runner your seed uses).
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const EMAIL = 'manumustudio@gmail.com';
+const EMAIL = process.env.BROKER_EMAIL ?? 'manumustudio@gmail.com';
+const NAME = process.env.BROKER_NAME ?? 'Manu Murillo';
 
 async function main(): Promise<void> {
   // 1. Ensure a Broker exists for this email (email is not @unique → find-or-create).
   let broker = await prisma.broker.findFirst({ where: { email: EMAIL } });
   if (broker === null) {
     broker = await prisma.broker.create({
-      data: { name: 'Manu Murillo', email: EMAIL, office: 'ManuMu Offshore Partners' },
+      data: { name: NAME, email: EMAIL, office: 'ManuMu Offshore Partners' },
     });
     console.log(`Created broker ${broker.id} for ${EMAIL}`);
   } else {

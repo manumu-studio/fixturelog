@@ -1,4 +1,4 @@
-// seed-image-assets.test.ts — non-destructive audit for PACKET-009 TASK-079.
+// seed-image-assets.test.ts — non-destructive audit of the vessel seed data.
 // It verifies that the seed keeps unique vessel identifiers and that every
 // referenced seeded image asset exists.
 import { describe, expect, it } from 'vitest';
@@ -22,7 +22,7 @@ function duplicates(values: string[]): string[] {
   return [...dupe].sort();
 }
 
-describe('PACKET-009 vessel image seed audit', () => {
+describe('vessel image seed audit', () => {
   it('keeps seeded vessel IMO and MMSI values unique', () => {
     expect(duplicates(matches(/imo: '([^']+)'/g))).toEqual([]);
     expect(duplicates(matches(/mmsi: '([^']+)'/g))).toEqual([]);

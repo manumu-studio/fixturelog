@@ -3,7 +3,6 @@
 **Branch:** feat/public-landing → main
 **Version:** 1.1.0
 **Date:** 2026-06-14
-**Packet:** PACKET-007
 
 ---
 
@@ -46,7 +45,7 @@ Design direction: Helical Bio Explorer motion pattern (primary animation referen
 - `CHANGELOG.md` — 1.1.0 entry
 - `README.md` — status, structure tree, test counts, design note, roadmap section
 - `docs/architecture/PROJECT-CONTEXT.md` — landing and auth planning rows updated
-- `docs/roadmap/ROADMAP.md` — landing shipped; PACKET-008 auth as next planned packet
+- `docs/roadmap/ROADMAP.md` — landing shipped; auth integration as the next planned milestone
 - `docs/AI-USAGE.md` — no-runtime-AI confirmed at v1.1.0
 - `CONTEXT.md` — working state updated to v1.1.0
 
@@ -122,11 +121,11 @@ Screenshots captured after `next build` + `next start` to avoid Turbopack canvas
 
 - Public landing deploys without any provider registration. All CTAs link to public routes already in production.
 - `motion@^12` is a runtime dependency; it ships in the client bundle. Bundle budget (< 200 kB shared First Load JS) was verified during the build.
-- Auth CTAs remain placeholder/disabled until PACKET-008 wires them to a real OAuth provider.
+- Auth CTAs remain placeholder/disabled until the auth-integration work wires them to a real OAuth provider.
 - No new environment variables. No Prisma migration required.
 
 ---
 
 ## No-auth guarantee
 
-This PR contains zero authentication implementation. The "Sign in coming next" label on the landing is a disabled `<button>` element with no `onClick`, no `signIn()` call, no auth import, and no session check. PACKET-008 owns all auth integration work.
+This PR contains zero authentication implementation. The "Sign in coming next" label on the landing is a disabled `<button>` element with no `onClick`, no `signIn()` call, no auth import, and no session check. The auth-integration work (v1.2.0) owns all authentication.

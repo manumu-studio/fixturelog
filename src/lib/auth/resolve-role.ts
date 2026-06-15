@@ -5,8 +5,8 @@
 import type { AppRole } from '@prisma/client';
 
 export type Role = 'BROKER' | 'CLIENT';
-// Broker home is the broker dashboard (/dashboard, PACKET-009 TASK-091/093); charterer
-// home is the portal. /requirements remains a page inside the broker workspace.
+// Broker home is the broker dashboard (/dashboard); charterer home is the portal.
+// /requirements remains a page inside the broker workspace.
 export type HomeRoute = '/dashboard' | '/portal';
 
 export interface RoleResolution {

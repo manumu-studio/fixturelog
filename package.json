@@ -23,13 +23,17 @@
     "db:push": "prisma db push",
     "db:seed": "npx prisma db seed",
     "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "make-broker": "npx tsx scripts/make-broker.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.84",
+    "@ai-sdk/react": "^3.0.207",
     "@prisma/client": "^6",
+    "ai": "^6.0.205",
     "leaflet": "^1.9.4",
     "motion": "^12.40.0",
     "next": "^15",
