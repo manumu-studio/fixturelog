@@ -10,6 +10,7 @@ import { ActiveEnquiries } from '@/components/portal/ActiveEnquiries';
 import { PendingActions } from '@/components/portal/PendingActions';
 import { FixtureTimeline } from '@/components/portal/FixtureTimeline';
 import { FixtureCloseActions } from '@/components/portal/FixtureCloseActions';
+import { BrokerCopilot } from '@/components/portal/BrokerCopilot';
 import styles from './page.module.css';
 
 const BROKER_HREFS = { enquiry: '/requirements', fixtures: '/requirements', documents: '/requirements' };
@@ -48,6 +49,7 @@ export default async function BrokerDashboardPage() {
         </div>
         <div className={styles.col}>
           <PendingActions actions={dashboard.pendingActions} hrefs={BROKER_HREFS} />
+          <BrokerCopilot />
         </div>
       </div>
     </>

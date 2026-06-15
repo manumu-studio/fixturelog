@@ -1,4 +1,4 @@
-// require-charterer.ts — server-only guards that turn a PACKET-008 session into a
+// require-charterer.ts — server-only guards that turn an authenticated session into a
 // charterer (client) context. Brokers are bounced to their workspace, anonymous
 // visitors to the public landing, and unmapped clients to an onboarding notice.
 // `chartererId` is derived from the provisioned AppUser only — never from a body or
@@ -27,7 +27,7 @@ export type ChartererContext = {
 export const ACCESS_NOT_CONFIGURED_ROUTE = '/?notice=access-not-configured';
 
 // Broker sessions hitting the portal are bounced to the broker home (the broker
-// dashboard, PACKET-009 TASK-093).
+// dashboard).
 const BROKER_HOME = '/dashboard';
 
 // Dev/demo auto-link target: the seeded charterer with a full story (enquiries + an

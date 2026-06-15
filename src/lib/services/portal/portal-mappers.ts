@@ -1,4 +1,4 @@
-// portal-mappers.ts — pure Prisma-row -> portal DTO mappers (PACKET-009 §T5).
+// portal-mappers.ts — pure Prisma-row -> portal DTO mappers.
 // No I/O: each function turns a fetched row into the serialisable shape the API
 // validates and returns. Date values emit ISO strings.
 import type {

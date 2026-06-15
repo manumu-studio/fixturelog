@@ -175,8 +175,8 @@ The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/archit
 
 ## Roadmap
 
-- **Done (v1.3.0)** — PACKET-009 two-sided product: charterer Client Portal (`/portal`) + broker Dashboard (`/dashboard`), role-gated identity (`AppUser` → Broker | Charterer), honesty-labelled vessel imagery, charterer-scoped + broker-wide dashboard APIs, and a token-only portal design kit
-- **Done (v1.2.0)** — PACKET-008 auth integration (shared OIDC sign-in, protected route group + API gating, `AppUser`→`Broker` actor mapping, security-headers middleware)
+- **Done (v1.3.0)** — two-sided product: charterer Client Portal (`/portal`) + broker Dashboard (`/dashboard`), role-gated identity (`AppUser` → Broker | Charterer), honesty-labelled vessel imagery, charterer-scoped + broker-wide dashboard APIs, and a token-only portal design kit
+- **Done (v1.2.0)** — auth integration (shared OIDC sign-in, protected route group + API gating, `AppUser`→`Broker` actor mapping, security-headers middleware)
 - **Next** — deepen the two-sided workflow (charterer-driven status visibility, richer documents) and harden role isolation
 - **Dropped** — the runtime AI Broker Copilot is no longer on the roadmap; the two-sided portal/dashboard is the product direction instead
 

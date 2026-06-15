@@ -1,0 +1,139 @@
+/* BrokerCopilot.module.css — collapsible chat panel, token-only (--fl-*). Sits as an additive
+   card in the dashboard's side column; collapsed by default so it never crowds the queue. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-radius);
+  background-color: var(--fl-surface-white);
+  box-shadow: var(--fl-shadow-card);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fl-unit-10);
+  padding: var(--fl-unit-12) var(--fl-unit-16);
+  background-color: var(--fl-surface-navy);
+  color: var(--fl-white);
+  border: none;
+  cursor: pointer;
+  font-family: var(--fl-font-sans);
+  text-align: left;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  opacity: 0.85;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-12);
+  padding: var(--fl-unit-16);
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+  opacity: 0.75;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.userRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.assistantRow {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.bubble {
+  display: inline-block;
+  max-width: 85%;
+  padding: var(--fl-unit-8) var(--fl-unit-12);
+  border-radius: var(--fl-radius);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.userRow .bubble {
+  background-color: var(--fl-cyan);
+  color: var(--fl-navy);
+}
+
+.assistantRow .bubble {
+  background-color: var(--fl-surface-light);
+  color: var(--fl-ink);
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+}
+
+.composer {
+  display: flex;
+  gap: var(--fl-unit-8);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--fl-unit-8) var(--fl-unit-12);
+  font-family: var(--fl-font-sans);
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-pill);
+  background-color: var(--fl-surface-white);
+}
+
+.input:focus {
+  outline: 2px solid var(--fl-cyan);
+  outline-offset: 1px;
+}
+
+.send {
+  flex: 0 0 auto;
+  padding: var(--fl-unit-8) var(--fl-unit-20);
+  font-family: var(--fl-font-sans);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--fl-navy);
+  background-color: var(--fl-cyan);
+  border: 1.5px solid var(--fl-cyan);
+  border-radius: var(--fl-pill);
+  cursor: pointer;
+}
+
+.send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
