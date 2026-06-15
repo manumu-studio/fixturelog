@@ -1,6 +1,6 @@
 // POST /api/requirements/:id/match — fetch candidates + benchmarks, run FixtureMatcher, conditionally transition ENQUIRY → SHORTLISTED
 import { NextRequest, NextResponse } from 'next/server';
-import { requireApiSession } from '@/lib/auth/require-session';
+import { requireBrokerApi } from '@/lib/auth/require-broker';
 import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
 import { MatchRequestSchema } from '@/lib/validators/requirement.validators';
@@ -94,7 +94,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireApiSession();
+  const session = await requireBrokerApi(); // 401 anonymous, 403 charterer
   if (!session.ok) return session.response;
 
   // 1. Validate route param

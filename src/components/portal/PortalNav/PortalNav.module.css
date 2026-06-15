@@ -1,0 +1,224 @@
+/* PortalNav.module.css — navy operational navbar for authenticated app routes. */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--fl-surface-navy);
+  color: var(--fl-white);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fl-unit-16);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--fl-unit-12) var(--fl-gutter);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-8);
+  min-width: 0;
+  flex-shrink: 1;
+  font-family: var(--fl-font-display);
+  font-size: clamp(0.9375rem, 1.4vw, 1.125rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: var(--fl-white);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--fl-white);
+  text-decoration: none;
+}
+
+.brandSub {
+  font-family: var(--fl-font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fl-cyan);
+  white-space: nowrap;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-unit-20);
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-unit-16);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.link {
+  font-family: var(--fl-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fl-white);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.link:hover {
+  color: var(--fl-cyan);
+  text-decoration: none;
+}
+
+.linkActive {
+  color: var(--fl-cyan);
+}
+
+.linkCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--fl-unit-8) var(--fl-unit-20);
+  border-radius: var(--fl-pill);
+  border: 1.5px solid var(--fl-cyan);
+  background-color: var(--fl-cyan);
+  color: var(--fl-navy);
+  font-family: var(--fl-font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--fl-motion-base) var(--fl-ease-out),
+    border-color var(--fl-motion-base) var(--fl-ease-out);
+}
+
+.linkCta:hover {
+  background-color: var(--fl-cyan-hover);
+  border-color: var(--fl-cyan-hover);
+  color: var(--fl-navy);
+  text-decoration: none;
+}
+
+.linkCtaActive {
+  box-shadow: 0 0 0 2px rgba(0, 226, 253, 0.35);
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--fl-unit-2);
+  min-width: 0;
+}
+
+.userName {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fl-white);
+  white-space: nowrap;
+}
+
+.userEmail {
+  font-family: var(--fl-font-sans);
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14rem;
+}
+
+.menuToggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--fl-radius);
+}
+
+.menuToggle:focus-visible {
+  outline: 2px solid var(--fl-cyan);
+  outline-offset: 2px;
+}
+
+.hamburgerLine {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--fl-white);
+  border-radius: 1px;
+}
+
+@media (max-width: 959px) {
+  .inner {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .menuToggle {
+    display: flex;
+  }
+
+  .toolbar {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: var(--fl-unit-12);
+    padding: var(--fl-unit-12) 0 var(--fl-unit-8);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .toolbarOpen {
+    display: flex;
+  }
+
+  .links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--fl-unit-4);
+  }
+
+  .link {
+    padding: var(--fl-unit-10) 0;
+  }
+
+  .user {
+    align-items: flex-start;
+    padding-top: var(--fl-unit-8);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .userEmail {
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .linkCta,
+  .hamburgerLine {
+    transition: none;
+  }
+}

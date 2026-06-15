@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" role="img" aria-label="Stylized illustration of an Anchor Handling Tug Supply vessel (AHTS)">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000061"/>
+      <stop offset="62%" stop-color="#0087cb"/>
+      <stop offset="100%" stop-color="#00e2fd"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#02b5ca"/>
+      <stop offset="100%" stop-color="#000043"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="480" fill="url(#sky)"/>
+  <circle cx="648" cy="118" r="50" fill="#ffffff" opacity="0.16"/>
+  <rect y="318" width="800" height="162" fill="url(#sea)"/>
+  <g stroke="#ffffff" stroke-opacity="0.16" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M30,360 q28,-12 56,0 t56,0 t56,0 t56,0"/>
+    <path d="M360,388 q28,-12 56,0 t56,0 t56,0 t56,0"/>
+  </g>
+  <!-- AHTS: powerful hull, tall forward bridge, stern A-frame + towing winch -->
+  <g>
+    <path d="M150,300 L600,300 Q644,300 662,316 L636,330 L196,330 Q160,330 150,312 Z" fill="#ffffff"/>
+    <rect x="486" y="240" width="98" height="62" rx="4" fill="#ffffff"/>
+    <rect x="502" y="252" width="16" height="14" rx="2" fill="#000061"/>
+    <rect x="526" y="252" width="16" height="14" rx="2" fill="#000061"/>
+    <rect x="550" y="252" width="16" height="14" rx="2" fill="#000061"/>
+    <rect x="544" y="210" width="12" height="30" fill="#ffffff"/>
+    <line x1="550" y1="190" x2="550" y2="210" stroke="#ffffff" stroke-width="4"/>
+    <!-- stern A-frame (left) -->
+    <path d="M168,300 L188,236 L214,236 L234,300" fill="none" stroke="#ffffff" stroke-width="8" stroke-linejoin="round"/>
+    <line x1="188" y1="248" x2="214" y2="248" stroke="#ffffff" stroke-width="6"/>
+    <!-- towing drum -->
+    <circle cx="300" cy="288" r="16" fill="none" stroke="#00e2fd" stroke-width="6"/>
+    <circle cx="356" cy="288" r="16" fill="none" stroke="#0087cb" stroke-width="6"/>
+  </g>
+  <text x="400" y="452" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#ffffff" opacity="0.85" letter-spacing="3">ANCHOR HANDLING TUG SUPPLY · AHTS</text>
+</svg>

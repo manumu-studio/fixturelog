@@ -6,7 +6,9 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { LANDING_NAV_LINKS } from '@/lib/constants/landing-copy';
+import { AnimatedLogo } from '@/components/landing/AnimatedLogo';
+import { BRAND_HOME_LABEL, BRAND_NAME } from '@/lib/constants/brand';
+import { PUBLIC_NAV_LINKS } from '@/lib/constants/landing-copy';
 import type { LandingNavProps } from './LandingNav.types';
 import styles from './LandingNav.module.css';
 
@@ -47,8 +49,14 @@ export function LandingNav({ className, authSlot }: LandingNavProps) {
   return (
     <nav className={navClass} aria-label="Main navigation">
       <div className={styles.inner}>
-        <Link href="/" className={styles.brand} aria-label="FixtureLog home">
-          FixtureLog
+        <Link href="/" className={styles.brand} aria-label={BRAND_HOME_LABEL}>
+          <AnimatedLogo
+            width={88}
+            strokeWidth={2.4}
+            decorative
+            className={styles.logo ?? ''}
+          />
+          <span className={styles.brandName}>{BRAND_NAME}</span>
         </Link>
 
         {/* Mobile hamburger toggle — only visible at <640px */}
@@ -70,7 +78,7 @@ export function LandingNav({ className, authSlot }: LandingNavProps) {
           className={[styles.links, menuOpen ? styles.linksOpen : ''].filter(Boolean).join(' ')}
           role="list"
         >
-          {LANDING_NAV_LINKS.map((link) => (
+          {PUBLIC_NAV_LINKS.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}

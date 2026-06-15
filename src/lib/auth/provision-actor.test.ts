@@ -7,7 +7,7 @@ const { mockServerEnv } = vi.hoisted(() => ({ mockServerEnv: { NODE_ENV: 'test' 
 vi.mock('@/lib/env.server', () => ({ serverEnv: mockServerEnv }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    appUser: { upsert: vi.fn(), update: vi.fn() },
+    appUser: { upsert: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
     broker: { findFirst: vi.fn(), create: vi.fn() },
   },
 }));
@@ -17,9 +17,17 @@ import { prisma } from '@/lib/prisma';
 
 const USER: AuthenticatedUser = { externalId: 'ext-1', email: 'broker@example.com', name: 'Broker A' };
 
+function externalIdRaceError(): Error & { code: string; meta: { target: string[] } } {
+  return Object.assign(new Error('Unique constraint failed on the fields: (`externalId`)'), {
+    code: 'P2002',
+    meta: { target: ['externalId'] },
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockServerEnv.NODE_ENV = 'test';
+  vi.mocked(prisma.appUser.findUnique).mockResolvedValue(null);
 });
 
 describe('resolveActor', () => {
@@ -41,6 +49,16 @@ describe('resolveActor', () => {
     expect(result).toEqual({ ok: true, brokerId: 'b2', appUserId: 'u1' });
     expect(prisma.appUser.update).toHaveBeenCalledWith({ where: { id: 'u1' }, data: { brokerId: 'b2' } });
     expect(prisma.broker.create).not.toHaveBeenCalled();
+  });
+
+  it('recovers when a concurrent request already created the AppUser', async () => {
+    vi.mocked(prisma.appUser.upsert).mockRejectedValue(externalIdRaceError() as never);
+    vi.mocked(prisma.appUser.findUnique).mockResolvedValue({ id: 'u-race', brokerId: 'b-race' } as never);
+
+    const result = await resolveActor(USER);
+
+    expect(result).toEqual({ ok: true, brokerId: 'b-race', appUserId: 'u-race' });
+    expect(prisma.appUser.findUnique).toHaveBeenCalledWith({ where: { externalId: 'ext-1' } });
   });
 
   it('auto-creates a broker in dev/demo when no broker matches', async () => {

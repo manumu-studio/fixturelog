@@ -1,0 +1,35 @@
+/* StatusBadge.module.css — status pill, token-only. Tints derive from palette tokens via
+   color-mix, so no hardcoded colors are introduced. */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--fl-font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--fl-unit-4) var(--fl-unit-10);
+  border-radius: var(--fl-pill);
+  white-space: nowrap;
+}
+
+.new {
+  background-color: color-mix(in srgb, var(--fl-cyan) 22%, transparent);
+  color: var(--fl-navy);
+}
+
+.active {
+  background-color: color-mix(in srgb, var(--fl-blue) 16%, transparent);
+  color: var(--fl-blue);
+}
+
+.done {
+  background-color: color-mix(in srgb, var(--fl-navy) 12%, transparent);
+  color: var(--fl-navy);
+}
+
+.lost {
+  background-color: color-mix(in srgb, var(--fl-ink) 10%, transparent);
+  color: var(--fl-ink);
+}

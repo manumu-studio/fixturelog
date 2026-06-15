@@ -1,6 +1,7 @@
 // layout.tsx — root layout: next/font (display serif + sans), metadata, design token CSS vars.
 import type { Metadata } from 'next';
 import { Fraunces, Geist } from 'next/font/google';
+import { BRAND_PAGE_DESCRIPTION, BRAND_PAGE_TITLE } from '@/lib/constants/brand';
 import './globals.css';
 
 // Display serif: Fraunces approximates HCo Chronicle Display (SSY editorial style cue).
@@ -19,9 +20,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'FixtureLog — Offshore Fixture Workflow Demo',
-  description:
-    'FixtureLog models the full SUPPLYTIME offshore fixture cycle — vessel matching, subject-lift gating, marine weather evidence, and recap generation — on a seeded North Sea fleet.',
+  title: BRAND_PAGE_TITLE,
+  description: BRAND_PAGE_DESCRIPTION,
   keywords: [
     'offshore fixture',
     'shipbroking workflow',

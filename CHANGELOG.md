@@ -2,6 +2,36 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] — 2026-06-14 (Client Portal + Broker Dashboard)
+
+FixtureLog becomes a **two-sided product**: a charterer (client) portal and a broker dashboard, both authenticated and role-gated on top of PACKET-008's `AppUser` identity.
+
+### Added
+
+- **Charterer Client Portal** (`/portal/*`, PACKET-009) — six server-rendered, charterer-scoped surfaces: **Dashboard** (active enquiries, pending actions, fixture/weather timeline), **Create Enquiry** (deterministic Zod-validated form), **My Enquiries** + detail with a recommended-vessel **shortlist** (reuses the PACKET-003 matcher read-only), **Fleet Explorer** (the reused Leaflet map + a vessel gallery + a shared modal — a marker and a card open the same `VesselModal`), **My Fixtures**, and **Documents** (recap copy/download).
+- **Broker Dashboard** (`/dashboard`, broker home) — the same three dashboard zones fed by a **broker-wide** aggregate (every charterer's queue), reusing the portal component kit unchanged. The broker home moved from the bare `/requirements` list to `/dashboard`.
+- **Role-based identity** — `AppUser` gains `role` (`AppRole` = BROKER | CLIENT) + `chartererId`; `Vessel` gains honesty-labelled image fields (`imageUrl`, `images`, `imageSource` (`VesselImageSource`), `imageCredit`). Migration `client_portal`.
+- **Auth guards** — `require-charterer.ts` (charterer page/API guards + first-login provisioning: match `Charterer.contactEmail`, dev auto-links the demo charterer), `require-broker.ts` (broker mirror), `resolve-role.ts` / `resolve-home-route.ts`, and a `/api/auth/post-login` hop that routes each role to its home (charterer → `/portal`, broker → `/dashboard`).
+- **Portal API** — charterer-scoped `/api/portal/{dashboard,enquiries,enquiries/[id],fixtures,documents}` (401 anonymous, 403 broker, 404 cross-charterer) and broker-wide `/api/broker/dashboard` (403 charterer). Every response Zod-validated.
+- **Design kit** (`src/components/portal/`) — token-only shared primitives: `PortalShell`, `PortalNav` (parameterized for broker/charterer, with a visible federated sign-out), `PortalPageHeader`, `PortalButton`, `PortalCard`, `StatusBadge`, `EmptyState`, `Modal` + `Lightbox` (adapted from OR_Studio into CSS Modules + `--fl-*` tokens).
+- **Vessel imagery** — two honesty-labelled tiers under `public/assets/vessels/`. 21 demo vessels whose names match real offshore ships now carry a **CC-licensed photograph of the real, same-named vessel** from Wikimedia Commons (`public/assets/vessels/real/`, `imageSource=WIKIMEDIA`), each credited with author + licence and the line "a real vessel of the same name, not this demo vessel"; 16 of those are also paired with the vessel's **real IMO** (a public-registry fact). The remaining 9 keep the per-type **house-art SVG** (`imageSource=STOCK`, "representative illustration, not a photo of the named vessel") — including 4 vessels whose only Commons match was an unrelated/incidental ship, deliberately left as SVG rather than mislabelled. MMSI and specs stay synthetic for every vessel. (Images downscaled to ≤1440px for the web.)
+- **Landing reconciliation** — role-based redirect via the post-login hop, a public **Fleet teaser** section, and the `AuthCta` refactored to `--fl-*` tokens (matches the portal `PortalButton`).
+- **Demo seed** — the demo charterer (Equinor) now has a full arc (shortlisted enquiry + ON_SUBS fixture with subjects/marginal weather + FIXED fixture with recap/workable weather), so a charterer login shows a complete story.
+
+### Changed
+
+- The `AppUser` model now maps an OIDC identity to **either** a `Broker` (role BROKER) **or** a `Charterer` (role CLIENT); `role` drives the home route and data scope.
+- Landing auth CTA for authenticated visitors links to the role-aware `/api/auth/post-login` hop instead of `/requirements`.
+- `/map` now sorts real-photo vessels first and places stock/no-image vessels last; the vessel modal shows `Use in enquiry` only for client sessions, not brokers.
+- Total unit tests: 343 across 52 files. Coverage: 79.03% statements / 72.97% branches / 72.14% functions / 79.03% lines. E2E: 7 across 4 specs. Production build, lint, typecheck, and `npm audit` (full + prod) all pass.
+
+### Notes
+
+- The portal renders only the logged-in charterer's own data, proven isolated by test (cross-charterer reads 404). The whole fleet is visible read-only in Fleet Explorer; the portal has no write path to vessels/owners/other charterers.
+- The AI Broker Copilot (previously PACKET-010) is **dropped** from the roadmap; this packet delivers the two-sided product instead.
+
+---
+
 ## [1.2.0] — 2026-06-14 (Auth Integration)
 
 ### Added

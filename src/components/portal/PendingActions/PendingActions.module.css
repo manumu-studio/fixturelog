@@ -1,0 +1,52 @@
+/* PendingActions.module.css — decision list, token-only. */
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+  margin-bottom: var(--fl-unit-16);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-unit-12);
+  padding: var(--fl-unit-12) 0;
+  border-bottom: 1px solid var(--fl-border-subtle);
+  color: var(--fl-ink);
+  font-size: 0.9375rem;
+}
+
+.row:hover {
+  text-decoration: none;
+}
+
+.list li:last-child .row {
+  border-bottom: none;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: var(--fl-unit-8);
+  height: var(--fl-unit-8);
+  border-radius: var(--fl-pill);
+  background-color: var(--fl-cyan);
+}
+
+.label {
+  flex: 1;
+}
+
+.due {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+  white-space: nowrap;
+}

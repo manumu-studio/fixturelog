@@ -18,9 +18,21 @@ const VESSEL_TYPE_COLORS: Record<MapVesselPosition['vesselType'], string> = {
   OTHER: '#6b7280',
 };
 
-export function VesselMarker({ vessel }: VesselMarkerProps) {
+export function VesselMarker({ vessel, onVesselClick }: VesselMarkerProps) {
   const color = VESSEL_TYPE_COLORS[vessel.vesselType];
   const isSeeded = vessel.source === 'SEEDED';
+
+  // Fleet Explorer mode: click opens the shared modal instead of a Leaflet popup.
+  if (onVesselClick !== undefined) {
+    return (
+      <CircleMarker
+        center={[vessel.lat, vessel.lng]}
+        radius={7}
+        pathOptions={{ color, fillColor: color, fillOpacity: 0.8 }}
+        eventHandlers={{ click: () => onVesselClick(vessel.id) }}
+      />
+    );
+  }
 
   return (
     <CircleMarker

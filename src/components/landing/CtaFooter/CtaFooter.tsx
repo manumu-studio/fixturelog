@@ -2,7 +2,7 @@
 // cyan/blue gradient overlay. Links lead to real public demo routes.
 // "Add Charterer" is used for /charterers/new — never "Register".
 
-import Link from 'next/link';
+import { PendingLink } from '@/components/shared/pending';
 import { LANDING_CTA_FOOTER } from '@/lib/constants/landing-copy';
 import type { CtaFooterProps } from './CtaFooter.types';
 import styles from './CtaFooter.module.css';
@@ -30,9 +30,9 @@ export function CtaFooter({ className }: CtaFooterProps) {
             ].join(' ');
 
             return (
-              <Link key={link.href} href={link.href} className={linkClass}>
+              <PendingLink key={link.href} href={link.href} className={linkClass}>
                 {link.label}
-              </Link>
+              </PendingLink>
             );
           })}
         </nav>

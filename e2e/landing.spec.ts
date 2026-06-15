@@ -23,7 +23,7 @@ test('desktop (1440): landing page loads with hero, canvas, CTAs and no console 
   await page.goto('/');
 
   // Brand name is visible on the page (nav link + subline text)
-  await expect(page.getByText('FixtureLog').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('ManuMu Offshore Partners').first()).toBeVisible({ timeout: 15_000 });
 
   // Hero h1 is the workflow headline
   const h1 = page.locator('h1').first();
@@ -58,9 +58,10 @@ test('desktop (1440): landing page loads with hero, canvas, CTAs and no console 
   });
   expect(hasPixels).toBe(true);
 
-  // Authenticated workspace CTA navigates to /requirements
+  // Authenticated workspace CTA routes by role via the post-login hop (broker -> /dashboard,
+  // charterer -> /portal). The E2E user resolves to an authenticated home, not the landing.
   await workspaceCta.click();
-  await expect(page).toHaveURL(/\/requirements/);
+  await expect(page).toHaveURL(/\/(dashboard|portal)/);
   await page.goBack();
 
   // No console errors on the landing page load
@@ -91,7 +92,7 @@ test('desktop (1440): landing page loads with hero, canvas, CTAs and no console 
 // Mobile — 390 × 844 (iPhone 14 viewport)
 // ---------------------------------------------------------------------------
 
-test('mobile (390): heading visible, workspace CTA clickable and navigates to /requirements', async ({ page }) => {
+test('mobile (390): heading visible, workspace CTA clickable and routes to the role home', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   await page.goto('/');
@@ -111,7 +112,7 @@ test('mobile (390): heading visible, workspace CTA clickable and navigates to /r
   const workspaceCta = page.getByRole('link', { name: /Go to Workspace/i }).last();
   await expect(workspaceCta).toBeVisible({ timeout: 10_000 });
   await workspaceCta.click();
-  await expect(page).toHaveURL(/\/requirements/);
+  await expect(page).toHaveURL(/\/(dashboard|portal)/);
 
   // Mobile screenshot — scroll to top, wait for hero headline to finish fading in before capturing
   await page.goBack();

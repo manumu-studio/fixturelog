@@ -1,0 +1,82 @@
+/* VesselModal.module.css — vessel detail modal body, token-only. */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.media {
+  width: 100%;
+}
+
+.mediaFrame {
+  border-radius: var(--fl-radius) var(--fl-radius) 0 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-16);
+  padding: var(--fl-unit-24);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-unit-12);
+}
+
+.title {
+  font-family: var(--fl-font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+}
+
+.sub {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+  margin-top: calc(-1 * var(--fl-unit-8));
+}
+
+.specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fl-unit-12) var(--fl-unit-24);
+}
+
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-4);
+  padding-bottom: var(--fl-unit-8);
+  border-bottom: 1px solid var(--fl-border-subtle);
+}
+
+.specLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fl-ink);
+  opacity: 0.6;
+}
+
+.specValue {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--fl-navy);
+}
+
+.credit {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--fl-ink);
+  opacity: 0.6;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
