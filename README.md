@@ -111,7 +111,7 @@ npm run dev                          # http://localhost:3000
 
 # Verify
 npm run typecheck && npm run lint
-npm run test                         # 331 unit tests across 49 files
+npm run test                         # 343 unit tests across 52 files
 npm run test:e2e                     # Playwright: smoke · happy-path · map · landing
 ```
 

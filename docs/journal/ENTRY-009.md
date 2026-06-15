@@ -35,4 +35,4 @@ The original roadmap had the AI Broker Copilot next. We built the client surface
 
 ## Verification
 
-typecheck ✓ · lint ✓ · **331 unit tests** (49 files) ✓ · **production build** ✓ · **e2e 7/7** ✓ · `npm audit` full + prod **0 vulnerabilities** ✓.
+typecheck ✓ · lint ✓ · **343 unit tests** (52 files) ✓ · coverage **79.03 / 72.97 / 72.14 / 79.03** ✓ · **production build** ✓ · **e2e 7/7** ✓ · `npm audit` full + prod **0 vulnerabilities** ✓.

@@ -22,6 +22,7 @@
 
 | ID | Date | Resolved | Severity | Failure Mode | Status | File |
 |----|------|----------|----------|-------------|--------|------|
+| INCIDENT-P09-coverage-threshold-drop | 2026-06-15 | 2026-06-15 | SEV-4 | Pre-push coverage gate fails | RESOLVED | docs/incidents/INCIDENT-P09-coverage-threshold-drop.md |
 | INCIDENT-P09-precommit-comment-token | 2026-06-15 | 2026-06-15 | SEV-4 | Pre-commit hook flags comment token | RESOLVED | docs/incidents/INCIDENT-P09-precommit-comment-token.md |
 | INCIDENT-P09-landing-charterers-link-test | 2026-06-15 | 2026-06-15 | SEV-4 | Landing test expects removed charterers link | RESOLVED | docs/incidents/INCIDENT-P09-landing-charterers-link-test.md |
 | INCIDENT-P09-vessel-modal-jsx-transform | 2026-06-15 | 2026-06-15 | SEV-4 | Vessel modal JSX transform fails | RESOLVED | docs/incidents/INCIDENT-P09-vessel-modal-jsx-transform.md |

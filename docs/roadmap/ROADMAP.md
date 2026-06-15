@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: v1.3.0 — two-sided product (2026-06-15).** All five MVP packages, the PACKET-007 landing, PACKET-008 auth, and **PACKET-009 (charterer Client Portal `/portal` + broker Dashboard `/dashboard`)** are shipped. Both authenticated homes are role-gated on the `AppUser` identity (Broker → `/dashboard`, Charterer → `/portal`); the landing stays public. 331 unit tests across 49 files; 7 E2E across 4 specs; production build + `npm audit` green. Configured for Vercel + Neon deploy. **The runtime AI Broker Copilot is dropped** — the two-sided portal/dashboard is the product direction. Next: deepen the two-sided workflow and harden role isolation.
+> **Status: v1.3.0 — two-sided product (2026-06-15).** All five MVP packages, the PACKET-007 landing, PACKET-008 auth, and **PACKET-009 (charterer Client Portal `/portal` + broker Dashboard `/dashboard`)** are shipped. Both authenticated homes are role-gated on the `AppUser` identity (Broker → `/dashboard`, Charterer → `/portal`); the landing stays public. 343 unit tests across 52 files; coverage is above the 70/60/70/70 gate; 7 E2E across 4 specs; production build + `npm audit` green. Configured for Vercel + Neon deploy. **The runtime AI Broker Copilot is dropped** — the two-sided portal/dashboard is the product direction. Next: deepen the two-sided workflow and harden role isolation.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
