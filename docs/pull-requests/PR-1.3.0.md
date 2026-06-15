@@ -31,7 +31,8 @@ FixtureLog only spoke to brokers. A two-sided demo (client + broker) is the prod
 ## How to verify
 
 ```bash
-npm run typecheck && npm run lint && npm run test   # 331 unit tests, 49 files
+npm run typecheck && npm run lint && npm run test   # 343 unit tests, 52 files
+npm run test:coverage                               # 79.03 / 72.97 / 72.14 / 79.03
 npm run build                                         # all /portal/* + /dashboard routes compile
 npm run test:e2e                                      # 7/7
 npm audit --audit-level=high && npm audit --omit=dev --audit-level=high   # 0 vulnerabilities

@@ -35,5 +35,5 @@ The first attempt downloaded photos from VesselFinder's image CDN. Those are **c
 ## Validation
 
 - `npx prisma db seed` → 21 `WIKIMEDIA` + 9 `STOCK`.
-- `npm run typecheck` — no new errors (5 pre-existing errors are in unrelated landing WIP). `npm run lint` clean. `npm test` → **322 passing / 47 files** (incl. the seed-image honesty audit).
-- `next build` / e2e remain blocked by the in-progress landing WIP typecheck errors — unrelated to this change.
+- Final PACKET-009 verification: `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run test:coverage` are green. Unit suite: **343 passing / 52 files**. Coverage: **79.03 / 72.97 / 72.14 / 79.03**.
+- The earlier landing WIP typecheck blockers are resolved in the final branch state.

@@ -23,7 +23,7 @@ FixtureLog becomes a **two-sided product**: a charterer (client) portal and a br
 - The `AppUser` model now maps an OIDC identity to **either** a `Broker` (role BROKER) **or** a `Charterer` (role CLIENT); `role` drives the home route and data scope.
 - Landing auth CTA for authenticated visitors links to the role-aware `/api/auth/post-login` hop instead of `/requirements`.
 - `/map` now sorts real-photo vessels first and places stock/no-image vessels last; the vessel modal shows `Use in enquiry` only for client sessions, not brokers.
-- Total unit tests: 331 across 49 files. E2E: 7 across 4 specs. Production build, lint, typecheck, and `npm audit` (full + prod) all pass.
+- Total unit tests: 343 across 52 files. Coverage: 79.03% statements / 72.97% branches / 72.14% functions / 79.03% lines. E2E: 7 across 4 specs. Production build, lint, typecheck, and `npm audit` (full + prod) all pass.
 
 ### Notes
 
