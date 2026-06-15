@@ -1,6 +1,8 @@
 // landing-copy.ts — single source of truth for all landing page copy.
 // All landing section components read from this module; no copy is hard-coded elsewhere.
 
+import { BRAND_NAME } from './brand';
+
 // ---------------------------------------------------------------------------
 // Nav
 // ---------------------------------------------------------------------------
@@ -13,6 +15,16 @@ export const LANDING_NAV_LINKS = [
 
 export type LandingNavLink = (typeof LANDING_NAV_LINKS)[number];
 
+// Public/anonymous landing nav — marketing-safe links only. Requirements and
+// Charterers are authenticated broker pages and must NOT appear here for logged-out
+// visitors. The Regional Map is kept as a public teaser. The authenticated broker nav
+// (PortalNav / PRIMARY_NAV_LINKS) still uses LANDING_NAV_LINKS above.
+export const PUBLIC_NAV_LINKS = [
+  { href: '/map', label: 'Regional Map' },
+] as const;
+
+export type PublicNavLink = (typeof PUBLIC_NAV_LINKS)[number];
+
 // Real auth CTA labels — wired to Auth.js server actions via the AuthCta component.
 export const LANDING_AUTH_CTA = {
   signIn: 'Sign in',
@@ -24,18 +36,25 @@ export const LANDING_AUTH_CTA = {
 // Hero
 // ---------------------------------------------------------------------------
 
+// Explicit element type so an empty utilityLinks array still resolves to a link
+// shape (not `never`) for the components that map over it.
+export interface HeroUtilityLink {
+  readonly label: string;
+  readonly href: string;
+}
+
+const HERO_UTILITY_LINKS: readonly HeroUtilityLink[] = [];
+
 export const LANDING_HERO_COPY = {
   eyebrow: 'Offshore Fixture Workflow Demo',
   headline: "From enquiry to recap, the broker's workflow made legible.",
   subline:
-    'FixtureLog models the full SUPPLYTIME fixture cycle — vessel matching, subject-lift gating, weather evidence, and recap generation — on a seeded North Sea fleet.',
+    `${BRAND_NAME} models the full SUPPLYTIME fixture cycle — vessel matching, subject-lift gating, weather evidence, and recap generation — on a seeded North Sea fleet.`,
   primaryCta: { label: 'Explore Requirements', href: '/requirements' },
   secondaryCta: { label: 'View Regional Map', href: '/map' },
-  utilityLinks: [
-    { label: 'Charterers', href: '/charterers' },
-    { label: 'Add Charterer', href: '/charterers/new' },
-    { label: 'Health', href: '/api/health' },
-  ],
+  // Public landing hero utility strip — authenticated/dev links (Charterers, Add Charterer,
+  // Health) removed so the logged-out page exposes no broker-only routes.
+  utilityLinks: HERO_UTILITY_LINKS,
   // Retained only for the untracked page2 WIP hero variant; the shipped landing (LandingHero)
   // no longer renders this teaser — it shows the real AuthCta instead.
   authTeaser: 'Sign in coming next — no account required to explore.',
@@ -56,6 +75,28 @@ export const LANDING_PROOF_POINTS = [
 ] as const;
 
 export type LandingProofPoint = (typeof LANDING_PROOF_POINTS)[number];
+
+// ---------------------------------------------------------------------------
+// Fleet teaser (client story — public preview that funnels to the portal Fleet Explorer)
+// ---------------------------------------------------------------------------
+
+export const LANDING_FLEET_TEASER = {
+  eyebrow: 'For charterers',
+  heading: 'Explore the fleet, then post your enquiry',
+  subline:
+    'Charterers get their own portal: browse every vessel on the map and in the gallery, open one for its specs, and turn it into an enquiry — then track your fixture through to recap.',
+  creditNote:
+    'Illustrations representative of each vessel type — not photographs of specific vessels.',
+  cta: { label: 'Sign in to explore the fleet', href: '/portal/fleet' },
+  vessels: [
+    { type: 'PSV', label: 'Platform Supply', image: '/assets/vessels/psv.svg' },
+    { type: 'AHTS', label: 'Anchor Handling', image: '/assets/vessels/ahts.svg' },
+    { type: 'CSV', label: 'Construction Support', image: '/assets/vessels/csv.svg' },
+    { type: 'DSV', label: 'Dive Support', image: '/assets/vessels/dsv.svg' },
+  ],
+} as const;
+
+export type LandingFleetTeaser = typeof LANDING_FLEET_TEASER;
 
 // ---------------------------------------------------------------------------
 // Feature showcase — 4 sections
@@ -90,13 +131,15 @@ export const LANDING_FEATURES = [
     id: 'recap',
     eyebrow: 'Weather + Recap',
     heading: 'Marine weather evidence and SUPPLYTIME 2017 recap',
-    body: 'Open-Meteo wave and wind data is fetched, evaluated against workability thresholds, and persisted as timestamped evidence. On fixture close, FixtureLog generates a deterministic SUPPLYTIME 2017 recap from structured terms.',
+    body: `Open-Meteo wave and wind data is fetched, evaluated against workability thresholds, and persisted as timestamped evidence. On fixture close, ${BRAND_NAME} generates a deterministic SUPPLYTIME 2017 recap from structured terms.`,
     cta: { label: 'Explore requirements', href: '/requirements' },
     imageAlt: 'Weather workability verdict and recap output',
   },
 ] as const;
 
 export type LandingFeature = (typeof LANDING_FEATURES)[number];
+
+export const LANDING_FEATURE_SECTION_HEADING = `What ${BRAND_NAME} models` as const;
 
 // ---------------------------------------------------------------------------
 // How it works — 4 steps
@@ -125,7 +168,7 @@ export const LANDING_HOW_IT_WORKS_STEPS = [
     step: 4,
     phase: 'Recap',
     heading: 'Generate the SUPPLYTIME 2017 recap',
-    body: 'Once a fixture is fixed, FixtureLog generates a structured recap from the agreed terms — vessel, laycan, duration, rate, and special conditions — in SUPPLYTIME 2017 format.',
+    body: `Once a fixture is fixed, ${BRAND_NAME} generates a structured recap from the agreed terms — vessel, laycan, duration, rate, and special conditions — in SUPPLYTIME 2017 format.`,
   },
 ] as const;
 
@@ -172,14 +215,14 @@ export type LandingCtaFooter = typeof LANDING_CTA_FOOTER;
 
 export const LANDING_FOOTER_COPY = {
   disclaimer:
-    'FixtureLog is an independent portfolio project demonstrating offshore shipbroking domain expertise. It is not affiliated with, endorsed by, or produced by SSY Global or any commercial broking firm. All vessel data is synthetic and seeded for demonstration purposes only.',
+    `${BRAND_NAME} is an independent portfolio project demonstrating offshore shipbroking domain expertise. It is not affiliated with, endorsed by, or produced by SSY Global or any commercial broking firm. All vessel data is synthetic and seeded for demonstration purposes only.`,
+  // Public footer links — broker-only routes (Requirements, Charterers) removed so the
+  // logged-out landing exposes only the public map teaser and the health endpoint.
   links: [
-    { label: 'Requirements', href: '/requirements' },
     { label: 'Regional Map', href: '/map' },
-    { label: 'Charterers', href: '/charterers' },
     { label: 'Health API', href: '/api/health' },
   ],
-  copyright: `© ${new Date().getFullYear()} FixtureLog — Portfolio Demo`,
+  copyright: `© ${new Date().getFullYear()} ${BRAND_NAME} — Portfolio Demo`,
 } as const;
 
 export type LandingFooterCopy = typeof LANDING_FOOTER_COPY;

@@ -1,0 +1,34 @@
+/* EmptyState.module.css — centered empty-state block, token-only. */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--fl-unit-12);
+  padding: var(--fl-unit-48) var(--fl-unit-24);
+}
+
+.icon {
+  color: var(--fl-blue);
+  opacity: 0.5;
+}
+
+.title {
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+}
+
+.message {
+  font-size: 0.9375rem;
+  color: var(--fl-ink);
+  opacity: 0.7;
+  max-width: 42ch;
+  line-height: 1.6;
+}
+
+.action {
+  margin-top: var(--fl-unit-8);
+}

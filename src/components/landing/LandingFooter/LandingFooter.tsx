@@ -3,6 +3,7 @@
 // Footer column headings use mid-blue (#0087cb) per SSY-pattern report guidance.
 
 import Link from 'next/link';
+import { BRAND_HOME_LABEL, BRAND_NAME } from '@/lib/constants/brand';
 import { LANDING_FOOTER_COPY } from '@/lib/constants/landing-copy';
 import type { LandingFooterProps } from './LandingFooter.types';
 import styles from './LandingFooter.module.css';
@@ -18,7 +19,9 @@ export function LandingFooter({ className }: LandingFooterProps) {
       <div className={styles.inner}>
         {/* Left column — product identity + disclaimer */}
         <div className={styles.brand}>
-          <p className={styles.groupLabel}>FixtureLog</p>
+          <Link href="/" className={styles.brandLink} aria-label={BRAND_HOME_LABEL}>
+            {BRAND_NAME}
+          </Link>
           <p className={styles.disclaimer}>{disclaimer}</p>
         </div>
 

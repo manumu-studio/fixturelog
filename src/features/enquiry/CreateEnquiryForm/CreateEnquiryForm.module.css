@@ -1,0 +1,75 @@
+/* CreateEnquiryForm.module.css — two-column field grid, token-only. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-24);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-20);
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-6);
+}
+
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-family: var(--fl-font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fl-navy);
+}
+
+.input,
+.textarea {
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--fl-ink);
+  padding: var(--fl-unit-10) var(--fl-unit-12);
+  border: 1px solid var(--fl-border-navy);
+  border-radius: var(--fl-radius);
+  background-color: var(--fl-surface-white);
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--fl-navy);
+  outline-offset: 2px;
+}
+
+.error {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+}
+
+.formError {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--fl-unit-12);
+}

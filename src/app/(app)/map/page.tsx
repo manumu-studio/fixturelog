@@ -1,19 +1,35 @@
-// /map — regional vessel map page (server shell; Leaflet loads client-only via RegionalMapClient)
+// /map — available vessels page: existing FixtureLog Leaflet map plus the vessel
+// gallery/modal Fleet Explorer. This is the canonical fleet-availability surface.
 
 import type { Metadata } from 'next';
-import { RegionalMapClient } from '@/features/map/RegionalMapClient';
+import { PortalPageHeader } from '@/components/portal/PortalPageHeader';
+import { FleetExplorer } from '@/features/fleet-explorer/FleetExplorer';
+import { BRAND_NAME } from '@/lib/constants/brand';
+import { requireSession } from '@/lib/auth/require-session';
+import { resolveHomeRoute } from '@/lib/auth/resolve-home-route';
+import { getFleet } from '@/lib/services/portal/portal-fleet';
 
 export const metadata: Metadata = {
-  title: 'Regional Map — FixtureLog',
-  description: 'Seeded North Sea vessel positions, color-coded by type.',
+  title: `Available Vessels — ${BRAND_NAME}`,
+  description: 'Available offshore vessels shown on the regional map and gallery.',
 };
 
-export default function MapPage() {
+export default async function MapPage() {
+  const user = await requireSession();
+  const [vessels, homeRoute] = await Promise.all([getFleet(), resolveHomeRoute(user)]);
+  const canCreateEnquiry = homeRoute === '/portal';
+  const subline = canCreateEnquiry
+    ? 'Browse the available fleet on the map or in the vessel gallery. Open a vessel for specs, images, rate context, and enquiry prefill.'
+    : 'Browse the available fleet on the map or in the vessel gallery. Open a vessel for specs, images, and rate context.';
+
   return (
-    <main style={{ padding: '1rem' }}>
-      <h1>Regional Map</h1>
-      <p style={{ color: '#666' }}>Seeded vessel positions — North Sea. Markers are color-coded by vessel type.</p>
-      <RegionalMapClient />
-    </main>
+    <>
+      <PortalPageHeader
+        eyebrow="Available vessels"
+        title="Regional Map"
+        subline={subline}
+      />
+      <FleetExplorer vessels={vessels} canCreateEnquiry={canCreateEnquiry} />
+    </>
   );
 }

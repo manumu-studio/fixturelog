@@ -1,0 +1,64 @@
+/* DocumentList.module.css — recap rows with copy/download actions, token-only. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fl-unit-12);
+  padding: var(--fl-unit-16) var(--fl-unit-24);
+  border-bottom: 1px solid var(--fl-border-subtle);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-10);
+  font-size: 0.9375rem;
+}
+
+.vessel {
+  font-weight: 700;
+  color: var(--fl-navy);
+}
+
+.tag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--fl-unit-4) var(--fl-unit-10);
+  border-radius: var(--fl-pill);
+}
+
+.final {
+  background-color: color-mix(in srgb, var(--fl-cyan) 28%, transparent);
+  color: var(--fl-navy);
+}
+
+.draft {
+  background-color: color-mix(in srgb, var(--fl-ink) 10%, transparent);
+  color: var(--fl-ink);
+}
+
+.version,
+.date {
+  font-size: 0.8125rem;
+  color: var(--fl-ink);
+  opacity: 0.7;
+}
+
+.actions {
+  display: flex;
+  gap: var(--fl-unit-8);
+}

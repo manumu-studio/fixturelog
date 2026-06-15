@@ -1,0 +1,79 @@
+/* Lightbox.module.css — main image frame + arrows + dots, token-only. */
+
+.lightbox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-12);
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--fl-radius);
+  overflow: hidden;
+  background-color: var(--fl-surface-navy);
+}
+
+.imageWrap {
+  position: absolute;
+  inset: 0;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fl-unit-40);
+  height: var(--fl-unit-40);
+  border-radius: var(--fl-pill);
+  background-color: color-mix(in srgb, var(--fl-navy) 70%, transparent);
+  color: var(--fl-white);
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: background-color var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.nav:hover {
+  background-color: var(--fl-navy);
+}
+
+.prev {
+  left: var(--fl-unit-12);
+}
+
+.next {
+  right: var(--fl-unit-12);
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--fl-unit-8);
+}
+
+.dot {
+  width: var(--fl-unit-8);
+  height: var(--fl-unit-8);
+  border-radius: var(--fl-pill);
+  background-color: color-mix(in srgb, var(--fl-navy) 25%, transparent);
+  transition: background-color var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.dotActive {
+  background-color: var(--fl-cyan-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav,
+  .dot {
+    transition: none;
+  }
+}

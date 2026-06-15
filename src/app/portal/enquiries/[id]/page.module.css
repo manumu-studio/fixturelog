@@ -1,0 +1,64 @@
+/* enquiries/[id]/page.module.css — detail + shortlist layout, token-only. */
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-24);
+}
+
+@media (min-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr 2fr;
+    align-items: start;
+  }
+}
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+  margin-bottom: var(--fl-unit-16);
+}
+
+.specs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-12);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--fl-unit-12);
+  padding-bottom: var(--fl-unit-12);
+  border-bottom: 1px solid var(--fl-border-subtle);
+}
+
+.row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dt {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fl-ink);
+  opacity: 0.7;
+}
+
+.dd {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--fl-navy);
+  text-align: right;
+}
+
+.notes {
+  margin-top: var(--fl-unit-16);
+  padding-top: var(--fl-unit-16);
+  border-top: 1px solid var(--fl-border-subtle);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--fl-ink);
+}

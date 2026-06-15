@@ -37,13 +37,13 @@ describe('AuthCta — anonymous', () => {
 });
 
 describe('AuthCta — authenticated', () => {
-  it('renders Go to Workspace linking to /requirements', async () => {
+  it('renders Go to Workspace linking to the role-aware post-login hop', async () => {
     vi.mocked(auth).mockResolvedValue(SESSION);
 
     const html = renderToStaticMarkup(await AuthCta({ variant: 'hero' }));
 
     expect(html).toContain('Go to Workspace');
-    expect(html).toContain('href="/requirements"');
+    expect(html).toContain('href="/api/auth/post-login"');
     expect(html).not.toContain('Create account');
   });
 });

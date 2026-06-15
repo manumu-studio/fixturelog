@@ -1,0 +1,68 @@
+/* PortalButton.module.css — pill button, token-only (mirrors the landing's pill CTAs). */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fl-unit-8);
+  font-family: var(--fl-font-sans);
+  font-weight: 600;
+  line-height: 1;
+  border-radius: var(--fl-pill);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--fl-motion-base) var(--fl-ease-out),
+    color var(--fl-motion-base) var(--fl-ease-out),
+    border-color var(--fl-motion-base) var(--fl-ease-out);
+}
+
+.md {
+  padding: var(--fl-unit-12) var(--fl-unit-32);
+  font-size: 0.9375rem;
+}
+
+.sm {
+  padding: var(--fl-unit-8) var(--fl-unit-20);
+  font-size: 0.875rem;
+}
+
+.full {
+  width: 100%;
+}
+
+.primary {
+  background-color: var(--fl-cyan);
+  color: var(--fl-navy);
+  border-color: var(--fl-cyan);
+}
+
+.primary:hover {
+  background-color: var(--fl-cyan-hover);
+  border-color: var(--fl-cyan-hover);
+  text-decoration: none;
+}
+
+.secondary {
+  background-color: transparent;
+  color: var(--fl-navy);
+  border-color: var(--fl-navy);
+}
+
+.secondary:hover {
+  background-color: var(--fl-navy);
+  color: var(--fl-white);
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}

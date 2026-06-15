@@ -6,6 +6,7 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { serverEnv } from '@/lib/env.server';
+import { findOrCreateAppUser } from './app-user-provisioning';
 import type { AuthenticatedUser } from './require-session';
 
 export type ActorResult =
@@ -24,11 +25,7 @@ function notConfigured(): ActorResult {
 
 export async function resolveActor(user: AuthenticatedUser): Promise<ActorResult> {
   // 1. Find or create the AppUser for this stable OIDC identity.
-  const appUser = await prisma.appUser.upsert({
-    where: { externalId: user.externalId },
-    update: {},
-    create: { externalId: user.externalId, email: user.email, name: user.name },
-  });
+  const appUser = await findOrCreateAppUser(user);
 
   // 2. Already linked to a broker.
   if (appUser.brokerId !== null) {
