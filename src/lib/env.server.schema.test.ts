@@ -14,6 +14,7 @@ describe('parseServerEnv', () => {
     expect(env.AUTH_CLIENT_ID).toBe(DEV_PLACEHOLDER);
     expect(env.NEXTAUTH_SECRET).toBe(DEV_NEXTAUTH_SECRET);
     expect(env.AUTH_ISSUER_URL).toBe('https://auth.manumustudio.com');
+    expect(env.ANTHROPIC_API_KEY).toBe(DEV_PLACEHOLDER);
   });
 
   it('throws when NEXTAUTH_SECRET is shorter than 32 chars', () => {
@@ -22,8 +23,20 @@ describe('parseServerEnv', () => {
 
   it('throws in production when auth secrets are still placeholders', () => {
     expect(() => parseServerEnv({ NODE_ENV: 'production' })).toThrow(
-      /production auth secrets/i,
+      /production secrets/i,
     );
+  });
+
+  it('throws in production when ANTHROPIC_API_KEY is still a placeholder', () => {
+    expect(() =>
+      parseServerEnv({
+        NODE_ENV: 'production',
+        AUTH_CLIENT_ID: 'real-client-id',
+        AUTH_CLIENT_SECRET: 'real-client-secret',
+        NEXTAUTH_SECRET: REAL_SECRET,
+        // ANTHROPIC_API_KEY left unset → falls back to the placeholder
+      }),
+    ).toThrow(/ANTHROPIC_API_KEY/);
   });
 
   it('does not throw in production when real secrets are provided', () => {
@@ -32,8 +45,10 @@ describe('parseServerEnv', () => {
       AUTH_CLIENT_ID: 'real-client-id',
       AUTH_CLIENT_SECRET: 'real-client-secret',
       NEXTAUTH_SECRET: REAL_SECRET,
+      ANTHROPIC_API_KEY: 'sk-ant-real-key',
     });
     expect(env.AUTH_CLIENT_ID).toBe('real-client-id');
+    expect(env.ANTHROPIC_API_KEY).toBe('sk-ant-real-key');
   });
 
   it('skips the production guard in CI even with placeholders', () => {

@@ -1,5 +1,5 @@
 // Props for the canonical portal pill button. Renders as a <button> or, when `href`
-// is given, as a link. TASK-088 refactors the landing AuthCta to match this primitive.
+// is given, as a link. The landing AuthCta matches this primitive.
 import type { MouseEventHandler, ReactNode } from 'react';
 
 export type PortalButtonVariant = 'primary' | 'secondary';

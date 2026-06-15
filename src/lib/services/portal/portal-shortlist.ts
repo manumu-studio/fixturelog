@@ -1,5 +1,5 @@
 // portal-shortlist.ts — recommended-vessel shortlist for a charterer's enquiry,
-// reusing the broker FixtureMatcher (PACKET-003) read-only (no status mutation).
+// reusing the broker FixtureMatcher read-only (no status mutation).
 import 'server-only';
 import { prisma } from '@/lib/prisma';
 import { match } from '@/lib/services/fixture-matcher';

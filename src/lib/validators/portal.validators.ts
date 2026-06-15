@@ -1,4 +1,4 @@
-// Zod schemas for the charterer portal API boundary (PACKET-009 §T5).
+// Zod schemas for the charterer portal API boundary.
 // Input: enquiry creation never accepts a chartererId — ownership is derived from the
 // session. Output: every portal response is parsed against a DTO schema before it is
 // returned, so the shape crossing the boundary is validated, not merely typed.

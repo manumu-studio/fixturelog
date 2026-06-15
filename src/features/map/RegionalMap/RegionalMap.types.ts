@@ -5,7 +5,7 @@ import type { VesselPositionItem } from '@/lib/validators/vessel-position.valida
 /** Marker shape — re-alias of the canonical validator type (single source of truth). */
 export type MapVesselPosition = VesselPositionItem;
 
-/** Props for the presentational RegionalMap (TASK-045). */
+/** Props for the presentational RegionalMap. */
 export interface RegionalMapProps {
   vessels: MapVesselPosition[];
   center?: [number, number]; // default [57.5, 1.5] — North Sea

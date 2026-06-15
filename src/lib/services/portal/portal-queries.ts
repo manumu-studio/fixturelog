@@ -1,4 +1,4 @@
-// portal-queries.ts — charterer-scoped data access for the portal API (PACKET-009 §T5).
+// portal-queries.ts — charterer-scoped data access for the portal API.
 // Every function takes a session-derived `chartererId` and filters on it; nothing here
 // trusts a client-supplied id. Handlers stay thin by delegating to these.
 import 'server-only';

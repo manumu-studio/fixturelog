@@ -1,8 +1,8 @@
 # FixtureLog — Project Context
 
-> **Status: v1.3.0 — two-sided product: Client Portal + Broker Dashboard (2026-06-15).** FixtureLog now has **two authenticated homes**, both role-gated on the PACKET-008 `AppUser` identity: a charterer **Client Portal** (`/portal/*`) and a broker **Dashboard** (`/dashboard`). `AppUser` maps an OIDC identity to *either* a `Broker` (role BROKER → `/dashboard`) *or* a `Charterer` (role CLIENT → `/portal`); a `/api/auth/post-login` hop routes each role home and each guard bounces the other. The portal renders only the logged-in charterer's own data (cross-charterer reads 404), Zod-validated at every boundary; the broker dashboard reuses the same component kit over a broker-wide aggregate. Migration `client_portal` (vessel images + `AppRole`/`chartererId`). 343 unit tests across 52 files; coverage is above the 70/60/70/70 gate; 7 E2E across 4 specs; production build, lint, and `npm audit` all green. The runtime AI Broker Copilot was **dropped** in favour of this two-sided direction.
+> **Status: v1.3.0 — two-sided product: Client Portal + Broker Dashboard (2026-06-15).** FixtureLog now has **two authenticated homes**, both role-gated on the `AppUser` identity: a charterer **Client Portal** (`/portal/*`) and a broker **Dashboard** (`/dashboard`). `AppUser` maps an OIDC identity to *either* a `Broker` (role BROKER → `/dashboard`) *or* a `Charterer` (role CLIENT → `/portal`); a `/api/auth/post-login` hop routes each role home and each guard bounces the other. The portal renders only the logged-in charterer's own data (cross-charterer reads 404), Zod-validated at every boundary; the broker dashboard reuses the same component kit over a broker-wide aggregate. Migration `client_portal` (vessel images + `AppRole`/`chartererId`). 343 unit tests across 52 files; coverage is above the 70/60/70/70 gate; 7 E2E across 4 specs; production build, lint, and `npm audit` all green. The runtime AI Broker Copilot was **dropped** in favour of this two-sided direction.
 >
-> **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md` (MVP) + `docs/build-packets/PACKET-009-client-portal.md` (two-sided product).
+> **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md` (MVP) + the client-portal feature spec (two-sided product).
 
 ---
 
@@ -52,7 +52,7 @@ Only public role requirements and product/domain context are included in reposit
 | Landing page | ✅ `/` — polished public landing page: animated marine-chart hero canvas (vessel tracks, port nodes, laycan arcs, cyan ribbon), Helical motion pattern + SSY editorial skin (navy/cyan), feature showcase, how-it-works, tech badges, CTA footer, portfolio disclaimer. `motion@^12` added. No account required; all CTAs link to real public routes. Auth teaser ("Sign in coming next") is a disabled placeholder — no auth behavior. |
 | Deployment | ✅ Vercel + Neon; `NEXT_PUBLIC_APP_URL` in `.env.example`; `postinstall: prisma generate` in `package.json`; deploy runbook in `README.md` and `docs/pull-requests/PR-1.0.0.md` |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
-| Auth integration | ✅ Complete (v1.2.0, PACKET-008) — shared ManuMuStudio OIDC (Auth.js/NextAuth v5), `/api/auth/*` routes, `(app)` protected route group + API gating (`requireSession`/`requireApiSession`), `AppUser`→`Broker` actor mapping (migration `auth_integration`), real landing sign-in CTAs (`AuthCta`), and security-headers middleware. Write routes resolve the actor from the session, not the request body. |
+| Auth integration | ✅ Complete (v1.2.0) — shared ManuMuStudio OIDC (Auth.js/NextAuth v5), `/api/auth/*` routes, `(app)` protected route group + API gating (`requireSession`/`requireApiSession`), `AppUser`→`Broker` actor mapping (migration `auth_integration`), real landing sign-in CTAs (`AuthCta`), and security-headers middleware. Write routes resolve the actor from the session, not the request body. |
 | AI Broker Copilot | 🧊 Dropped from the active roadmap — `docs/specs/SPEC-002-ai-broker-copilot.md` remains a historical/planning artifact. No runtime AI exists in v1.3.0; the two-sided portal/dashboard is the product direction. |
 
 ---
@@ -181,13 +181,13 @@ These decisions were made during the map, deploy, and closeout build and are rec
 
 ## 12. Public Landing Implementation Notes (2026-06-14)
 
-These decisions were made during the PACKET-007 public landing build:
+These decisions were made during the public landing build:
 
 - **Hybrid design direction** — Helical Bio Explorer motion pattern is the primary animation source (frame loop architecture, reduced-motion branch, CTA hover/intensity response). SSY editorial skin (display-serif Fraunces, navy `#000061`, cyan `#00e2fd`, full-width grid, pill CTAs) provides the visual tone. Neither reference is used as a brand affiliation.
 - **`motion@^12` added** — used for staggered hero entrance, `whileInView` feature-row reveals, scroll-drawn how-it-works connector, and badge stagger. The marine canvas uses raw `requestAnimationFrame` (not `motion`), matching the Helical `HeroCanvas` architecture.
 - **`MarineTrafficCanvas`** — procedural canvas drawing vessel dots/tracks, port node circles, route arcs, and a cyan route/laycan ribbon. Reduced-motion users receive a static pre-drawn frame. CTA hover increases track opacity/intensity.
 - **`src/lib/constants/landing-copy.ts`** — all landing copy (nav links, hero, proof strip, features, how-it-works steps, tech badges, CTA footer, footer disclaimer) is centralised here. No copy is hard-coded in component files.
-- **Auth split** — PACKET-007 is public landing only. PACKET-008 owns auth. The "Sign in coming next" teaser on the landing is a disabled `<button>` with no auth behavior.
+- **Auth split** — the public landing ships first, separate from auth; auth integration lands in v1.2.0. The "Sign in coming next" teaser on the landing is a disabled `<button>` with no auth behavior.
 - **Proof-strip correction** — unit test count corrected from stale `250+` to `264` in `landing-copy.ts` during the documentation closeout.
 - **Screenshot timing** — visual verification screenshots were captured after `next build` + `next start` to avoid Turbopack canvas timing differences during dev.
 

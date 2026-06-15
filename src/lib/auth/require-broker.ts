@@ -1,7 +1,7 @@
-// require-broker.ts — broker-side mirror of require-charterer. Turns a PACKET-008 session
-// into a broker context, bouncing charterers to the portal and anonymous visitors to the
-// landing. brokerId comes from the provisioned AppUser only (via resolveActor), never from a
-// body or query param.
+// require-broker.ts — server-only broker session guards (page + API). Turns an authenticated
+// session into a broker context, bouncing charterers to the portal and anonymous visitors to
+// the landing; the API guard returns 401 for anonymous and 403 for charterer callers. brokerId
+// comes from the provisioned AppUser only (via resolveActor), never from a body or query param.
 import 'server-only';
 import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';

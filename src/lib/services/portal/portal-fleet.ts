@@ -1,4 +1,4 @@
-// portal-fleet.ts — whole-fleet read for the portal Fleet Explorer (PACKET-009 §T10).
+// portal-fleet.ts — whole-fleet read for the portal Fleet Explorer.
 // The fleet is visible to any charterer (not scoped), but the portal never writes to it.
 // Reads run server-side, so no broker-gated /api/vessels endpoint is involved.
 import 'server-only';
