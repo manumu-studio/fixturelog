@@ -113,6 +113,20 @@ enum SubjectItemStatus {
   FAILED
 }
 
+// Honesty label for a vessel's displayed image (§ PACKET-009 honesty rule).
+enum VesselImageSource {
+  STOCK // generic licensed photo chosen by vessel type
+  OPERATOR // owner/operator press/media image
+  WIKIMEDIA // Creative Commons image
+  EXTERNAL // other licensed source
+}
+
+// Discriminates an authenticated identity's audience and home route.
+enum AppRole {
+  BROKER
+  CLIENT
+}
+
 // ─── Reference / Party Entities ──────────────────────────────
 
 model Owner {
@@ -139,6 +153,7 @@ model Charterer {
 
   requirements Requirement[]
   fixtures     Fixture[]
+  appUsers     AppUser[]
 }
 
 model Broker {
@@ -154,20 +169,26 @@ model Broker {
   appUsers       AppUser[]
 }
 
-// Maps an OIDC identity (stable `sub` = externalId) to a business Broker actor.
-// A broker may have multiple auth identities; seeded brokers can exist without one.
+// Maps an OIDC identity (stable `sub` = externalId) to a business actor: a Broker
+// (role BROKER) or a Charterer (role CLIENT). `role` drives the post-login home route
+// and data scope. An actor may have multiple auth identities; seeded actors can exist
+// without one.
 model AppUser {
-  id         String   @id @default(cuid())
-  externalId String   @unique
-  email      String?
-  name       String?
-  brokerId   String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  externalId  String   @unique
+  email       String?
+  name        String?
+  brokerId    String?
+  role        AppRole  @default(BROKER)
+  chartererId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  broker Broker? @relation(fields: [brokerId], references: [id], onDelete: SetNull)
+  broker    Broker?    @relation(fields: [brokerId], references: [id], onDelete: SetNull)
+  charterer Charterer? @relation(fields: [chartererId], references: [id], onDelete: SetNull)
 
   @@index([brokerId])
+  @@index([chartererId])
 }
 
 model Region {
@@ -218,10 +239,10 @@ model RateBenchmark {
 // ─── Core Operational Entities ───────────────────────────────
 
 model Vessel {
-  id           String       @id @default(cuid())
+  id           String            @id @default(cuid())
   name         String
-  imo          String?      @unique
-  mmsi         String?      @unique
+  imo          String?           @unique
+  mmsi         String?           @unique
   vesselType   VesselType
   ownerId      String
   deckAreaM2   Float?
@@ -232,8 +253,12 @@ model Vessel {
   openRegionId String?
   openPort     String?
   openDate     DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  imageUrl     String?
+  images       String[]          @default([])
+  imageSource  VesselImageSource @default(STOCK)
+  imageCredit  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   owner      Owner   @relation(fields: [ownerId], references: [id], onDelete: Restrict)
   openRegion Region? @relation("VesselOpenRegion", fields: [openRegionId], references: [id], onDelete: Restrict)

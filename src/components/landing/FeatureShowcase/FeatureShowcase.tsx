@@ -4,9 +4,9 @@
 
 'use client';
 
-import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
-import { LANDING_FEATURES } from '@/lib/constants/landing-copy';
+import { PendingLink } from '@/components/shared/pending';
+import { LANDING_FEATURES, LANDING_FEATURE_SECTION_HEADING } from '@/lib/constants/landing-copy';
 import type { FeatureShowcaseProps, MockPanelProps } from './FeatureShowcase.types';
 import {
   RequirementsPanel,
@@ -66,9 +66,9 @@ function FeatureRow({ feature, index, reducedMotion }: FeatureRowProps) {
         <p className={styles.eyebrow}>{feature.eyebrow}</p>
         <h3 className={styles.heading}>{feature.heading}</h3>
         <p className={styles.body}>{feature.body}</p>
-        <Link href={feature.cta.href} className={styles.cta}>
-          {feature.cta.label} →
-        </Link>
+        <PendingLink href={feature.cta.href} className={styles.cta}>
+          {feature.cta.label}
+        </PendingLink>
       </div>
 
       <div className={styles.panelCol}>
@@ -86,7 +86,7 @@ function ShowcaseHeading() {
   return (
     <div className={styles.headingBlock}>
       <p className={styles.sectionEyebrow}>The demo workflow</p>
-      <h2 className={styles.sectionHeading}>What FixtureLog models</h2>
+      <h2 className={styles.sectionHeading}>{LANDING_FEATURE_SECTION_HEADING}</h2>
       <p className={styles.sectionSubline}>
         Four real capabilities — each backed by a public route or API you can explore now.
       </p>

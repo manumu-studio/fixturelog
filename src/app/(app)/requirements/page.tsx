@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { z } from 'zod';
 import { serverFetch } from '@/lib/server-fetch';
+import { requireBroker } from '@/lib/auth/require-broker';
 
 const RequirementListResponseSchema = z.object({
   data: z.array(z.object({
@@ -25,6 +26,8 @@ async function fetchRequirements(): Promise<RequirementListResponse> {
 }
 
 export default async function RequirementsPage() {
+  // Broker-only workspace: charterer -> /portal, anonymous -> '/' (via the (app) layout).
+  await requireBroker();
   const { data: requirements, total } = await fetchRequirements();
 
   return (

@@ -24,11 +24,11 @@ No AI system is involved in the application's runtime behavior. Every function t
 
 ---
 
-## Planned Runtime AI
+## Runtime AI Status
 
-`docs/specs/SPEC-002-ai-broker-copilot.md` defines a future AI Broker Copilot. That work is not built in v1.1.x. No runtime AI exists in FixtureLog v1.1.0. The public landing page (PACKET-007) added animated visuals and copy using `motion@^12`; no LLM, ML model, or AI API is involved at runtime. The planned design keeps the LLM as an interface while PostgreSQL, Prisma, existing services, and typed backend tools remain the source of truth.
+No runtime AI exists in FixtureLog v1.3.0. The AI Broker Copilot described in `docs/specs/SPEC-002-ai-broker-copilot.md` is no longer on the active roadmap; it remains a historical/planning artifact. The product direction is now the two-sided charterer Client Portal and broker Dashboard.
 
-The future copilot must require human confirmation before any write, must refuse unsupported commercial claims, and must be evaluated for extraction accuracy, groundedness, refusal behavior, injection resistance, and recap completeness before it becomes a runtime feature.
+If an AI assistant is reconsidered later, it must require human confirmation before any write, refuse unsupported commercial claims, and be evaluated for extraction accuracy, groundedness, refusal behavior, injection resistance, and recap completeness before it becomes a runtime feature.
 
 ---
 

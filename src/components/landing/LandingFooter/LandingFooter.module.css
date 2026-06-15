@@ -50,6 +50,23 @@
   color: var(--fl-blue);
 }
 
+.brandLink {
+  display: inline-block;
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fl-blue);
+  text-decoration: none;
+  transition: color var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.brandLink:hover {
+  color: var(--fl-navy);
+  text-decoration: underline;
+}
+
 .disclaimer {
   font-size: 0.8125rem;
   line-height: 1.65;
@@ -99,7 +116,8 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .link {
+  .link,
+  .brandLink {
     transition: none;
   }
 }

@@ -1,0 +1,12 @@
+/* AnimatedLogo.module.css — inline SVG logo wrapper. */
+
+.root {
+  display: inline-flex;
+  line-height: 0;
+}
+
+.root:focus-visible {
+  outline: 2px solid var(--fl-navy);
+  outline-offset: 4px;
+  border-radius: 4px;
+}

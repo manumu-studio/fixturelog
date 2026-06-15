@@ -112,10 +112,45 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  cursor: pointer;
 }
 
 a:hover {
   text-decoration: underline;
+}
+
+/* Pointer + hover feedback for interactive controls and cards. */
+:where(
+  a[href],
+  button:not(:disabled),
+  [role='button'],
+  [role='link'],
+  input[type='button'],
+  input[type='submit'],
+  input[type='reset'],
+  label[for],
+  select,
+  summary
+) {
+  cursor: pointer;
+}
+
+:where(a[href], button:not(:disabled), [role='button'], [role='link']) {
+  transition:
+    color var(--fl-motion-fast) var(--fl-ease-out),
+    background-color var(--fl-motion-fast) var(--fl-ease-out),
+    border-color var(--fl-motion-fast) var(--fl-ease-out),
+    box-shadow var(--fl-motion-fast) var(--fl-ease-out),
+    transform var(--fl-motion-fast) var(--fl-ease-out),
+    opacity var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+:where(a[href], button:not(:disabled), [role='button'], [role='link']):hover {
+  opacity: 0.92;
+}
+
+:where(a[href], button:not(:disabled), [role='button'], [role='link']):active {
+  opacity: 0.84;
 }
 
 /* Keyboard focus for all interactive elements.

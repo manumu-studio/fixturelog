@@ -31,15 +31,15 @@
   max-width: 1440px;
   margin: 0 auto;
 }
-
-/* Brand */
 .brand {
-  font-family: var(--fl-font-display);
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--fl-navy);
-  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fl-unit-12);
+  min-width: 0;
+  flex-shrink: 1;
+  line-height: 1.1;
   text-decoration: none;
+  color: var(--fl-navy);
 }
 
 .brand:hover {
@@ -47,11 +47,49 @@
   color: var(--fl-navy-hover);
 }
 
+.brandName {
+  font-family: var(--fl-font-display);
+  font-size: clamp(0.875rem, 1.1vw, 1.125rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1099px) {
+  .brandName {
+    display: none;
+  }
+}
+
+.logo {
+  display: block;
+  width: 88px;
+  height: auto;
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+@media (max-width: 639px) {
+  .logo {
+    width: 64px;
+  }
+}
+
 /* Nav links */
 .links {
   display: flex;
   align-items: center;
   gap: var(--fl-unit-32);
+  flex-shrink: 0;
+}
+
+@media (max-width: 1099px) {
+  .links {
+    gap: var(--fl-unit-20);
+  }
 }
 
 .link {
@@ -62,6 +100,7 @@
   letter-spacing: 0.1em;
   color: var(--fl-navy);
   text-decoration: none;
+  white-space: nowrap;
   transition: color var(--fl-motion-fast) var(--fl-ease-out);
 }
 

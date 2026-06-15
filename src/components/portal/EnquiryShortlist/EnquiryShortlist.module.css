@@ -1,0 +1,119 @@
+/* EnquiryShortlist.module.css — recommended vessel evidence cards, token-only. */
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+}
+
+.sub {
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+  opacity: 0.7;
+  margin: var(--fl-unit-6) 0 var(--fl-unit-20);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-16);
+}
+
+.entry {
+  display: flex;
+  gap: var(--fl-unit-16);
+  padding: var(--fl-unit-12);
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-radius);
+  background-color: var(--fl-surface-light);
+}
+
+.thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--fl-unit-96);
+  height: var(--fl-unit-64);
+  border-radius: var(--fl-radius);
+  overflow: hidden;
+  background-color: var(--fl-surface-navy);
+}
+
+.thumbImg {
+  object-fit: cover;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-8);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-8);
+}
+
+.rank {
+  font-weight: 700;
+  color: var(--fl-blue);
+  font-size: 0.875rem;
+}
+
+.name {
+  font-weight: 700;
+  color: var(--fl-navy);
+}
+
+.type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+  letter-spacing: 0.04em;
+}
+
+.specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-12);
+  font-size: 0.8125rem;
+  color: var(--fl-ink);
+  opacity: 0.8;
+}
+
+.factors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-8);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--fl-unit-4);
+  padding: var(--fl-unit-4) var(--fl-unit-10);
+  border-radius: var(--fl-pill);
+  background-color: color-mix(in srgb, var(--fl-navy) 7%, transparent);
+}
+
+.chipPrimary {
+  background-color: color-mix(in srgb, var(--fl-cyan) 28%, transparent);
+}
+
+.chipLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fl-ink);
+  opacity: 0.7;
+}
+
+.chipValue {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+}

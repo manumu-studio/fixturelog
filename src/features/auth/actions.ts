@@ -4,10 +4,14 @@
 
 import { signIn } from '@/features/auth/auth';
 
+// Route through the role-aware post-login hop so charterers land on /portal and brokers
+// on /requirements (see app/api/auth/post-login).
+const POST_LOGIN = '/api/auth/post-login';
+
 export async function signInAction(): Promise<void> {
-  await signIn('manumustudio', { redirectTo: '/requirements' });
+  await signIn('manumustudio', { redirectTo: POST_LOGIN });
 }
 
 export async function signUpAction(): Promise<void> {
-  await signIn('manumustudio', { redirectTo: '/requirements' }, { mode: 'signup' });
+  await signIn('manumustudio', { redirectTo: POST_LOGIN }, { mode: 'signup' });
 }

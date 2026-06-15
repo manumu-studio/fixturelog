@@ -1,0 +1,47 @@
+/* Modal.module.css — backdrop + centered panel, token-only. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--fl-gutter);
+  background-color: color-mix(in srgb, var(--fl-navy) 55%, transparent);
+  backdrop-filter: blur(2px);
+  overflow-y: auto;
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: var(--fl-surface-white);
+  border-radius: var(--fl-radius);
+  box-shadow: var(--fl-shadow);
+}
+
+.close {
+  position: absolute;
+  top: var(--fl-unit-12);
+  right: var(--fl-unit-12);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fl-unit-32);
+  height: var(--fl-unit-32);
+  border-radius: var(--fl-pill);
+  background-color: var(--fl-surface-light);
+  color: var(--fl-navy);
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: background-color var(--fl-motion-fast) var(--fl-ease-out);
+}
+
+.close:hover {
+  background-color: var(--fl-white-hover);
+}

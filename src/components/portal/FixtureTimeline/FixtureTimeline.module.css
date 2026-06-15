@@ -1,0 +1,104 @@
+/* FixtureTimeline.module.css — fixture cards with subjects + weather, token-only. */
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+  margin-bottom: var(--fl-unit-16);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-20);
+}
+
+.item {
+  padding: var(--fl-unit-16);
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-radius);
+  background-color: var(--fl-surface-light);
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-10);
+  margin-bottom: var(--fl-unit-8);
+}
+
+.vessel {
+  font-weight: 700;
+  color: var(--fl-navy);
+  font-size: 1rem;
+}
+
+.type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+  letter-spacing: 0.04em;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-16);
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+  opacity: 0.8;
+  margin-bottom: var(--fl-unit-12);
+}
+
+.subjects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-6);
+  padding: var(--fl-unit-12);
+  background-color: var(--fl-surface-white);
+  border-radius: var(--fl-radius);
+  margin-bottom: var(--fl-unit-12);
+}
+
+.subject {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fl-unit-12);
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+}
+
+.subjectLabel {
+  min-width: 0;
+}
+
+.weather {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--fl-unit-8);
+}
+
+.weatherVerdict {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+  letter-spacing: 0.02em;
+}
+
+.weatherMeta {
+  font-size: 0.75rem;
+  color: var(--fl-ink);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.weatherNone {
+  font-size: 0.8125rem;
+  color: var(--fl-ink);
+  opacity: 0.55;
+  font-style: italic;
+}

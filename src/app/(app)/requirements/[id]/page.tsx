@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { z } from 'zod';
 import { serverFetch } from '@/lib/server-fetch';
+import { requireBroker } from '@/lib/auth/require-broker';
 import { ShortlistView, MatchResponseSchema, RequirementDetailSchema } from './ShortlistView';
 
 const IdSchema = z.string().cuid();
@@ -21,6 +22,8 @@ export default async function RequirementDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // Broker-only workspace: charterer -> /portal, anonymous -> '/' (via the (app) layout).
+  await requireBroker();
   const { id } = await params;
 
   const idResult = IdSchema.safeParse(id);

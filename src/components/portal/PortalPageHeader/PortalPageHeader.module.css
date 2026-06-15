@@ -1,0 +1,52 @@
+/* PortalPageHeader.module.css — eyebrow -> Playfair heading -> subline (landing parity). */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-20);
+  margin-bottom: var(--fl-unit-32);
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--fl-unit-32);
+  }
+}
+
+.text {
+  min-width: 0;
+}
+
+.eyebrow {
+  font-family: var(--fl-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fl-blue);
+  margin-bottom: var(--fl-unit-12);
+}
+
+.title {
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  color: var(--fl-navy);
+  line-height: 1.15;
+}
+
+.subline {
+  font-size: 1.0625rem;
+  color: var(--fl-ink);
+  opacity: 0.7;
+  line-height: 1.6;
+  margin-top: var(--fl-unit-12);
+  max-width: 60ch;
+}
+
+.actions {
+  flex-shrink: 0;
+}

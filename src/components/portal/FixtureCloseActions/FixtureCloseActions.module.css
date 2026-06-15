@@ -1,0 +1,45 @@
+/* FixtureCloseActions.module.css — broker close-the-deal controls under each fixture card,
+   token-only. Sits inside the FixtureItem <li>, after the subjects list. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-10);
+  margin-top: var(--fl-unit-12);
+  padding-top: var(--fl-unit-12);
+  border-top: 1px solid var(--fl-border-subtle);
+}
+
+.lifts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-8);
+}
+
+.lift {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-unit-10);
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+}
+
+.liftLabel {
+  font-weight: 600;
+  min-width: 0;
+}
+
+.lift > .liftLabel {
+  margin-right: auto;
+}
+
+.primary {
+  display: flex;
+}
+
+.error {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fl-blue);
+  margin: 0;
+}
