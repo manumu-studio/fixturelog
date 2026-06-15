@@ -8,7 +8,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
   <a href="#"><strong>Live Demo</strong></a> · <a href="docs/specs/SPEC-001-mvp-build.md"><strong>Build Spec</strong></a> · <a href="docs/GLOSSARY.md"><strong>Glossary</strong></a> · <a href="https://github.com/manumu-studio/fixturelog"><strong>Source Code</strong></a>
 </p>
 
-<p align="center"><em>v1.2.0 — MVP + public landing + auth integration. Operational routes require sign-in via the shared ManuMuStudio OIDC provider; the landing stays public.</em></p>
+<p align="center"><em>v1.3.0 — two-sided product: a charterer Client Portal (<code>/portal</code>) and a broker Dashboard (<code>/dashboard</code>), both role-gated on the shared ManuMuStudio OIDC identity. The landing stays public.</em></p>
 
 ---
 
@@ -26,14 +26,18 @@ A broker captures a charterer's **requirement**, runs a pure two-stage **matchin
 
 ## Pages
 
-Five server-rendered surfaces cover the enquiry-to-fixture path. The landing is public; the operational pages (🔒) live in an authenticated route group and redirect anonymous visitors to `/`.
+The landing is public; everything else is authenticated and **role-gated**. After login a charterer (CLIENT) lands on the portal and a broker (BROKER) on the dashboard — a `/api/auth/post-login` hop routes each role to its home, and each guard bounces the other role away.
 
-| Route | What it shows |
-|---|---|
-| `/` | Public maritime landing — marine-chart hero canvas, feature showcase, real sign-in / create-account / go-to-workspace CTAs |
-| `/map` 🔒 | Regional vessel map — color-coded Leaflet markers from seeded position snapshots |
-| `/requirements` · `/requirements/[id]` 🔒 | Requirement list with status badges, and shortlist detail with per-factor score breakdown |
-| `/charterers` · `/charterers/[id]` 🔒 | Charterer list and detail with linked requirements and fixtures |
+| Route | Audience | What it shows |
+|---|---|---|
+| `/` | Public | Maritime landing — hero canvas, feature showcase, public **Fleet teaser**, role-based sign-in / sign-up CTAs |
+| `/portal` 👤 | Charterer | **Dashboard** — your active enquiries, pending actions, and fixture/weather timeline |
+| `/portal/enquiries` · `/portal/enquiries/new` · `/portal/enquiries/[id]` 👤 | Charterer | Your enquiries, the create-enquiry form, and detail with a recommended-vessel shortlist |
+| `/portal/fixtures` · `/portal/documents` 👤 | Charterer | Your fixtures (status, subjects, weather) and your recap documents (copy / download) |
+| `/dashboard` 🔒 | Broker | **Broker home** — the broker-wide incoming queue (same three zones, all charterers) |
+| `/map` 🔒 | Charterer + Broker | Available-vessels map — color-coded Leaflet markers from seeded position snapshots |
+| `/requirements` · `/requirements/[id]` 🔒 | Broker | Requirement list with status badges, and shortlist detail with per-factor score breakdown |
+| `/charterers` · `/charterers/[id]` 🔒 | Broker | Charterer list and detail with linked requirements and fixtures |
 
 <p align="center">
   <img src="public/assets/landing/landing-mobile-390.png" alt="FixtureLog — responsive landing on mobile" width="280" />
@@ -60,7 +64,7 @@ Five server-rendered surfaces cover the enquiry-to-fixture path. The landing is 
 
 ## API
 
-21 domain endpoints (all session-protected) plus a public health check and the public Auth.js endpoints (`/api/auth/*`). Every external payload crosses a Zod boundary, and protected handlers return 401 JSON when unauthenticated. Write routes resolve the acting broker from the session — never from the request body — so a caller cannot impersonate another broker.
+21 broker/domain endpoints plus charterer portal APIs, a broker dashboard API, a public health check, and the public Auth.js endpoints (`/api/auth/*`). Every external payload crosses a Zod boundary, and protected handlers return 401 JSON when unauthenticated. Write routes resolve the acting actor from the session — never from the request body — so a caller cannot impersonate another broker or charterer.
 
 | Method | Route | Description |
 |---|---|---|
@@ -78,13 +82,16 @@ Five server-rendered surfaces cover the enquiry-to-fixture path. The landing is 
 | GET · POST | `/api/requirements` | List (filterable) · create (`status: ENQUIRY`) |
 | GET | `/api/requirements/[id]` | Requirement detail |
 | POST | `/api/requirements/[id]/match` | Run matching engine → ranked shortlist; `ENQUIRY → SHORTLISTED` |
+| GET · POST | `/api/portal/enquiries` | Charterer-scoped enquiry list · create enquiry |
+| GET | `/api/portal/{dashboard,enquiries/[id],fixtures,documents}` | Charterer-scoped portal data |
+| GET | `/api/broker/dashboard` | Broker-wide queue and dashboard data |
 
 ## Stack
 
 | Layer | Technology |
 |---|---|
 | **Frontend** | Next.js 15 (App Router), React 19, TypeScript (strict), motion, Zod |
-| **Auth** | Auth.js (NextAuth v5 beta) — shared ManuMuStudio OIDC provider, JWT sessions, layout + handler gating, `AppUser`→`Broker` actor mapping |
+| **Auth** | Auth.js (NextAuth v5 beta) — shared ManuMuStudio OIDC provider, JWT sessions, layout + handler gating, `AppUser`→`Broker`/`Charterer` actor mapping |
 | **Mapping** | Leaflet 1.9.4 + react-leaflet 5, OpenStreetMap tiles |
 | **Services** | Pure-TS service layer — matching, recap, weather enrichment, status policy |
 | **ORM / Data** | Prisma 6, seeded Postgres, Open-Meteo Marine API (AIS deferred) |
@@ -104,7 +111,7 @@ npm run dev                          # http://localhost:3000
 
 # Verify
 npm run typecheck && npm run lint
-npm run test                         # 279 unit tests across 35 files
+npm run test                         # 331 unit tests across 49 files
 npm run test:e2e                     # Playwright: smoke · happy-path · map · landing
 ```
 
@@ -114,27 +121,34 @@ npm run test:e2e                     # Playwright: smoke · happy-path · map ·
 src/
   middleware.ts         # baseline security headers (edge-safe; excludes /api/auth/*)
   app/
-    page.tsx            # public animated landing (real auth CTAs)
-    (app)/              # authenticated route group — redirects anonymous visitors to /
-      map/ · requirements/ · charterers/
+    page.tsx            # public animated landing (role-based CTAs + Fleet teaser)
+    portal/             # charterer Client Portal (charterer-gated): dashboard · enquiries · fixtures · documents
+    (app)/              # broker route group (requireSession) — dashboard · map · requirements · charterers
     auth/error/         # auth error page
     api/
-      auth/             # Auth.js handlers + federated sign-out (public)
+      auth/             # Auth.js handlers · federated sign-out · post-login role hop (public)
+      portal/           # charterer-scoped: dashboard · enquiries · fixtures · documents
+      broker/           # broker-wide: dashboard
       …                 # 21 domain route handlers (session-gated) + /health (public)
   components/
-    landing/            # landing sections — each a 4-file component (incl. AuthCta)
+    landing/            # landing sections — each a 4-file component (incl. AuthCta · FleetTeaser)
+    portal/             # token-only design kit: PortalShell · PortalNav · PortalButton · PortalCard ·
+                        #   PortalPageHeader · StatusBadge · EmptyState · Modal · Lightbox · dashboard zones
   features/
-    map/                # RegionalMap · RegionalMapClient · VesselMarker · useRegionalMap
+    map/                # RegionalMap · RegionalMapClient · VesselMarker · useRegionalMap (onVesselClick)
+    fleet-explorer/     # VesselCard · VesselGallery · VesselModal · FleetExplorer (map + gallery + modal)
+    enquiry/            # CreateEnquiryForm · useCreateEnquiry
     auth/               # NextAuth config · sign-in/up server actions · useSession · types
   lib/
-    auth/               # requireSession · requireApiSession · resolveActor (broker mapping)
-    services/           # FixtureMatcher · RecapFormatter · WeatherEnricher · FixtureStatusPolicy
-    utils/              # haversine (nm) · dp-class ranking
-    validators/         # Zod schemas at every boundary
+    auth/               # requireSession · require-charterer · require-broker · resolve-role · resolve-home-route
+    services/           # FixtureMatcher · RecapFormatter · WeatherEnricher · portal/ (charterer + broker queries)
+    utils/              # haversine (nm) · dp-class ranking · format (date/money)
+    validators/         # Zod schemas at every boundary (incl. portal DTOs)
     env.ts · env.server.ts   # split public / server env validation (secrets stay server-only)
 prisma/
-  schema.prisma         # domain model + status enums + AppUser↔Broker mapping
-  seed.ts               # 30 seeded vessels + full workflow data
+  schema.prisma         # domain model + status enums + AppUser↔Broker/Charterer mapping + vessel images
+  seed.ts               # 30 seeded vessels (honesty-labelled images; 21 real photos, 16 real IMOs) + full two-sided workflow data
+public/assets/vessels/  # per-type house-art SVGs (STOCK) + real/ CC photos of same-named ships (WIKIMEDIA) — both honesty-labelled
 e2e/                    # Playwright: smoke · happy-path · map · landing
 docs/                   # specs · ADRs · research · journal · PRs · glossary
 ```
@@ -150,11 +164,21 @@ Key decisions are recorded as ADRs in [`docs/decisions/`](docs/decisions/):
 
 Project context and decision history: [`docs/architecture/PROJECT-CONTEXT.md`](docs/architecture/PROJECT-CONTEXT.md).
 
+## Interview diagrams
+
+The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/architecture/INTERVIEW-GRAPHS.md) are the quick rehearsal pack for interviews:
+
+- CI/CD pipeline from PR to verified deployable build
+- Request flow from browser action to validated API response
+- Data pipeline from enquiry to fixed fixture and recap
+- Runtime flow for Auth.js, protected routes, APIs, Prisma, Neon, and Open-Meteo
+
 ## Roadmap
 
+- **Done (v1.3.0)** — PACKET-009 two-sided product: charterer Client Portal (`/portal`) + broker Dashboard (`/dashboard`), role-gated identity (`AppUser` → Broker | Charterer), honesty-labelled vessel imagery, charterer-scoped + broker-wide dashboard APIs, and a token-only portal design kit
 - **Done (v1.2.0)** — PACKET-008 auth integration (shared OIDC sign-in, protected route group + API gating, `AppUser`→`Broker` actor mapping, security-headers middleware)
-- **Next** — PACKET-009 Client Portal (charterer login, dashboard, Fleet Explorer, create-enquiry)
-- **After** — AI Broker Copilot runtime (NL intake, typed backend tools, human-confirmed writes), then AI evals + observability — specced in [SPEC-002](docs/specs/SPEC-002-ai-broker-copilot.md), not built today
+- **Next** — deepen the two-sided workflow (charterer-driven status visibility, richer documents) and harden role isolation
+- **Dropped** — the runtime AI Broker Copilot is no longer on the roadmap; the two-sided portal/dashboard is the product direction instead
 
 ## Built by
 

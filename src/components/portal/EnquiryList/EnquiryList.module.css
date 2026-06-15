@@ -1,0 +1,48 @@
+/* EnquiryList.module.css — My Enquiries rows, token-only. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fl-unit-12);
+  padding: var(--fl-unit-16) var(--fl-unit-24);
+  border-bottom: 1px solid var(--fl-border-subtle);
+  color: var(--fl-ink);
+  font-size: 0.9375rem;
+}
+
+.row:hover {
+  background-color: var(--fl-surface-light);
+  text-decoration: none;
+}
+
+.list li:last-child .row {
+  border-bottom: none;
+}
+
+.type {
+  font-weight: 700;
+  color: var(--fl-navy);
+  min-width: 3.5rem;
+}
+
+.region {
+  min-width: 8rem;
+}
+
+.workscope {
+  flex: 1;
+  min-width: 8rem;
+  opacity: 0.8;
+}
+
+.date,
+.rate {
+  opacity: 0.75;
+  white-space: nowrap;
+}

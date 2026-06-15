@@ -1,0 +1,65 @@
+/* SeaWaveAnimation.module.css — centered wave strip drifting right to left. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  overflow: hidden;
+}
+
+.swell {
+  width: 100%;
+}
+
+.waveRow {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.waveRowAnimated {
+  animation: seaWaveDrift 16s linear infinite;
+}
+
+.waveRowReduced {
+  justify-content: center;
+  width: 100%;
+}
+
+.waveItem {
+  flex: 0 0 auto;
+  color: var(--fl-cyan);
+  opacity: 0.35;
+}
+
+.waveSvg {
+  display: block;
+  height: clamp(7rem, 18vw, 14rem);
+  width: auto;
+}
+
+@keyframes seaWaveDrift {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waveRowAnimated {
+    animation: none;
+  }
+}

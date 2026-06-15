@@ -1,0 +1,20 @@
+/* (app)/dashboard/page.module.css — broker dashboard grid (mirrors the portal dashboard). */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-24);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-24);
+}
+
+@media (min-width: 960px) {
+  .grid {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}

@@ -1,0 +1,55 @@
+/* ActiveEnquiries.module.css — dashboard enquiry rows, token-only. */
+
+.heading {
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+  margin-bottom: var(--fl-unit-16);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fl-unit-12);
+  padding: var(--fl-unit-12) 0;
+  border-bottom: 1px solid var(--fl-border-subtle);
+  color: var(--fl-ink);
+  font-size: 0.9375rem;
+}
+
+.row:hover {
+  text-decoration: none;
+}
+
+.list li:last-child .row {
+  border-bottom: none;
+}
+
+.type {
+  font-weight: 700;
+  color: var(--fl-navy);
+  min-width: 3.5rem;
+}
+
+.region {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.date,
+.rate {
+  color: var(--fl-ink);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.rate {
+  margin-left: auto;
+}

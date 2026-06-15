@@ -43,24 +43,26 @@
   font-size: 1rem;
 }
 
+/* Token-only: the primary pill matches the portal PortalButton (cyan on navy); the
+   secondary is the dark-surface variant for the navy hero. No hardcoded hex. */
 .primary {
-  background-color: #0ea5b7;
-  color: #021018;
-  border: 1px solid #0ea5b7;
+  background-color: var(--fl-cyan);
+  color: var(--fl-navy);
+  border: 1px solid var(--fl-cyan);
 }
 
 .primary:hover {
-  background-color: #16c0d4;
-  border-color: #16c0d4;
+  background-color: var(--fl-cyan-hover);
+  border-color: var(--fl-cyan-hover);
 }
 
 .secondary {
   background-color: transparent;
-  color: #cbe7ef;
-  border: 1px solid rgba(203, 231, 239, 0.4);
+  color: var(--fl-white);
+  border: 1px solid color-mix(in srgb, var(--fl-white) 40%, transparent);
 }
 
 .secondary:hover {
-  border-color: #cbe7ef;
-  color: #ffffff;
+  border-color: var(--fl-white);
+  color: var(--fl-white);
 }

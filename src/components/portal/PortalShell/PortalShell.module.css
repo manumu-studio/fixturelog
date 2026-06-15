@@ -1,0 +1,19 @@
+/* PortalShell.module.css — full-height shell, centered content, token-only. */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--fl-surface-light);
+}
+
+.main {
+  flex: 1;
+  padding-top: 5.5rem;
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--fl-unit-32) var(--fl-gutter) var(--fl-unit-64);
+}

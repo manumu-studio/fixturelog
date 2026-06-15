@@ -4,6 +4,7 @@
 import { AuthCta } from '@/components/landing/AuthCta';
 import { CtaFooter } from '@/components/landing/CtaFooter';
 import { FeatureShowcase } from '@/components/landing/FeatureShowcase';
+import { FleetTeaser } from '@/components/landing/FleetTeaser';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { LandingHero } from '@/components/landing/LandingHero';
@@ -37,6 +38,7 @@ export default function Home() {
         </section>
 
         <FeatureShowcase />
+        <FleetTeaser />
         <HowItWorks />
         <TechBadges />
         <CtaFooter />

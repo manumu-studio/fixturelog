@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: v1.2.0 — MVP + public landing + auth integration (2026-06-14).** All five MVP packages, the PACKET-007 landing, and PACKET-008 auth are shipped. Operational routes are session-gated behind the shared ManuMuStudio OIDC provider; the landing stays public. 279 unit tests across 35 files; 7 E2E across 4 specs. Configured for Vercel + Neon deploy. Next: PACKET-009 client portal.
+> **Status: v1.3.0 — two-sided product (2026-06-15).** All five MVP packages, the PACKET-007 landing, PACKET-008 auth, and **PACKET-009 (charterer Client Portal `/portal` + broker Dashboard `/dashboard`)** are shipped. Both authenticated homes are role-gated on the `AppUser` identity (Broker → `/dashboard`, Charterer → `/portal`); the landing stays public. 331 unit tests across 49 files; 7 E2E across 4 specs; production build + `npm audit` green. Configured for Vercel + Neon deploy. **The runtime AI Broker Copilot is dropped** — the two-sided portal/dashboard is the product direction. Next: deepen the two-sided workflow and harden role isolation.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -79,13 +79,12 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 
 ### Planned
 - [ ] Deploy verification: screenshots / demo recording after Vercel + Neon deploy
-- [ ] Deploy verification: screenshots / demo recording after Vercel + Neon deploy
 - [ ] Rate limiting on the weather proxy (Open-Meteo has undocumented limits)
-- [ ] Post-MVP AI Broker Copilot implementation — natural-language requirement intake, typed backend tools, and human confirmation before writes (requires auth identity from PACKET-008)
-- [ ] AI evals + observability hardening — Langfuse/Braintrust strategy, golden datasets, groundedness checks, prompt/model regression gates
+- [ ] Deepen the two-sided workflow — richer charterer status visibility, broker handoff states, and document history.
+- [ ] Harden role isolation — regression coverage around broker/client redirects, cross-charterer reads, and shared `/map` capabilities.
 
 ## Nice-to-have (only if core lands with time to spare)
-- [ ] Dashboard (summary cards + recent activity, live `/api/dashboard` aggregation if built)
+- [ ] Dashboard refinements (filters, saved views, and richer activity history)
 - [ ] Day-rate benchmarking view (last-done + rolling average)
 
 ## Stretch / "impressive but realistic" (only if ahead of schedule)

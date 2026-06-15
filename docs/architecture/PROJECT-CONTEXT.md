@@ -1,8 +1,8 @@
 # FixtureLog — Project Context
 
-> **Status: v1.2.0 — MVP + public landing + auth integration (2026-06-14).** Authentication via the shared ManuMuStudio OIDC provider (Auth.js/NextAuth v5): operational pages live in a protected `(app)` route group, all 21 domain APIs are session-gated, and write routes resolve the acting broker from the session (`AppUser`→`Broker`, migration `auth_integration`). The landing stays public with real sign-in CTAs and security-headers middleware. 279 unit tests across 35 files; 7 E2E across 4 specs. Next: PACKET-009 client portal.
+> **Status: v1.3.0 — two-sided product: Client Portal + Broker Dashboard (2026-06-15).** FixtureLog now has **two authenticated homes**, both role-gated on the PACKET-008 `AppUser` identity: a charterer **Client Portal** (`/portal/*`) and a broker **Dashboard** (`/dashboard`). `AppUser` maps an OIDC identity to *either* a `Broker` (role BROKER → `/dashboard`) *or* a `Charterer` (role CLIENT → `/portal`); a `/api/auth/post-login` hop routes each role home and each guard bounces the other. The portal renders only the logged-in charterer's own data (cross-charterer reads 404), Zod-validated at every boundary; the broker dashboard reuses the same component kit over a broker-wide aggregate. Migration `client_portal` (vessel images + `AppRole`/`chartererId`). 331 unit tests across 49 files; 7 E2E across 4 specs; production build, lint, and `npm audit` all green. The runtime AI Broker Copilot was **dropped** in favour of this two-sided direction.
 >
-> **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md`. Future AI Broker Copilot architecture is specified in `docs/specs/SPEC-002-ai-broker-copilot.md`.
+> **Build source-of-truth:** `docs/specs/SPEC-001-mvp-build.md` (MVP) + `docs/build-packets/PACKET-009-client-portal.md` (two-sided product).
 
 ---
 
@@ -53,7 +53,7 @@ Only public role requirements and product/domain context are included in reposit
 | Deployment | ✅ Vercel + Neon; `NEXT_PUBLIC_APP_URL` in `.env.example`; `postinstall: prisma generate` in `package.json`; deploy runbook in `README.md` and `docs/pull-requests/PR-1.0.0.md` |
 | CI | ✅ 4-job GitHub Actions pipeline (lint-typecheck, test-coverage, build-bundle, e2e); Node 20 pinned |
 | Auth integration | ✅ Complete (v1.2.0, PACKET-008) — shared ManuMuStudio OIDC (Auth.js/NextAuth v5), `/api/auth/*` routes, `(app)` protected route group + API gating (`requireSession`/`requireApiSession`), `AppUser`→`Broker` actor mapping (migration `auth_integration`), real landing sign-in CTAs (`AuthCta`), and security-headers middleware. Write routes resolve the actor from the session, not the request body. |
-| AI Broker Copilot | 📋 Planned — `docs/specs/SPEC-002-ai-broker-copilot.md` defines the future architecture: LLM as interface, backend/tools as source of truth, human confirmation before writes, provider-neutral tool errors, safety risk model, and future eval/observability strategy. No runtime AI exists in v1.1.x. |
+| AI Broker Copilot | 🧊 Dropped from the active roadmap — `docs/specs/SPEC-002-ai-broker-copilot.md` remains a historical/planning artifact. No runtime AI exists in v1.3.0; the two-sided portal/dashboard is the product direction. |
 
 ---
 

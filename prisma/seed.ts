@@ -6,6 +6,85 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// --- Vessel imagery (honesty rule, PACKET-009 §T3) ---
+// One stylized house illustration per VesselType. These are FixtureLog-drawn
+// illustrations representative of the type — never a photograph of the named
+// vessel — so the displayed `imageCredit` states exactly that.
+const VESSEL_TYPE_IMAGE: Record<string, string> = {
+  PSV: '/assets/vessels/psv.svg',
+  AHTS: '/assets/vessels/ahts.svg',
+  MPSV: '/assets/vessels/mpsv.svg',
+  CSV: '/assets/vessels/csv.svg',
+  ERRV: '/assets/vessels/errv.svg',
+  DSV: '/assets/vessels/dsv.svg',
+};
+
+function vesselImage(vesselType: string): {
+  imageUrl: string;
+  images: string[];
+  imageSource: 'STOCK';
+  imageCredit: string;
+} {
+  const imageUrl = VESSEL_TYPE_IMAGE[vesselType] ?? '/assets/vessels/generic.svg';
+  return {
+    imageUrl,
+    images: [],
+    imageSource: 'STOCK',
+    imageCredit: `Stylized ${vesselType} illustration — FixtureLog house art, representative of the vessel type (not a photograph of this vessel).`,
+  };
+}
+
+// --- Real-vessel photographs (Wikimedia Commons, CC-licensed) ---
+// Each demo vessel listed here shares its NAME with a real offshore ship. The file is a
+// Creative Commons photograph of that real, same-named vessel from Wikimedia Commons, shown
+// with the required attribution (author + licence). imageSource = WIKIMEDIA, and the credit
+// states plainly that the photo is of a real vessel of the same name — NOT this synthetic
+// demo record (whose MMSI and specs stay illustrative). The 4 vessels whose only Commons
+// match was an unrelated/incidental ship are deliberately LEFT as house-art SVGs.
+interface RealVesselPhoto {
+  slug: string;
+  author: string;
+  license: string;
+}
+const REAL_VESSEL_PHOTO: Record<string, RealVesselPhoto> = {
+  'Normand Pioneer': { slug: 'normand-pioneer', author: 'michael ely', license: 'CC BY-SA 2.0' },
+  'Normand Ranger': { slug: 'normand-ranger', author: 'Calistemon', license: 'CC BY-SA 4.0' },
+  'Skandi Saigon': { slug: 'skandi-saigon', author: 'Alan Jamieson', license: 'CC BY 2.0' },
+  'Skandi Olympia': { slug: 'skandi-olympia', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Havila Phoenix': { slug: 'havila-phoenix', author: 'Mark Harkin', license: 'CC BY 2.0' },
+  'Havila Commander': { slug: 'havila-commander', author: 'Alan Jamieson', license: 'CC BY 2.0' },
+  'Island Vanguard': { slug: 'island-vanguard', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Viking Prince': { slug: 'viking-prince', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Olympic Zeus': { slug: 'olympic-zeus', author: 'Mike Pennington', license: 'CC BY-SA 2.0' },
+  'Siem Pilot': { slug: 'siem-pilot', author: 'Ryan Sharpe', license: 'CC BY-SA 4.0' },
+  'Normand Drott': { slug: 'normand-drott', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Skandi Vega': { slug: 'skandi-vega', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Havila Neptune': { slug: 'havila-neptune', author: 'Alan Jamieson', license: 'CC BY 2.0' },
+  'Island Challenger': { slug: 'island-challenger', author: 'Alan Jamieson', license: 'CC BY 2.0' },
+  'Normand Vision': { slug: 'normand-vision', author: 'David Dixon', license: 'CC BY-SA 2.0' },
+  'Skandi Constructor': { slug: 'skandi-constructor', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Island Performer': { slug: 'island-performer', author: 'Sabung.hamster', license: 'CC BY-SA 4.0' },
+  'Olympic Energy': { slug: 'olympic-energy', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Normand Clipper': { slug: 'normand-clipper', author: 'Rossographer', license: 'CC BY-SA 2.0' },
+  'Skandi Acergy': { slug: 'skandi-acergy', author: 'Cavernia', license: 'CC BY-SA 4.0' },
+  'Skandi Arctic': { slug: 'skandi-arctic', author: 'John Lord', license: 'CC BY-SA 2.0' },
+};
+
+function realVesselImage(photo: RealVesselPhoto): {
+  imageUrl: string;
+  images: string[];
+  imageSource: 'WIKIMEDIA';
+  imageCredit: string;
+} {
+  const imageUrl = `/assets/vessels/real/${photo.slug}.jpg`;
+  return {
+    imageUrl,
+    images: [imageUrl],
+    imageSource: 'WIKIMEDIA',
+    imageCredit: `Photo: ${photo.author}, ${photo.license} via Wikimedia Commons — a real vessel of the same name, not this demo vessel.`,
+  };
+}
+
 async function main() {
   console.log('Seeding FixtureLog database...');
 
@@ -89,37 +168,37 @@ async function main() {
     // PSVs (12)
     { name: 'Tidewater Atlas', imo: '9876001', mmsi: '258001001', vesselType: 'PSV' as const, owner: tidewater, deckAreaM2: 850, bollardPullT: 75, dpClass: 'DP2' as const, builtYear: 2015, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.15, lng: -2.09 },
     { name: 'Tidewater Endurance', imo: '9876002', mmsi: '258001002', vesselType: 'PSV' as const, owner: tidewater, deckAreaM2: 900, bollardPullT: 80, dpClass: 'DP2' as const, builtYear: 2017, status: 'OPEN' as const, region: northSea, port: 'Stavanger', lat: 58.97, lng: 5.73 },
-    { name: 'Normand Pioneer', imo: '9876003', mmsi: '258001003', vesselType: 'PSV' as const, owner: solstad, deckAreaM2: 1000, bollardPullT: 85, dpClass: 'DP2' as const, builtYear: 2014, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.14, lng: -2.08 },
-    { name: 'Normand Ranger', imo: '9876004', mmsi: '258001004', vesselType: 'PSV' as const, owner: solstad, deckAreaM2: 920, bollardPullT: 78, dpClass: 'DP2' as const, builtYear: 2016, status: 'ON_HIRE' as const, region: northSea, port: 'Bergen', lat: 60.39, lng: 5.32 },
+    { name: 'Normand Pioneer', imo: '9179751', mmsi: '258001003', vesselType: 'PSV' as const, owner: solstad, deckAreaM2: 1000, bollardPullT: 85, dpClass: 'DP2' as const, builtYear: 2014, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.14, lng: -2.08 },
+    { name: 'Normand Ranger', imo: '9413432', mmsi: '258001004', vesselType: 'PSV' as const, owner: solstad, deckAreaM2: 920, bollardPullT: 78, dpClass: 'DP2' as const, builtYear: 2016, status: 'ON_HIRE' as const, region: northSea, port: 'Bergen', lat: 60.39, lng: 5.32 },
     { name: 'Skandi Saigon', imo: '9876005', mmsi: '258001005', vesselType: 'PSV' as const, owner: dof, deckAreaM2: 880, bollardPullT: 72, dpClass: 'DP2' as const, builtYear: 2013, status: 'OPEN' as const, region: northSea, port: 'Esbjerg', lat: 55.47, lng: 8.45 },
-    { name: 'Skandi Olympia', imo: '9876006', mmsi: '258001006', vesselType: 'PSV' as const, owner: dof, deckAreaM2: 950, bollardPullT: 82, dpClass: 'DP2' as const, builtYear: 2018, status: 'OPEN' as const, region: northSea, port: 'Peterhead', lat: 57.51, lng: -1.77 },
-    { name: 'Havila Phoenix', imo: '9876007', mmsi: '258001007', vesselType: 'PSV' as const, owner: havila, deckAreaM2: 870, bollardPullT: 70, dpClass: 'DP2' as const, builtYear: 2012, status: 'OPEN' as const, region: northSea, port: 'Montrose', lat: 56.71, lng: -2.47 },
+    { name: 'Skandi Olympia', imo: '9417359', mmsi: '258001006', vesselType: 'PSV' as const, owner: dof, deckAreaM2: 950, bollardPullT: 82, dpClass: 'DP2' as const, builtYear: 2018, status: 'OPEN' as const, region: northSea, port: 'Peterhead', lat: 57.51, lng: -1.77 },
+    { name: 'Havila Phoenix', imo: '9407990', mmsi: '258001007', vesselType: 'PSV' as const, owner: havila, deckAreaM2: 870, bollardPullT: 70, dpClass: 'DP2' as const, builtYear: 2012, status: 'OPEN' as const, region: northSea, port: 'Montrose', lat: 56.71, lng: -2.47 },
     { name: 'Havila Commander', imo: '9876008', mmsi: '258001008', vesselType: 'PSV' as const, owner: havila, deckAreaM2: 830, bollardPullT: 68, dpClass: 'DP2' as const, builtYear: 2011, status: 'YARD' as const, region: northSea, port: 'Stavanger', lat: 58.96, lng: 5.74 },
-    { name: 'Island Vanguard', imo: '9876009', mmsi: '258001009', vesselType: 'PSV' as const, owner: island, deckAreaM2: 960, bollardPullT: 88, dpClass: 'DP2' as const, builtYear: 2019, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.16, lng: -2.10 },
-    { name: 'Viking Prince', imo: '9876010', mmsi: '258001010', vesselType: 'PSV' as const, owner: eidesvik, deckAreaM2: 840, bollardPullT: 73, dpClass: 'DP2' as const, builtYear: 2014, status: 'OPEN' as const, region: northSea, port: 'Bergen', lat: 60.40, lng: 5.33 },
-    { name: 'Olympic Zeus', imo: '9876011', mmsi: '258001011', vesselType: 'PSV' as const, owner: olympic, deckAreaM2: 750, bollardPullT: 60, dpClass: 'DP1' as const, builtYear: 2010, status: 'OPEN' as const, region: northSea, port: 'Great Yarmouth', lat: 52.61, lng: 1.73 },
-    { name: 'Siem Pilot', imo: '9876012', mmsi: '258001012', vesselType: 'PSV' as const, owner: siem, deckAreaM2: 890, bollardPullT: 76, dpClass: 'DP2' as const, builtYear: 2016, status: 'ON_HIRE' as const, region: northSea, port: 'Den Helder', lat: 52.96, lng: 4.76 },
+    { name: 'Island Vanguard', imo: '9356189', mmsi: '258001009', vesselType: 'PSV' as const, owner: island, deckAreaM2: 960, bollardPullT: 88, dpClass: 'DP2' as const, builtYear: 2019, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.16, lng: -2.10 },
+    { name: 'Viking Prince', imo: '9596296', mmsi: '258001010', vesselType: 'PSV' as const, owner: eidesvik, deckAreaM2: 840, bollardPullT: 73, dpClass: 'DP2' as const, builtYear: 2014, status: 'OPEN' as const, region: northSea, port: 'Bergen', lat: 60.40, lng: 5.33 },
+    { name: 'Olympic Zeus', imo: '9424728', mmsi: '258001011', vesselType: 'PSV' as const, owner: olympic, deckAreaM2: 750, bollardPullT: 60, dpClass: 'DP1' as const, builtYear: 2010, status: 'OPEN' as const, region: northSea, port: 'Great Yarmouth', lat: 52.61, lng: 1.73 },
+    { name: 'Siem Pilot', imo: '9510307', mmsi: '258001012', vesselType: 'PSV' as const, owner: siem, deckAreaM2: 890, bollardPullT: 76, dpClass: 'DP2' as const, builtYear: 2016, status: 'ON_HIRE' as const, region: northSea, port: 'Den Helder', lat: 52.96, lng: 4.76 },
     // AHTS (8)
     { name: 'Tidewater Resolute', imo: '9876013', mmsi: '258001013', vesselType: 'AHTS' as const, owner: tidewater, deckAreaM2: 550, bollardPullT: 200, dpClass: 'DP2' as const, builtYear: 2014, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.14, lng: -2.07 },
-    { name: 'Normand Drott', imo: '9876014', mmsi: '258001014', vesselType: 'AHTS' as const, owner: solstad, deckAreaM2: 600, bollardPullT: 280, dpClass: 'DP3' as const, builtYear: 2012, status: 'OPEN' as const, region: northSea, port: 'Stavanger', lat: 58.98, lng: 5.72 },
-    { name: 'Skandi Vega', imo: '9876015', mmsi: '258001015', vesselType: 'AHTS' as const, owner: dof, deckAreaM2: 580, bollardPullT: 260, dpClass: 'DP3' as const, builtYear: 2015, status: 'OPEN' as const, region: northSea, port: 'Bergen', lat: 60.38, lng: 5.31 },
+    { name: 'Normand Drott', imo: '9447964', mmsi: '258001014', vesselType: 'AHTS' as const, owner: solstad, deckAreaM2: 600, bollardPullT: 280, dpClass: 'DP3' as const, builtYear: 2012, status: 'OPEN' as const, region: northSea, port: 'Stavanger', lat: 58.98, lng: 5.72 },
+    { name: 'Skandi Vega', imo: '9435715', mmsi: '258001015', vesselType: 'AHTS' as const, owner: dof, deckAreaM2: 580, bollardPullT: 260, dpClass: 'DP3' as const, builtYear: 2015, status: 'OPEN' as const, region: northSea, port: 'Bergen', lat: 60.38, lng: 5.31 },
     { name: 'Havila Neptune', imo: '9876016', mmsi: '258001016', vesselType: 'AHTS' as const, owner: havila, deckAreaM2: 520, bollardPullT: 180, dpClass: 'DP2' as const, builtYear: 2010, status: 'ON_HIRE' as const, region: northSea, port: 'Aberdeen', lat: 57.13, lng: -2.06 },
-    { name: 'Island Challenger', imo: '9876017', mmsi: '258001017', vesselType: 'AHTS' as const, owner: island, deckAreaM2: 620, bollardPullT: 300, dpClass: 'DP3' as const, builtYear: 2016, status: 'OPEN' as const, region: northSea, port: 'Peterhead', lat: 57.50, lng: -1.78 },
+    { name: 'Island Challenger', imo: '9371696', mmsi: '258001017', vesselType: 'AHTS' as const, owner: island, deckAreaM2: 620, bollardPullT: 300, dpClass: 'DP3' as const, builtYear: 2016, status: 'OPEN' as const, region: northSea, port: 'Peterhead', lat: 57.50, lng: -1.78 },
     { name: 'Viking Storm', imo: '9876018', mmsi: '258001018', vesselType: 'AHTS' as const, owner: eidesvik, deckAreaM2: 540, bollardPullT: 190, dpClass: 'DP2' as const, builtYear: 2013, status: 'OPEN' as const, region: northSea, port: 'Esbjerg', lat: 55.48, lng: 8.46 },
     { name: 'Olympic Hercules', imo: '9876019', mmsi: '258001019', vesselType: 'AHTS' as const, owner: olympic, deckAreaM2: 560, bollardPullT: 210, dpClass: 'DP2' as const, builtYear: 2011, status: 'LAID_UP' as const, region: northSea, port: 'Montrose', lat: 56.72, lng: -2.48 },
     { name: 'Siem Atlas', imo: '9876020', mmsi: '258001020', vesselType: 'AHTS' as const, owner: siem, deckAreaM2: 590, bollardPullT: 270, dpClass: 'DP3' as const, builtYear: 2017, status: 'OPEN' as const, region: northSea, port: 'Stavanger', lat: 58.99, lng: 5.75 },
     // MPSV (4)
-    { name: 'Normand Vision', imo: '9876021', mmsi: '258001021', vesselType: 'MPSV' as const, owner: solstad, deckAreaM2: 1100, bollardPullT: 100, dpClass: 'DP3' as const, builtYear: 2018, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.17, lng: -2.11 },
-    { name: 'Skandi Constructor', imo: '9876022', mmsi: '258001022', vesselType: 'MPSV' as const, owner: dof, deckAreaM2: 1200, bollardPullT: 110, dpClass: 'DP3' as const, builtYear: 2016, status: 'OPEN' as const, region: northSea, port: 'Bergen', lat: 60.41, lng: 5.34 },
-    { name: 'Island Performer', imo: '9876023', mmsi: '258001023', vesselType: 'MPSV' as const, owner: island, deckAreaM2: 1050, bollardPullT: 95, dpClass: 'DP3' as const, builtYear: 2015, status: 'ON_HIRE' as const, region: northSea, port: 'Stavanger', lat: 58.95, lng: 5.71 },
-    { name: 'Olympic Energy', imo: '9876024', mmsi: '258001024', vesselType: 'MPSV' as const, owner: olympic, deckAreaM2: 900, bollardPullT: 85, dpClass: 'DP2' as const, builtYear: 2014, status: 'OPEN' as const, region: northSea, port: 'Great Yarmouth', lat: 52.62, lng: 1.74 },
+    { name: 'Normand Vision', imo: '9665530', mmsi: '258001021', vesselType: 'MPSV' as const, owner: solstad, deckAreaM2: 1100, bollardPullT: 100, dpClass: 'DP3' as const, builtYear: 2018, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.17, lng: -2.11 },
+    { name: 'Skandi Constructor', imo: '9431642', mmsi: '258001022', vesselType: 'MPSV' as const, owner: dof, deckAreaM2: 1200, bollardPullT: 110, dpClass: 'DP3' as const, builtYear: 2016, status: 'OPEN' as const, region: northSea, port: 'Bergen', lat: 60.41, lng: 5.34 },
+    { name: 'Island Performer', imo: '9682045', mmsi: '258001023', vesselType: 'MPSV' as const, owner: island, deckAreaM2: 1050, bollardPullT: 95, dpClass: 'DP3' as const, builtYear: 2015, status: 'ON_HIRE' as const, region: northSea, port: 'Stavanger', lat: 58.95, lng: 5.71 },
+    { name: 'Olympic Energy', imo: '9603829', mmsi: '258001024', vesselType: 'MPSV' as const, owner: olympic, deckAreaM2: 900, bollardPullT: 85, dpClass: 'DP2' as const, builtYear: 2014, status: 'OPEN' as const, region: northSea, port: 'Great Yarmouth', lat: 52.62, lng: 1.74 },
     // ERRV (3)
     { name: 'Havila Guardian', imo: '9876025', mmsi: '258001025', vesselType: 'ERRV' as const, owner: havila, deckAreaM2: 300, bollardPullT: null, dpClass: 'DP1' as const, builtYear: 2008, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.12, lng: -2.05 },
     { name: 'Eidesvik Sentinel', imo: '9876026', mmsi: '258001026', vesselType: 'ERRV' as const, owner: eidesvik, deckAreaM2: 280, bollardPullT: null, dpClass: 'DP1' as const, builtYear: 2006, status: 'OPEN' as const, region: northSea, port: 'Peterhead', lat: 57.49, lng: -1.76 },
     { name: 'Siem Mariner', imo: '9876027', mmsi: '258001027', vesselType: 'ERRV' as const, owner: siem, deckAreaM2: 320, bollardPullT: null, dpClass: 'DP1' as const, builtYear: 2009, status: 'ON_HIRE' as const, region: northSea, port: 'Montrose', lat: 56.70, lng: -2.46 },
     // CSV (2)
     { name: 'Normand Clipper', imo: '9876028', mmsi: '258001028', vesselType: 'CSV' as const, owner: solstad, deckAreaM2: 1500, bollardPullT: 120, dpClass: 'DP3' as const, builtYear: 2013, status: 'OPEN' as const, region: northSea, port: 'Stavanger', lat: 58.97, lng: 5.74 },
-    { name: 'Skandi Acergy', imo: '9876029', mmsi: '258001029', vesselType: 'CSV' as const, owner: dof, deckAreaM2: 1800, bollardPullT: 130, dpClass: 'DP3' as const, builtYear: 2010, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.18, lng: -2.12 },
+    { name: 'Skandi Acergy', imo: '9387217', mmsi: '258001029', vesselType: 'CSV' as const, owner: dof, deckAreaM2: 1800, bollardPullT: 130, dpClass: 'DP3' as const, builtYear: 2010, status: 'OPEN' as const, region: northSea, port: 'Aberdeen', lat: 57.18, lng: -2.12 },
     // DSV (1)
     { name: 'Skandi Arctic', imo: '9876030', mmsi: '258001030', vesselType: 'DSV' as const, owner: dof, deckAreaM2: 700, bollardPullT: null, dpClass: 'DP3' as const, builtYear: 2012, status: 'OPEN' as const, region: northSea, port: 'Bergen', lat: 60.42, lng: 5.35 },
   ];
@@ -129,6 +208,10 @@ async function main() {
 
   const vessels = [];
   for (const v of vesselData) {
+    const realPhoto = REAL_VESSEL_PHOTO[v.name];
+    const imageFields = realPhoto
+      ? realVesselImage(realPhoto)
+      : vesselImage(v.vesselType);
     const vessel = await prisma.vessel.create({
       data: {
         name: v.name,
@@ -144,6 +227,7 @@ async function main() {
         openRegionId: v.region.id,
         openPort: v.port,
         openDate: v.status === 'OPEN' ? sevenDaysOut : null,
+        ...imageFields,
       },
     });
     // Position snapshot for every vessel
@@ -426,6 +510,147 @@ async function main() {
     },
   });
 
+  // --- Demo charterer enrichment (PACKET-009): give Equinor a full portal story ---
+  // A shortlisted enquiry + an ON_SUBS fixture (subjects + marginal weather) + a FIXED
+  // fixture (recap + workable weather), so a charterer login shows a complete arc. The
+  // dev auto-link in require-charterer targets "Equinor ASA" by name.
+  const equinorAhtsReq = await prisma.requirement.create({
+    data: {
+      chartererId: equinor.id,
+      regionId: northSea.id,
+      workscopeId: anchorHandling.id,
+      vesselTypeNeeded: 'AHTS',
+      minBollardPullT: 200,
+      minDpClass: 'DP2',
+      startDate: new Date('2026-08-10'),
+      durationDays: 21,
+      charterType: 'SPOT',
+      dayRateBudget: 62000,
+      status: 'SHORTLISTED',
+      sourceChannel: 'Portal',
+      notes: 'Equinor Troll anchor-handling campaign',
+    },
+  });
+
+  const equinorOnSubs = await prisma.fixture.create({
+    data: {
+      requirementId: equinorAhtsReq.id,
+      vesselId: vesselByName['Skandi Vega'].id,
+      chartererId: equinor.id,
+      brokerId: nygaard.id,
+      regionId: northSea.id,
+      workscopeId: anchorHandling.id,
+      charterType: 'SPOT',
+      status: 'ON_SUBS',
+      agreedDayRate: 60000,
+      currency: 'GBP',
+      durationDays: 21,
+      deliveryPort: 'Bergen',
+      redeliveryPort: 'Bergen',
+      commencement: new Date('2026-08-10'),
+      charterPartyForm: 'SUPPLYTIME_2017',
+      subjectsSummary: 'Board approval, class survey',
+    },
+  });
+  await prisma.subjectItem.createMany({
+    data: [
+      { fixtureId: equinorOnSubs.id, label: 'Charterer board approval', status: 'PENDING', dueAt: sevenDaysOut, owner: 'Equinor' },
+      { fixtureId: equinorOnSubs.id, label: 'Vessel class survey', status: 'LIFTED', owner: 'DOF' },
+    ],
+  });
+  await prisma.weatherSnapshot.create({
+    data: {
+      fixtureId: equinorOnSubs.id,
+      lat: 60.38,
+      lng: 5.31,
+      waveHeightM: 2.6,
+      swellHeightM: 3.3,
+      windWaveHeightM: 1.4,
+      workabilityVerdict: 'MARGINAL',
+      laycanFrom: new Date('2026-08-10'),
+      laycanTo: new Date('2026-08-31'),
+      fetchedAt: new Date('2026-06-12T08:00:00Z'),
+    },
+  });
+
+  const equinorFixed = await prisma.fixture.create({
+    data: {
+      requirementId: req1.id,
+      vesselId: vesselByName['Tidewater Atlas'].id,
+      chartererId: equinor.id,
+      brokerId: mitchell.id,
+      regionId: northSea.id,
+      workscopeId: supply.id,
+      charterType: 'SPOT',
+      status: 'FIXED',
+      agreedDayRate: 7800,
+      currency: 'GBP',
+      durationDays: 30,
+      deliveryPort: 'Aberdeen',
+      redeliveryPort: 'Aberdeen',
+      commencement: new Date('2026-07-05'),
+      charterPartyForm: 'SUPPLYTIME_2017',
+      fixedAt: new Date('2026-06-12'),
+    },
+  });
+  await prisma.weatherSnapshot.create({
+    data: {
+      fixtureId: equinorFixed.id,
+      lat: 57.15,
+      lng: -2.09,
+      waveHeightM: 1.1,
+      swellHeightM: 1.6,
+      windWaveHeightM: 0.5,
+      workabilityVerdict: 'WORKABLE',
+      laycanFrom: new Date('2026-07-05'),
+      laycanTo: new Date('2026-08-04'),
+      fetchedAt: new Date('2026-06-12T08:30:00Z'),
+    },
+  });
+  await prisma.recap.create({
+    data: {
+      fixtureId: equinorFixed.id,
+      version: 1,
+      mainTerms: {
+        vessel: 'Tidewater Atlas',
+        vesselType: 'PSV',
+        owners: 'Tidewater Inc.',
+        charterer: 'Equinor ASA',
+        hireRate: '7,800 GBP/day',
+        deliveryPort: 'Aberdeen',
+        redeliveryPort: 'Aberdeen',
+        period: '30 days',
+        workscope: 'Platform Supply',
+        governingLaw: 'English Law',
+        charterParty: 'SUPPLYTIME 2017',
+      },
+      generatedMarkdown: [
+        '# Fixture Recap',
+        '',
+        '**Vessel:** Tidewater Atlas (PSV)',
+        '**Charterer:** Equinor ASA',
+        '**Hire Rate:** 7,800 GBP/day',
+        '**Period:** 30 days',
+        '**Workscope:** Platform Supply',
+        '',
+        '---',
+        '*Generated by FixtureLog*',
+      ].join('\n'),
+      generatedText: [
+        'FIXTURE RECAP',
+        '',
+        'Vessel: Tidewater Atlas (PSV)',
+        'Charterer: Equinor ASA',
+        'Hire Rate: 7,800 GBP/day',
+        'Period: 30 days',
+        'Workscope: Platform Supply',
+        '',
+        'Generated by FixtureLog',
+      ].join('\n'),
+      approvedByBrokerId: mitchell.id,
+    },
+  });
+
   console.log('Seed complete.');
   console.log(`  ${owners.length} owners`);
   console.log(`  ${charterers.length} charterers`);
@@ -434,11 +659,11 @@ async function main() {
   console.log(`  ${workscopes.length} workscopes`);
   console.log(`  ${vessels.length} vessels + position snapshots`);
   console.log(`  ${benchmarkData.length} rate benchmarks`);
-  console.log(`  4 requirements`);
-  console.log(`  3 fixtures (NEGOTIATING, ON_SUBS, FIXED)`);
-  console.log(`  3 subject items`);
-  console.log(`  1 recap`);
-  console.log(`  2 weather snapshots`);
+  console.log(`  5 requirements`);
+  console.log(`  5 fixtures (NEGOTIATING, ON_SUBS, FIXED)`);
+  console.log(`  5 subject items`);
+  console.log(`  2 recaps`);
+  console.log(`  4 weather snapshots`);
 }
 
 main()

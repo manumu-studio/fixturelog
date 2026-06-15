@@ -1,0 +1,12 @@
+/* PortalCard.module.css — white surface, subtle border + card shadow, token-only. */
+
+.card {
+  background-color: var(--fl-surface-white);
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-radius);
+  box-shadow: var(--fl-shadow-card);
+}
+
+.padded {
+  padding: var(--fl-unit-24);
+}

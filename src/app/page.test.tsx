@@ -17,6 +17,15 @@ vi.mock('next/link', () => {
   return { default: MockLink };
 });
 
+// next/image (FleetTeaser) — render a plain <img>, dropping next-only layout props.
+vi.mock('next/image', () => {
+  function MockImage({ src, alt }: { src: string; alt: string }) {
+    // eslint-disable-next-line @next/next/no-img-element -- test stub, not production markup
+    return <img src={src} alt={alt} />;
+  }
+  return { default: MockImage };
+});
+
 // motion/react-client — `import * as motion` maps named module exports to motion.*.
 // Export every HTML element type used across landing components so motion.* resolves.
 vi.mock('motion/react-client', async () => {
@@ -57,9 +66,27 @@ vi.mock('motion/react-client', async () => {
     void initial; void animate; void transition; void whileInView; void viewport;
     return React.createElement('line', rest, children);
   }
+  function MotionSvg({ children, initial, animate, transition, whileInView, viewport, ...rest }: MotionProps) {
+    void initial; void animate; void transition; void whileInView; void viewport;
+    return React.createElement('svg', rest, children);
+  }
+  function MotionPath({ children, initial, animate, transition, whileInView, viewport, ...rest }: MotionProps) {
+    void initial; void animate; void transition; void whileInView; void viewport;
+    return React.createElement('path', rest, children);
+  }
 
-  // Covers: motion.p, motion.h1, motion.div, motion.ul, motion.li, motion.line
-  return { p: MotionP, h1: MotionH1, div: MotionDiv, ul: MotionUl, li: MotionLi, line: MotionLine };
+  // Covers: motion.p, motion.h1, motion.div, motion.ul, motion.li, motion.line,
+  // motion.svg, and motion.path.
+  return {
+    p: MotionP,
+    h1: MotionH1,
+    div: MotionDiv,
+    ul: MotionUl,
+    li: MotionLi,
+    line: MotionLine,
+    svg: MotionSvg,
+    path: MotionPath,
+  };
 });
 
 // MarineTrafficCanvas — canvas is not renderable server-side; stub as a recognisable element.
@@ -93,9 +120,9 @@ import Home from './page';
 // ---------------------------------------------------------------------------
 
 describe('renders the public product story', () => {
-  it('contains the FixtureLog brand name', () => {
+  it('contains the product brand name', () => {
     const html = renderToStaticMarkup(<Home />);
-    expect(html).toContain('FixtureLog');
+    expect(html).toContain('ManuMu Offshore Partners');
   });
 
   it('contains offshore / North Sea domain language', () => {
@@ -125,8 +152,8 @@ describe('links to workflow routes and renders real auth CTAs', () => {
     expect(html).toContain('href="/map"');
   });
 
-  it('utility link to /charterers is present', () => {
-    expect(html).toContain('href="/charterers"');
+  it('does not expose the broker-only charterer list publicly', () => {
+    expect(html).not.toContain('href="/charterers"');
   });
 
   it('utility link to /charterers/new with label "Add Charterer" is present', () => {

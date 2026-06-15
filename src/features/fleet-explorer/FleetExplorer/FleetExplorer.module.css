@@ -1,0 +1,25 @@
+/* FleetExplorer.module.css — map card + gallery stack, token-only. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-32);
+}
+
+.mapCard {
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-radius);
+  overflow: hidden;
+  box-shadow: var(--fl-shadow-card);
+}
+
+.mapLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 500px;
+  color: var(--fl-navy);
+  font-family: var(--fl-font-sans);
+  font-size: 0.9375rem;
+  background-color: var(--fl-surface-light);
+}

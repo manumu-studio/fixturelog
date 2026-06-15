@@ -6,6 +6,15 @@ vi.mock('@/lib/prisma', () => ({
     requirement: {
       findUnique: vi.fn(),
     },
+    // Used by the broker guard (requireBrokerApi): isCharterer reads appUser,
+    // resolveActor upserts it. The test double session is already a broker.
+    appUser: {
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+    },
+    broker: {
+      findFirst: vi.fn(),
+    },
   },
 }));
 
@@ -45,8 +54,26 @@ const VALID_REQUIREMENT_DETAIL = {
   ],
 };
 
+// The test double session is "Test Broker": not a charterer, already broker-linked,
+// so the broker guard passes through without provisioning.
+const BROKER_APP_USER = {
+  id: 'au-test',
+  externalId: 'test-external-id',
+  email: 'test@fixturelog.local',
+  name: 'Test Broker',
+  brokerId: 'br-test',
+  chartererId: null,
+  role: 'BROKER',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
+  // `as never` matches the existing prisma-mock convention in these route tests.
+  vi.mocked(prisma.appUser.findUnique).mockResolvedValue(null);
+  vi.mocked(prisma.appUser.upsert).mockResolvedValue(BROKER_APP_USER as never);
+  vi.mocked(prisma.broker.findFirst).mockResolvedValue(null);
 });
 
 describe('GET /api/requirements/:id', () => {
