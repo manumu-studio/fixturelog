@@ -2,6 +2,29 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-06-15 (AI Broker Copilot v2 — grounded, confirm-gated agent)
+
+The AI Broker Copilot graduates from a **grounded read-only chat** to a **grounded, confirm-gated, tool-using agent**. It keeps every v1 guardrail (broker-only, fed the desk's real dashboard aggregate as the source of truth, answers only from that data) and gains the ability to *act* — with a human checkpoint on every mutation.
+
+### Added
+
+- **Tool-using agent** — the copilot route runs a **bounded** multi-step loop (`stopWhen: stepCountIs`) over four broker-scoped tools. `brokerId` is session-derived (from `requireBrokerApi`), never a tool argument, so the model cannot spoof which desk it acts on.
+- **Read tools auto-run** — `getFixture` and `findMatches` execute inside the loop with no confirmation (no side effects); thin wrappers over the existing query + matcher services.
+- **Write tools are proposed, never auto-run** — `advanceFixtureStatus` and `generateRecap` are **approval-gated**: the model can only *propose* the action with a plain-language summary, and the write runs **only after the broker clicks Approve**. Reject denies it; nothing mutates.
+- **Approve / Reject UI** — the broker copilot panel renders read-tool steps inline and surfaces each proposed write as a card with an explicit Approve / Reject control.
+- **The guarantee, proven by test** — `copilot-agent.test.ts` drives the real bounded loop with a deterministic mock model: a proposed write does **not** call the executor; on approval it runs **exactly once**; on rejection it never runs. `copilot-agent-subject-gate.test.ts` proves an approved-but-illegal `ON_SUBS → FIXED` is still blocked by the subject-lift gate (the DB transaction never runs).
+
+### Safety
+
+- **The deterministic policy is the only door to the DB.** A gated write's `execute` calls the same broker-scoped executor the existing routes use (`evaluateTransition` legal-transition matrix + subject-lift gate; recap FIXED/COMPLETED precondition). An approved-but-illegal write is rejected and relayed as a message; nothing mutates.
+- **Bounded + capped.** The loop is step-capped; message history size and total characters are capped before any model call.
+
+### Changed
+
+- The README's stale "runtime AI Broker Copilot dropped" line is corrected to describe the shipped grounded, confirm-gated copilot.
+
+Decision record: **[ADR-0004](docs/decisions/ADR-0004-copilot-human-in-the-loop.md)** — the model proposes, the broker disposes.
+
 ## [1.3.0] — 2026-06-14 (Client Portal + Broker Dashboard)
 
 FixtureLog becomes a **two-sided product**: a charterer (client) portal and a broker dashboard, both authenticated and role-gated on top of the v1.2.0 `AppUser` identity.
