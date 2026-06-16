@@ -91,6 +91,69 @@
   color: var(--fl-ink);
 }
 
+/* Read-tool / write-result status line — quiet, secondary text between the chat bubbles. */
+.toolStep {
+  margin: 0;
+  padding: var(--fl-unit-4) var(--fl-unit-8);
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--fl-ink);
+  opacity: 0.7;
+}
+
+/* Proposed WRITE card — visually distinct from chat bubbles so a state-changing action stands
+   out and requires an explicit Approve / Reject. */
+.proposal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-8);
+  padding: var(--fl-unit-12);
+  border: 1.5px solid var(--fl-cyan);
+  border-radius: var(--fl-radius);
+  background-color: var(--fl-surface-light);
+}
+
+.proposalText {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--fl-ink);
+}
+
+.proposalActions {
+  display: flex;
+  gap: var(--fl-unit-8);
+}
+
+.approve,
+.reject {
+  flex: 0 0 auto;
+  padding: var(--fl-unit-6) var(--fl-unit-16);
+  font-family: var(--fl-font-sans);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  border-radius: var(--fl-pill);
+  cursor: pointer;
+}
+
+.approve {
+  color: var(--fl-navy);
+  background-color: var(--fl-cyan);
+  border: 1.5px solid var(--fl-cyan);
+}
+
+.reject {
+  color: var(--fl-blue);
+  background-color: var(--fl-surface-white);
+  border: 1.5px solid var(--fl-border-subtle);
+}
+
+.approve:disabled,
+.reject:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .error {
   margin: 0;
   font-size: 0.8125rem;

@@ -1,25 +1,43 @@
 // POST /api/broker/copilot — the AI Broker Copilot endpoint. Broker-only (charterer → 403,
 // anonymous → 401, both via requireBrokerApi). It grounds Claude in the desk's REAL data:
 // it loads the same broker-wide dashboard aggregate the dashboard page uses, renders it into a
-// compact text block, and injects that as the ONLY source of truth in the system prompt. The
-// safety rules (answer only from the data, say "I don't have that", never invent
-// vessels/deals/rates/numbers, stay in domain) live entirely in the system prompt. v1 is
-// deliberately tool-free: streaming chat over an injected summary — simple and reliable.
+// compact text block, and injects that as the source of truth in the system prompt. The safety
+// rules (answer only from the data + tool results, say "I don't have that", never invent
+// vessels/deals/rates/numbers, stay in domain) live entirely in the system prompt.
+//
+// v2 is a bounded tool-using agent. It runs a multi-step loop (capped via stopWhen/stepCountIs)
+// over the broker-scoped tools: READ tools (getFixture, findMatches) auto-execute within
+// the loop; WRITE tools (advanceFixtureStatus, generateRecap) are approval-gated — they surface a
+// proposed action and only mutate after the broker explicitly approves (AI SDK v6 needsApproval
+// human-in-the-loop). brokerId comes from the session guard, never the body, so the model can
+// never spoof which desk it acts on; the status policy + subject-lift gate still block illegal
+// writes even once approved.
 import { createAnthropic } from '@ai-sdk/anthropic';
-import { convertToModelMessages, streamText, validateUIMessages, type UIMessage } from 'ai';
+import {
+  convertToModelMessages,
+  stepCountIs,
+  streamText,
+  validateUIMessages,
+  type UIMessage,
+} from 'ai';
 import { z } from 'zod';
 import { requireBrokerApi } from '@/lib/auth/require-broker';
 import { serverEnv } from '@/lib/env.server';
 import { getBrokerDashboard } from '@/lib/services/portal/broker-queries';
 import { buildBrokerDataSummary } from '@/lib/services/copilot/broker-data-summary';
 import { buildCopilotSystemPrompt } from '@/lib/services/copilot/copilot-prompt';
+import { buildCopilotTools } from '@/lib/services/copilot/tools';
 
 // Cap the streaming response duration (Vercel function budget for the LLM call).
 export const maxDuration = 30;
 
-// A fast, low-cost Claude model is the right fit for a grounded, summary-only chat. If this id
+// A fast, low-cost Claude model is the right fit for a grounded, tool-using chat. If this id
 // ever errors, swap it for another current Claude id (e.g. 'claude-sonnet-4-6').
 const COPILOT_MODEL = 'claude-haiku-4-5';
+
+// Bound the agent loop so it can never run away: at most this many steps (LLM call + tool
+// results count as steps). stepCountIs stops the loop once this many steps complete.
+const MAX_AGENT_STEPS = 5;
 
 // Cheap abuse caps so an authenticated session cannot push an unbounded history into a billed
 // model call. maxDuration caps wall-clock, not token spend — these caps gate spend up front.
@@ -82,15 +100,21 @@ export async function POST(request: Request): Promise<Response> {
   const dashboard = await getBrokerDashboard();
   const system = buildCopilotSystemPrompt(buildBrokerDataSummary(dashboard));
 
-  // 4. Stream the answer. The provider reads ANTHROPIC_API_KEY via the validated server env;
-  //    convertToModelMessages turns the UI messages into model messages; the response streams
-  //    back in the UI-message format useChat consumes. abortSignal stops token spend if the
-  //    broker navigates away mid-stream.
+  // 4. Build the broker-scoped toolset from the session brokerId (never the body). Read tools
+  //    auto-execute; write tools are approval-gated (proposed action → broker approval → mutate).
+  const tools = buildCopilotTools({ brokerId: guard.ctx.brokerId });
+
+  // 5. Stream the answer as a bounded tool-using agent. stopWhen caps the loop so it cannot run
+  //    away; convertToModelMessages turns the UI messages (including any tool-approval responses)
+  //    into model messages; the response streams back in the UI-message format useChat consumes.
+  //    abortSignal stops token spend if the broker navigates away mid-stream.
   const anthropic = createAnthropic({ apiKey: serverEnv.ANTHROPIC_API_KEY });
   const result = streamText({
     model: anthropic(COPILOT_MODEL),
     system,
     messages: await convertToModelMessages(messages),
+    tools,
+    stopWhen: stepCountIs(MAX_AGENT_STEPS),
     abortSignal: request.signal,
   });
 
