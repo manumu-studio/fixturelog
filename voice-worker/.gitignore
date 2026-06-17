@@ -1,0 +1,6 @@
+# Voice worker — never commit secrets or local environment artifacts.
+.env
+.venv/
+__pycache__/
+*.pyc
+.uv-cache/

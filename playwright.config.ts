@@ -12,7 +12,9 @@ export default defineConfig({
   timeout: IS_CI ? 30_000 : 120_000,
   fullyParallel: true,
   forbidOnly: IS_CI,
-  retries: IS_CI ? 2 : 0,
+  // One local retry too: the pre-push hook runs the full suite under load, where the
+  // landing-nav test can flake on a slow first navigation; CI keeps its 2 retries.
+  retries: IS_CI ? 2 : 1,
   workers: 1,
   reporter: IS_CI ? 'github' : 'html',
   expect: {

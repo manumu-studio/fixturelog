@@ -2,6 +2,14 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — Landing logo animation polish
+
+### Fixed
+
+- Rebuilt the public landing nav logo animation from the actual FixtureLog mark rather than the simplified three-path draft. The animated SVG now draws the circular mark plus two separated incomplete capital-M strokes, one upright and one flipped.
+- Matched the OR Studio animation pattern more closely with a completed-mark reveal under the stroke-draw animation, while keeping the implementation on `motion.path` so existing landing tests continue to pass.
+- Added global ESLint ignores for generated/vendor output (`.next`, coverage reports, Playwright output, local virtualenvs, `next-env.d.ts`) so `npx eslint . --ext .ts,.tsx` validates source files instead of build artifacts.
+
 ## [1.4.0] — 2026-06-15 (AI Broker Copilot v2 — grounded, confirm-gated agent)
 
 The AI Broker Copilot graduates from a **grounded read-only chat** to a **grounded, confirm-gated, tool-using agent**. It keeps every v1 guardrail (broker-only, fed the desk's real dashboard aggregate as the source of truth, answers only from that data) and gains the ability to *act* — with a human checkpoint on every mutation.
