@@ -22,6 +22,8 @@
 
 | ID | Date | Resolved | Severity | Failure Mode | Status | File |
 |----|------|----------|----------|-------------|--------|------|
+| INCIDENT-LINT-generated-artifacts | 2026-06-16 | 2026-06-16 | SEV-4 | Generated artifacts included in full ESLint | RESOLVED | docs/incidents/INCIDENT-LINT-generated-artifacts.md |
+| INCIDENT-P12-animated-logo-motion-g-mock | 2026-06-16 | 2026-06-16 | SEV-4 | Animated logo Motion group mock failure | RESOLVED | docs/incidents/INCIDENT-P12-animated-logo-motion-g-mock.md |
 | INCIDENT-P09-coverage-threshold-drop | 2026-06-15 | 2026-06-15 | SEV-4 | Pre-push coverage gate fails | RESOLVED | docs/incidents/INCIDENT-P09-coverage-threshold-drop.md |
 | INCIDENT-P09-precommit-comment-token | 2026-06-15 | 2026-06-15 | SEV-4 | Pre-commit hook flags comment token | RESOLVED | docs/incidents/INCIDENT-P09-precommit-comment-token.md |
 | INCIDENT-P09-landing-charterers-link-test | 2026-06-15 | 2026-06-15 | SEV-4 | Landing test expects removed charterers link | RESOLVED | docs/incidents/INCIDENT-P09-landing-charterers-link-test.md |

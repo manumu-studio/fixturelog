@@ -52,7 +52,7 @@ export function LandingNav({ className, authSlot }: LandingNavProps) {
         <Link href="/" className={styles.brand} aria-label={BRAND_HOME_LABEL}>
           <AnimatedLogo
             width={88}
-            strokeWidth={2.4}
+            strokeWidth={2.2}
             decorative
             className={styles.logo ?? ''}
           />
