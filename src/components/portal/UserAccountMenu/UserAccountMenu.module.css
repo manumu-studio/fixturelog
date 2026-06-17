@@ -26,6 +26,18 @@
   color: var(--fl-navy);
 }
 
+.avatarNav {
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--fl-white);
+}
+
+.avatarNav:hover {
+  background-color: var(--fl-cyan);
+  border-color: var(--fl-cyan);
+  color: var(--fl-navy);
+}
+
 .panel {
   max-width: 22rem;
   padding: var(--fl-unit-32) var(--fl-unit-24) var(--fl-unit-24);
