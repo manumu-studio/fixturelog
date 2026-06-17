@@ -32,9 +32,13 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.84",
     "@ai-sdk/react": "^3.0.207",
+    "@livekit/components-react": "^2.9.21",
+    "@livekit/components-styles": "^1.2.0",
     "@prisma/client": "^6",
     "ai": "^6.0.205",
     "leaflet": "^1.9.4",
+    "livekit-client": "^2.19.2",
+    "livekit-server-sdk": "^2.15.4",
     "motion": "^12.40.0",
     "next": "^15",
     "next-auth": "^5.0.0-beta.30",

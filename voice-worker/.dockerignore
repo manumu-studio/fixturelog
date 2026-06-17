@@ -1,0 +1,24 @@
+# Keep secrets and local cruft out of the build context and the final image.
+# .env carries provider keys and must NEVER enter an image layer; .venv and caches are
+# rebuilt inside the container by uv, so shipping the host copies would bloat and conflict.
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Local virtualenv and uv caches (rebuilt in the image)
+.venv/
+.uv-cache/
+
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editor / OS noise
+.DS_Store
+*.swp
