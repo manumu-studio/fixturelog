@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BRAND_NAME } from '@/lib/constants/brand';
+import { UserAccountMenu } from '@/components/portal/UserAccountMenu';
 import {
   PORTAL_NAV_ITEMS,
   type PortalNavItem,
@@ -109,13 +110,8 @@ export function PortalNav({
             ))}
           </ul>
 
-          <div className={styles.user}>
-            {user.name !== null && user.name.trim().length > 0 ? (
-              <span className={styles.userName}>{user.name}</span>
-            ) : null}
-            {user.email !== null ? (
-              <span className={styles.userEmail}>{user.email}</span>
-            ) : null}
+          <div className={styles.account}>
+            <UserAccountMenu user={user} tone="nav" />
           </div>
         </div>
       </div>
