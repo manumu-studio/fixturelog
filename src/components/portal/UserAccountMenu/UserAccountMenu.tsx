@@ -11,9 +11,11 @@ import styles from './UserAccountMenu.module.css';
 
 interface UserAccountMenuProps {
   readonly user: PortalNavUser;
+  /** `nav` — light avatar ring on the navy portal navbar. */
+  readonly tone?: 'default' | 'nav' | undefined;
 }
 
-export function UserAccountMenu({ user }: UserAccountMenuProps) {
+export function UserAccountMenu({ user, tone = 'default' }: UserAccountMenuProps) {
   const [open, setOpen] = useState(false);
   const titleId = useId();
   const initials = getUserInitials(user.name, user.email);
@@ -23,7 +25,7 @@ export function UserAccountMenu({ user }: UserAccountMenuProps) {
     <>
       <button
         type="button"
-        className={styles.avatar}
+        className={[styles.avatar, tone === 'nav' ? styles.avatarNav : ''].filter(Boolean).join(' ')}
         aria-label={`Open account menu for ${displayName}`}
         aria-haspopup="dialog"
         aria-expanded={open}
