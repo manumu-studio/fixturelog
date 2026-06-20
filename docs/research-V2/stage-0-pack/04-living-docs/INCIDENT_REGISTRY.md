@@ -22,10 +22,6 @@
 
 | ID | Date | Resolved | Severity | Failure Mode | Status | File |
 |----|------|----------|----------|-------------|--------|------|
-| INCIDENT-AI-confabulated-task-premise | 2026-06-20 | 2026-06-20 | SEV-2 | Assistant confabulated the task premise (hallucinated requirements/codebase facts presented as fact) | RESOLVED | docs/incidents/INCIDENT-AI-confabulated-task-premise.md |
-| INCIDENT-BUILD-parallel-next-artifact-corruption | 2026-06-20 | 2026-06-20 | SEV-4 | Parallel Next build and Playwright dev server corrupt local `.next` artifacts | RESOLVED | docs/incidents/INCIDENT-BUILD-parallel-next-artifact-corruption.md |
-| INCIDENT-BUILD-transient-landingnav-typecheck | 2026-06-20 | 2026-06-20 | SEV-4 | Transient LandingNav unused-prop typecheck signal | RESOLVED | docs/incidents/INCIDENT-BUILD-transient-landingnav-typecheck.md |
-| INCIDENT-BUILD-research-snapshot-typecheck | 2026-06-20 | 2026-06-20 | SEV-4 | Research snapshot TypeScript blocks Next production build | RESOLVED | docs/incidents/INCIDENT-BUILD-research-snapshot-typecheck.md |
 | INCIDENT-E2E-landing-cta-soft-nav | 2026-06-17 | 2026-06-17 | SEV-4 | Landing "Go to Workspace" CTA soft-nav no-op (flaky E2E) | RESOLVED | docs/incidents/INCIDENT-E2E-landing-cta-soft-nav.md |
 | INCIDENT-LINT-generated-artifacts | 2026-06-16 | 2026-06-16 | SEV-4 | Generated artifacts included in full ESLint | RESOLVED | docs/incidents/INCIDENT-LINT-generated-artifacts.md |
 | INCIDENT-P12-animated-logo-motion-g-mock | 2026-06-16 | 2026-06-16 | SEV-4 | Animated logo Motion group mock failure | RESOLVED | docs/incidents/INCIDENT-P12-animated-logo-motion-g-mock.md |
