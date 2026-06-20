@@ -8,7 +8,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
   <a href="#"><strong>Live Demo</strong></a> · <a href="docs/specs/SPEC-001-mvp-build.md"><strong>Build Spec</strong></a> · <a href="docs/GLOSSARY.md"><strong>Glossary</strong></a> · <a href="https://github.com/manumu-studio/fixturelog"><strong>Source Code</strong></a>
 </p>
 
-<p align="center"><em>v1.4.0 — the AI Broker Copilot now takes actions on the broker's desk: grounded in the desk's real data, it can advance a fixture or draft a recap, but every write is gated behind an explicit broker approval. Built on the v1.3.0 two-sided product (charterer Client Portal <code>/portal</code> + broker Dashboard <code>/dashboard</code>), role-gated on the shared ManuMuStudio OIDC identity. The landing stays public.</em></p>
+<p align="center"><em>v1.5.0 — the broker desk now carries deterministic sanctions/operator-risk screening: local normalized fixture data screens charterers, vessels, owners, and operators; provenance-carrying badges surface risk; and <code>ON_SUBS → FIXED</code> is blocked when screening is stale, unresolved, or true <code>BLOCKED</code>. The grounded AI Broker Copilot can explain stored screening evidence but cannot clear, override, or give legal advice.</em></p>
 
 ---
 
@@ -22,7 +22,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
 
 FixtureLog is a portfolio demo of a realistic **offshore shipbroking workflow** — an Offshore Fixture Board + Recap Generator with a marine weather check and a regional vessel map, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role.
 
-A broker captures a charterer's **requirement**, runs a pure two-stage **matching engine** (hard filters → weighted composite score) to produce a ranked vessel shortlist with a per-factor breakdown, records the **fixture** (the agreed deal) through a subject-gated status machine, generates a deterministic **SUPPLYTIME 2017 recap** in Markdown and plain text, checks whether marine weather supports the work window via an **Open-Meteo** verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`), and visualises seeded vessel positions on a **Leaflet** map. The AI Broker Copilot adds a grounded, confirm-gated runtime LLM on top, but the deterministic backend stays the only path to a write — the source of truth. Scope, status enums, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md); domain vocabulary lives in the [glossary](docs/GLOSSARY.md).
+A broker captures a charterer's **requirement**, runs a pure two-stage **matching engine** (hard filters → weighted composite score) to produce a ranked vessel shortlist with a per-factor breakdown, records the **fixture** (the agreed deal) through a subject-gated and sanctions-gated status machine, generates a deterministic **SUPPLYTIME 2017 recap** in Markdown and plain text, checks whether marine weather supports the work window via an **Open-Meteo** verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`), and visualises seeded vessel positions on a **Leaflet** map. The AI Broker Copilot adds a grounded, confirm-gated runtime LLM on top, but the deterministic backend stays the only path to a write — the source of truth. Scope, status enums, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md); domain vocabulary lives in the [glossary](docs/GLOSSARY.md).
 
 ## Pages
 
@@ -53,12 +53,13 @@ The landing is public; everything else is authenticated and **role-gated**. Afte
                      │  Route Handlers (Node runtime)
 ┌────────────────────▼─────────────────┐
 │         Service layer (pure TS)       │
-│   Matcher · Recap · Weather · Status  │
+│ Matcher · Recap · Weather · Status ·  │
+│        Sanctions Screening            │
 └────────────────────┬─────────────────┘
                      │  Prisma 6
 ┌────────────────────▼─────────────────┐
 │            PostgreSQL 16              │   Neon
-│   Vessels · Fixtures · Snapshots      │
+│ Vessels · Fixtures · ScreeningResult  │
 └──────────────────────────────────────┘
 ```
 
@@ -75,11 +76,11 @@ The landing is public; everything else is authenticated and **role-gated**. Afte
 | GET | `/api/vessels/positions` | Latest position snapshot per vessel (map data) |
 | GET · POST | `/api/fixtures` | List · create a fixture |
 | GET | `/api/fixtures/[id]` | Fixture detail (includes `weatherSnapshots`) |
-| PATCH | `/api/fixtures/[id]/status` | Transition fixture status (subject-gated) |
+| PATCH | `/api/fixtures/[id]/status` | Transition fixture status (subject-gated + sanctions-gated before `FIXED`) |
 | POST | `/api/fixtures/[id]/recap` | Generate a SUPPLYTIME 2017 recap |
 | POST · PATCH | `/api/fixtures/[id]/subjects` | Add a subject · update subject status |
 | GET · POST | `/api/weather/marine` · `/api/fixtures/[id]/weather` | Ad-hoc marine verdict · persist a `WeatherSnapshot` |
-| GET · POST | `/api/requirements` | List (filterable) · create (`status: ENQUIRY`) |
+| GET · POST | `/api/requirements` | List (filterable, includes screening badge data) · create (`status: ENQUIRY`, screens charterer) |
 | GET | `/api/requirements/[id]` | Requirement detail |
 | POST | `/api/requirements/[id]/match` | Run matching engine → ranked shortlist; `ENQUIRY → SHORTLISTED` |
 | GET · POST | `/api/portal/enquiries` | Charterer-scoped enquiry list · create enquiry |
@@ -93,8 +94,8 @@ The landing is public; everything else is authenticated and **role-gated**. Afte
 | **Frontend** | Next.js 15 (App Router), React 19, TypeScript (strict), motion, Zod |
 | **Auth** | Auth.js (NextAuth v5 beta) — shared ManuMuStudio OIDC provider, JWT sessions, layout + handler gating, `AppUser`→`Broker`/`Charterer` actor mapping |
 | **Mapping** | Leaflet 1.9.4 + react-leaflet 5, OpenStreetMap tiles |
-| **Services** | Pure-TS service layer — matching, recap, weather enrichment, status policy |
-| **ORM / Data** | Prisma 6, seeded Postgres, Open-Meteo Marine API (AIS deferred) |
+| **Services** | Pure-TS service layer — matching, recap, weather enrichment, status policy, sanctions screening |
+| **ORM / Data** | Prisma 6, seeded Postgres, local normalized sanctions fixture data, Open-Meteo Marine API (AIS deferred) |
 | **Database** | PostgreSQL 16 (Neon) |
 | **Infra** | Vercel (app), Neon (db), GitHub Actions CI/CD (4-job pipeline) |
 | **Quality** | Vitest + v8 coverage, Playwright E2E, ESLint, `tsc` strict, Husky pre-commit |
@@ -111,7 +112,7 @@ npm run dev                          # http://localhost:3000
 
 # Verify
 npm run typecheck && npm run lint
-npm run test                         # 343 unit tests across 52 files
+npm run test                         # unit test suite
 npm run test:e2e                     # Playwright: smoke · happy-path · map · landing
 ```
 
@@ -141,12 +142,12 @@ src/
     auth/               # NextAuth config · sign-in/up server actions · useSession · types
   lib/
     auth/               # requireSession · require-charterer · require-broker · resolve-role · resolve-home-route
-    services/           # FixtureMatcher · RecapFormatter · WeatherEnricher · portal/ (charterer + broker queries)
+    services/           # FixtureMatcher · RecapFormatter · WeatherEnricher · sanctions-screening/ · portal/
     utils/              # haversine (nm) · dp-class ranking · format (date/money)
     validators/         # Zod schemas at every boundary (incl. portal DTOs)
     env.ts · env.server.ts   # split public / server env validation (secrets stay server-only)
 prisma/
-  schema.prisma         # domain model + status enums + AppUser↔Broker/Charterer mapping + vessel images
+  schema.prisma         # domain model + status/screening enums + AppUser mapping + vessel images + ScreeningResult audit trail
   seed.ts               # 30 seeded vessels (honesty-labelled images; 21 real photos, 16 real IMOs) + full two-sided workflow data
 public/assets/vessels/  # per-type house-art SVGs (STOCK) + real/ CC photos of same-named ships (WIKIMEDIA) — both honesty-labelled
 e2e/                    # Playwright: smoke · happy-path · map · landing
@@ -175,10 +176,11 @@ The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/archit
 
 ## Roadmap
 
+- **Done (v1.5.0)** — sanctions/operator-risk screening slice: additive `Operator`, `ScreeningResult`, `ScreeningReview`, and `Vessel.flagState`; local normalized fixture adapter; 24-hour provenance TTL; charterer screening on requirement create; compact risk badges; and a deterministic pre-`FIXED` gate shared by the route and copilot executor
 - **Done (v1.4.0)** — AI Broker Copilot v2: the grounded broker-only chat becomes a bounded tool-using agent (`getFixture` / `findMatches` auto-run; `advanceFixtureStatus` / `generateRecap` are proposed-only and execute only after an explicit broker approval). The deterministic policy stays the only door to the DB
 - **Done (v1.3.0)** — two-sided product: charterer Client Portal (`/portal`) + broker Dashboard (`/dashboard`), role-gated identity (`AppUser` → Broker | Charterer), honesty-labelled vessel imagery, charterer-scoped + broker-wide dashboard APIs, and a token-only portal design kit
 - **Done (v1.2.0)** — auth integration (shared OIDC sign-in, protected route group + API gating, `AppUser`→`Broker` actor mapping, security-headers middleware)
-- **Next** — deepen the two-sided workflow (charterer-driven status visibility, richer documents) and harden role isolation
+- **Next** — extend sanctions sources beyond the local fixture adapter (yente/direct government ingestion), add shortlist/fixture-create screening triggers, and keep live AIS deferred to its own stage
 - **Shipped, not autonomous** — the runtime copilot is intentionally confirm-gated (a human checkpoint on every write), never an autonomous agent; rationale in [ADR-0004](docs/decisions/ADR-0004-copilot-human-in-the-loop.md)
 
 ## Built by

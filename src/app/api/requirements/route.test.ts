@@ -26,11 +26,17 @@ vi.mock('@/lib/prisma', () => ({
     broker: {
       findFirst: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
+}));
+
+vi.mock('@/lib/services/sanctions-screening/fixture-screening-gate', () => ({
+  persistChartererScreeningForRequirement: vi.fn(),
 }));
 
 import { POST, GET } from './route';
 import { prisma } from '@/lib/prisma';
+import { persistChartererScreeningForRequirement } from '@/lib/services/sanctions-screening/fixture-screening-gate';
 import { NextRequest } from 'next/server';
 
 const VALID_ID = 'clxxxxxxxxxxxxxxxxxxxxxx01';
@@ -89,11 +95,29 @@ beforeEach(() => {
   vi.mocked(prisma.appUser.findUnique).mockResolvedValue(null);
   vi.mocked(prisma.appUser.upsert).mockResolvedValue(BROKER_APP_USER as never);
   vi.mocked(prisma.broker.findFirst).mockResolvedValue(null);
+  vi.mocked(prisma.$transaction).mockImplementation(async (cb) => cb(prisma as never));
+  vi.mocked(persistChartererScreeningForRequirement).mockResolvedValue({
+    id: 'screening-result-1',
+    subjectType: 'CHARTERER',
+    subjectId: CHARTERER_ID,
+    subjectName: 'Equinor ASA',
+    status: 'CLEAR',
+    reason: 'No local fixture hit.',
+    screenedAt: new Date('2026-06-20T12:00:00.000Z'),
+    ttlExpiresAt: new Date('2026-06-21T12:00:00.000Z'),
+    sourceName: 'FixtureLog local sanctions fixture',
+    sourceListName: 'Demo maritime sanctions fixture',
+    sourceListVersion: '2026-06-20-local',
+  });
 });
 
 describe('POST /api/requirements', () => {
   it('creates a requirement and returns 201 with status ENQUIRY', async () => {
-    vi.mocked(prisma.charterer.findUnique).mockResolvedValue({ id: CHARTERER_ID });
+    vi.mocked(prisma.charterer.findUnique).mockResolvedValue({
+      id: CHARTERER_ID,
+      name: 'Equinor ASA',
+      sector: 'Oil & Gas',
+    } as never);
     vi.mocked(prisma.region.findUnique).mockResolvedValue({ id: REGION_ID });
     vi.mocked(prisma.workscope.findUnique).mockResolvedValue({ id: WORKSCOPE_ID });
     vi.mocked(prisma.requirement.create).mockResolvedValue(VALID_REQUIREMENT);
@@ -108,6 +132,16 @@ describe('POST /api/requirements', () => {
 
     expect(res.status).toBe(201);
     expect(json.data.status).toBe('ENQUIRY');
+    expect(prisma.$transaction).toHaveBeenCalled();
+    expect(persistChartererScreeningForRequirement).toHaveBeenCalledWith(
+      prisma,
+      {
+        requirementId: VALID_ID,
+        chartererId: CHARTERER_ID,
+        name: 'Equinor ASA',
+        sector: 'Oil & Gas',
+      },
+    );
   });
 
   it('returns 400 when required field vesselTypeNeeded is missing', async () => {

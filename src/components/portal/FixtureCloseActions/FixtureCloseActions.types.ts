@@ -15,6 +15,7 @@ export interface FixtureCloseActionsProps {
   fixtureId: string;
   status: FixtureSummary['status'];
   subjects: CloseActionSubject[];
+  screeningStatus?: FixtureSummary['screening']['status'];
 }
 
 // ─── Boundary schemas (Zod-parsed on every response) ─────────────────────────
