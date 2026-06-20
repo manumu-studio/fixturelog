@@ -16,8 +16,14 @@ const TONE: Record<string, StatusTone> = {
   LIFTED: 'done',
   WAIVED: 'done',
   ON_HIRE: 'done',
+  CLEAR: 'done',
   LOST: 'lost',
   FAILED: 'lost',
+  BLOCKED: 'lost',
+  SOURCE_ERROR: 'lost',
+  REVIEW: 'active',
+  STALE: 'active',
+  NOT_SCREENED: 'new',
 };
 
 /** "ON_SUBS" -> "On Subs", "ENQUIRY" -> "Enquiry". Shared by the portal surfaces. */

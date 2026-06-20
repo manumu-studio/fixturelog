@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { CuidParamSchema } from '@/lib/validators/common.validators';
 import { FixtureStatusTransitionSchema } from '@/lib/validators/fixture.validators';
 import { evaluateTransition } from '@/lib/services/fixture-status-policy';
+import { screenFixtureForFixedGate } from '@/lib/services/sanctions-screening/fixture-screening-gate';
 
 export async function PATCH(
   request: NextRequest,
@@ -53,6 +54,13 @@ export async function PATCH(
 
   if (!result.allowed) {
     return NextResponse.json({ error: result.reason }, { status: 400 });
+  }
+
+  if (fixture.status === 'ON_SUBS' && toStatus === 'FIXED') {
+    const screeningGate = await screenFixtureForFixedGate(id);
+    if (!screeningGate.allowed) {
+      return NextResponse.json({ error: screeningGate.reason }, { status: 400 });
+    }
   }
 
   const [updatedFixture, statusChange] = await prisma.$transaction(async (tx) => {

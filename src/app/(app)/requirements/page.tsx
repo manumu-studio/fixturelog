@@ -3,6 +3,9 @@ import Link from 'next/link';
 import { z } from 'zod';
 import { serverFetch } from '@/lib/server-fetch';
 import { requireBroker } from '@/lib/auth/require-broker';
+import { StatusBadge } from '@/components/portal/StatusBadge';
+
+const ScreeningStatusSchema = z.enum(['CLEAR', 'REVIEW', 'BLOCKED']);
 
 const RequirementListResponseSchema = z.object({
   data: z.array(z.object({
@@ -11,7 +14,13 @@ const RequirementListResponseSchema = z.object({
     status: z.string(),
     startDate: z.string(),
     dayRateBudget: z.number().nullable(),
-    charterer: z.object({ name: z.string() }),
+    charterer: z.object({
+      name: z.string(),
+      latestScreeningStatus: ScreeningStatusSchema.nullable(),
+      latestScreenedAt: z.string().nullable().or(z.date().nullable()),
+      latestScreeningTtlExpiresAt: z.string().nullable().or(z.date().nullable()),
+      latestScreeningSourceName: z.string().nullable(),
+    }),
     region: z.object({ name: z.string(), code: z.string() }),
   })),
   total: z.number(),
@@ -23,6 +32,13 @@ async function fetchRequirements(): Promise<RequirementListResponse> {
   const res = await serverFetch('/api/requirements?limit=50');
   if (!res.ok) throw new Error('Failed to fetch requirements');
   return RequirementListResponseSchema.parse(await res.json());
+}
+
+function screeningLabel(charterer: RequirementListResponse['data'][number]['charterer']): string {
+  if (charterer.latestScreeningStatus === null) return 'NOT_SCREENED';
+  if (charterer.latestScreeningTtlExpiresAt === null) return charterer.latestScreeningStatus;
+  const expiresAt = new Date(charterer.latestScreeningTtlExpiresAt);
+  return expiresAt.getTime() <= Date.now() ? 'STALE' : charterer.latestScreeningStatus;
 }
 
 export default async function RequirementsPage() {
@@ -43,6 +59,7 @@ export default async function RequirementsPage() {
             <th>Vessel Type</th>
             <th>Region</th>
             <th>Status</th>
+            <th>Screening</th>
             <th>Start Date</th>
             <th>Budget ($/day)</th>
           </tr>
@@ -56,6 +73,7 @@ export default async function RequirementsPage() {
               <td>{r.vesselTypeNeeded}</td>
               <td>{r.region.name}</td>
               <td>{r.status}</td>
+              <td><StatusBadge status={screeningLabel(r.charterer)} /></td>
               <td>{new Date(r.startDate).toLocaleDateString('en-GB')}</td>
               <td>{r.dayRateBudget != null ? r.dayRateBudget.toLocaleString() : '—'}</td>
             </tr>

@@ -3,14 +3,70 @@
 // validates and returns. Date values emit ISO strings.
 import type {
   CharterType, Currency, DPClass, FixtureStatus, RegionCode, RequirementStatus,
-  SubjectItemStatus, VesselStatus, VesselType,
+  ScreeningStatus, SubjectItemStatus, VesselStatus, VesselType,
 } from '@prisma/client';
 import type { MatchResult } from '@/lib/services/fixture-matcher.types';
 import type {
-  EnquirySummary, FixtureSummary, PortalDocument, ShortlistEntry,
+  EnquirySummary, FixtureSummary, PortalDocument, ScreeningBadge, ShortlistEntry,
 } from '@/lib/validators/portal.validators';
 
 const iso = (d: Date | null): string | null => (d === null ? null : d.toISOString());
+
+interface ScreeningCacheRow {
+  latestScreeningStatus: ScreeningStatus | null;
+  latestScreenedAt: Date | null;
+  latestScreeningTtlExpiresAt: Date | null;
+  latestScreeningSourceName: string | null;
+}
+
+function toScreeningBadge(cache: Partial<ScreeningCacheRow> | null | undefined): ScreeningBadge {
+  const status = cache?.latestScreeningStatus ?? null;
+  const ttlExpiresAt = cache?.latestScreeningTtlExpiresAt ?? null;
+  const screenedAt = cache?.latestScreenedAt ?? null;
+  if (status === null) {
+    return {
+      status: 'NOT_SCREENED',
+      screenedAt: null,
+      ttlExpiresAt: null,
+      source: null,
+      reason: 'Not screened',
+    };
+  }
+  const stale = ttlExpiresAt !== null && ttlExpiresAt.getTime() <= Date.now();
+  return {
+    status: stale ? 'STALE' : status,
+    screenedAt: iso(screenedAt),
+    ttlExpiresAt: iso(ttlExpiresAt),
+    source: cache?.latestScreeningSourceName ?? null,
+    reason: stale ? 'Re-screen required' : `Latest result: ${status}`,
+  };
+}
+
+function screeningSeverity(status: ScreeningBadge['status']): number {
+  const severity: Record<ScreeningBadge['status'], number> = {
+    BLOCKED: 5,
+    SOURCE_ERROR: 4,
+    STALE: 3,
+    REVIEW: 2,
+    NOT_SCREENED: 1,
+    CLEAR: 0,
+  };
+  return severity[status];
+}
+
+function rollupScreeningBadges(
+  caches: Array<Partial<ScreeningCacheRow> | null | undefined>,
+): ScreeningBadge {
+  const badges = caches.map(toScreeningBadge);
+  const [first, ...rest] = badges;
+  if (first === undefined) return toScreeningBadge(null);
+  return rest.reduce(
+    (worst, badge) => (
+      screeningSeverity(badge.status) > screeningSeverity(worst.status) ? badge : worst
+    ),
+    first,
+  );
+}
 
 export interface RequirementRow {
   id: string;
@@ -25,6 +81,7 @@ export interface RequirementRow {
   createdAt: Date;
   region: { name: string; code: RegionCode };
   workscope: { name: string };
+  charterer?: ScreeningCacheRow | null;
 }
 
 export function toEnquirySummary(req: RequirementRow): EnquirySummary {
@@ -42,6 +99,7 @@ export function toEnquirySummary(req: RequirementRow): EnquirySummary {
     dayRateBudget: req.dayRateBudget,
     notes: req.notes,
     createdAt: req.createdAt.toISOString(),
+    screening: toScreeningBadge(req.charterer),
   };
 }
 
@@ -52,8 +110,9 @@ export interface FixtureRow {
   currency: Currency;
   commencement: Date | null;
   durationDays: number | null;
-  vessel: { name: string; vesselType: VesselType };
+  vessel: { name: string; vesselType: VesselType } & Partial<ScreeningCacheRow>;
   region: { name: string };
+  charterer?: ScreeningCacheRow | null;
   subjects: { id: string; label: string; status: SubjectItemStatus; dueAt: Date | null; owner: string | null }[];
   weatherSnapshots: { workabilityVerdict: string; fetchedAt: Date }[];
 }
@@ -85,6 +144,7 @@ export function toFixtureSummary(fx: FixtureRow): FixtureSummary {
             fetchedAt: latestWeather.fetchedAt.toISOString(),
             source: 'Open-Meteo Marine (seeded)',
           },
+    screening: rollupScreeningBadges([fx.vessel, fx.charterer]),
   };
 }
 
@@ -120,6 +180,10 @@ export interface ShortlistVesselRow {
   bollardPullT: number | null;
   status: VesselStatus;
   imageUrl: string | null;
+  latestScreeningStatus?: ScreeningStatus | null;
+  latestScreenedAt?: Date | null;
+  latestScreeningTtlExpiresAt?: Date | null;
+  latestScreeningSourceName?: string | null;
 }
 
 // Combine a matcher result with the candidate vessel's specs for "why this vessel".
@@ -136,5 +200,6 @@ export function toShortlistEntry(result: MatchResult, vessel: ShortlistVesselRow
     score: result.score,
     rank: result.rank,
     factors: result.factors,
+    screening: toScreeningBadge(vessel),
   };
 }

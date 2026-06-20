@@ -10,6 +10,25 @@ All notable changes to FixtureLog are documented here. Versions follow [Semantic
 - Matched the OR Studio animation pattern more closely with a completed-mark reveal under the stroke-draw animation, while keeping the implementation on `motion.path` so existing landing tests continue to pass.
 - Added global ESLint ignores for generated/vendor output (`.next`, coverage reports, Playwright output, local virtualenvs, `next-env.d.ts`) so `npx eslint . --ext .ts,.tsx` validates source files instead of build artifacts.
 
+## [1.5.0] — 2026-06-20 (Sanctions / Operator-Risk Screening Gate)
+
+FixtureLog gains the first deterministic sanctions/operator-risk slice: local normalized fixture data, provenance-carrying screening evidence, compact broker-facing badges, and a hard pre-`FIXED` gate.
+
+### Added
+
+- **Additive screening model** — `Operator`, `ScreeningResult`, `ScreeningReview`, `Vessel.flagState`, and provenance cache fields on `Vessel`, `Owner`, `Operator`, and `Charterer`. `ScreeningResult` is the source of truth; cache fields exist only for fast badges.
+- **Local normalized fixture adapter** — deterministic demo records behind a Zod-parsed screening boundary, with 24-hour TTL and explicit source/list/version metadata.
+- **Pure screening service** — classifies vessel-by-IMO, owner, operator, and charterer subjects as `CLEAR`, `REVIEW`, or `BLOCKED`; derives `STALE`; and prevents broker-clearing of true `BLOCKED`.
+- **Pre-`FIXED` sanctions gate** — `PATCH /api/fixtures/[id]/status` and the copilot `advanceFixtureStatus` executor both call the same screening gate before persisting `ON_SUBS → FIXED`.
+- **Broker-facing badges** — requirement list, dashboard active-enquiry rows, and fixture timeline rows show compact screening state. The close-action button warns/disables when cached screening already says `BLOCKED`, `REVIEW`, `STALE`, or `SOURCE_ERROR`.
+- **Copilot evidence boundary** — the broker data summary now includes stored screening status/timestamps/source; the system prompt allows evidence summaries but forbids legal conclusions, external lookups, overrides, or clearing true `BLOCKED`.
+
+### Safety
+
+- No `CLEAN_FIXED` enum was added; locked fixture/requirement status vocabulary remains unchanged.
+- No yente, direct government ingestion, AIS, voice/RAG, legal advice, autonomous clearing, or broker override for true `BLOCKED`.
+- Targeted verification: sanctions service tests, status route tests, copilot status executor tests, broker dashboard mapper tests, full typecheck, and lint.
+
 ## [1.4.0] — 2026-06-15 (AI Broker Copilot v2 — grounded, confirm-gated agent)
 
 The AI Broker Copilot graduates from a **grounded read-only chat** to a **grounded, confirm-gated, tool-using agent**. It keeps every v1 guardrail (broker-only, fed the desk's real dashboard aggregate as the source of truth, answers only from that data) and gains the ability to *act* — with a human checkpoint on every mutation.
