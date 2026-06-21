@@ -8,7 +8,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
   <a href="#"><strong>Live Demo</strong></a> · <a href="docs/specs/SPEC-001-mvp-build.md"><strong>Build Spec</strong></a> · <a href="docs/GLOSSARY.md"><strong>Glossary</strong></a> · <a href="https://github.com/manumu-studio/fixturelog"><strong>Source Code</strong></a>
 </p>
 
-<p align="center"><em>v1.5.0 — the broker desk now carries deterministic sanctions/operator-risk screening: local normalized fixture data screens charterers, vessels, owners, and operators; provenance-carrying badges surface risk; and <code>ON_SUBS → FIXED</code> is blocked when screening is stale, unresolved, or true <code>BLOCKED</code>. The grounded AI Broker Copilot can explain stored screening evidence but cannot clear, override, or give legal advice. The public site stays locked behind the professional private-build landing (supervised assistant previews only) while the demo is refined.</em></p>
+<p align="center"><em>v1.6.0 — the public landing's assistant card gains an optional, flag-gated <strong>junior LLM demo</strong>: alongside the curated buttons, a visitor can ask a free-text question and get a grounded, output-scoped Claude answer (rate-limited, no broker data, no RAG, graceful deterministic fallback). The broker desk still carries deterministic sanctions/operator-risk screening, and the grounded AI Broker Copilot can explain stored screening evidence but cannot clear, override, or give legal advice.</em></p>
 
 ---
 
@@ -31,7 +31,7 @@ The public root is a locked private-build page; everything operational is authen
 | Route | Audience | What it shows |
 |---|---|---|
 | `/` | Public | Private build notice — maritime intelligence canvas, chartering and matching assistant previews, build status disclosure, and a deterministic limited assistant preview (curated prompt buttons → approved public answers via `POST /api/public/assistant-preview`); no product-route links or live voice controls |
-| `/api/public/assistant-preview` | Public | Deterministic public-safe assistant preview: validates a curated `promptId` (Zod) and returns an approved static answer or a scoped `400`; no auth, no broker data/tools, no LLM, no LiveKit |
+| `/api/public/assistant-preview` | Public | Public-safe assistant preview: a curated `promptId` returns an approved static answer; a free-text `{ question }` returns a grounded, output-scoped Claude answer **only when `JUNIOR_LLM_DEMO` is on** (rate-limited 3/visitor·12h), else a deterministic fallback. Zod-validated; no auth, no broker data/tools, no RAG, no LiveKit |
 | `/page2` | Public | Redirects to `/` so the old experimental landing is no longer exposed |
 | `/portal` 👤 | Charterer | **Dashboard** — your active enquiries, pending actions, and fixture/weather timeline |
 | `/portal/enquiries` · `/portal/enquiries/new` · `/portal/enquiries/[id]` 👤 | Charterer | Your enquiries, the create-enquiry form, and detail with a recommended-vessel shortlist |
@@ -146,7 +146,7 @@ src/
   lib/
     auth/               # requireSession · require-charterer · require-broker · resolve-role · resolve-home-route
     services/           # FixtureMatcher · RecapFormatter · WeatherEnricher · sanctions-screening/ · portal/ (charterer + broker queries)
-    public-assistant/   # deterministic public-safe assistant preview answer map (no broker data, no LLM)
+    public-assistant/   # public assistant preview: deterministic answer map + optional flag-gated LLM question path, rate guard, curated knowledge (no broker data, no RAG)
     utils/              # haversine (nm) · dp-class ranking · format (date/money)
     validators/         # Zod schemas at every boundary (incl. portal DTOs)
     env.ts · env.server.ts   # split public / server env validation (secrets stay server-only)
@@ -180,6 +180,7 @@ The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/archit
 
 ## Roadmap
 
+- **Done (v1.6.0)** — junior assistant LLM demo pilot: the public assistant card's free-text box, when `JUNIOR_LLM_DEMO` is on, returns a grounded, output-scoped Claude answer over a curated public knowledge file (no RAG, no broker data); rate-limited 3/visitor + 12/IP per 12h with a calm `429`; graceful deterministic fallback so the public surface never 500s
 - **Done (v1.5.0)** — sanctions/operator-risk screening slice: additive `Operator`, `ScreeningResult`, `ScreeningReview`, and `Vessel.flagState`; local normalized fixture adapter; 24-hour provenance TTL; charterer screening on requirement create; compact risk badges; and a deterministic pre-`FIXED` gate shared by the route and copilot executor
 - **Done (v1.4.3)** — public build lock: `/` now shows a professional private-build landing with supervised chartering and matching assistant previews and no product-route links or live voice controls; `/page2` redirects to `/`. The assistant card also runs a deterministic limited public assistant preview (curated prompt buttons → approved public answers via `/api/public/assistant-preview`) — no LLM, RAG, live voice, or broker copilot exposure
 - **Done (v1.4.2)** — public landing role comparison: a Broker / Charterer toggle explained the `/dashboard` and `/portal` difference before visitors entered the product

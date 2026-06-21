@@ -45,3 +45,56 @@
   font-size: 0.78rem;
   line-height: 1.5;
 }
+
+.askForm {
+  display: flex;
+  gap: var(--fl-unit-6);
+}
+
+.askInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 32px;
+  padding: var(--fl-unit-4) var(--fl-unit-10);
+  border: 1px solid rgba(0, 117, 167, 0.18);
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.72);
+  color: var(--fl-navy);
+  font-family: var(--fl-font-sans);
+  font-size: 0.72rem;
+}
+
+.askInput::placeholder {
+  color: rgba(0, 0, 67, 0.4);
+}
+
+.askInput:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.askSubmit {
+  min-height: 32px;
+  padding: var(--fl-unit-4) var(--fl-unit-12);
+  border: 1px solid rgba(0, 117, 167, 0.4);
+  border-radius: 999px;
+  background-color: rgba(0, 226, 253, 0.14);
+  color: var(--fl-navy);
+  font-family: var(--fl-font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.askSubmit:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.meta {
+  margin: 0;
+  color: rgba(0, 0, 67, 0.52);
+  font-family: var(--fl-font-sans);
+  font-size: 0.64rem;
+  font-weight: 600;
+}
