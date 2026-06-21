@@ -1,18 +1,21 @@
-// e2e/landing.spec.ts — Landing page E2E tests (PACKET-007 TASK-067).
-// Verifies the public `/` route: hero, canvas, CTAs, health endpoint, mobile nav, no console errors.
-
-import { test, expect } from '@playwright/test';
+// e2e/landing.spec.ts - public locked build landing checks.
+import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import path from 'path';
 
 const SCREENSHOT_DIR = path.join(process.cwd(), 'public', 'assets', 'landing');
 
-// ---------------------------------------------------------------------------
-// Desktop — 1440 × 900
-// ---------------------------------------------------------------------------
+async function openAssistantDetails(page: Page) {
+  await page.locator('summary').filter({ hasText: 'Assistant previews' }).click();
+}
 
-test('desktop (1440): landing page loads with hero, canvas, CTAs and no console errors', async ({
-  page,
-}) => {
+async function selectStatusButton(page: Page, name: RegExp) {
+  const button = page.getByRole('button', { name });
+  await button.focus();
+  await page.keyboard.press('Enter');
+}
+
+test('desktop (1440): locked build page shows silent status panel and no product links', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
 
   const consoleErrors: string[] = [];
@@ -22,126 +25,67 @@ test('desktop (1440): landing page loads with hero, canvas, CTAs and no console 
 
   await page.goto('/');
 
-  // Brand name is visible on the page (nav link + subline text)
-  await expect(page.getByText('ManuMu Offshore Partners').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('ManuMu Offshore').first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Two junior assistants are being built/i })).toBeVisible();
+  await expect(page.getByText('Private build in progress')).toBeVisible();
+  await expect(page.getByText('Build status')).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Assistant previews/i })).toBeVisible();
+  await expect(page.locator('canvas').nth(1)).toBeAttached();
+  await openAssistantDetails(page);
+  await expect(page.getByText(/FixtureLog is building two junior assistants/i)).toBeVisible();
+  await selectStatusButton(page, /Matching assistant/i);
+  await expect(page.getByText(/shortlist rationale/i)).toBeVisible();
+  await selectStatusButton(page, /Public access/i);
+  await expect(page.getByText(/public page stays closed/i)).toBeVisible();
+  await selectStatusButton(page, /Chartering assistant/i);
+  await expect(page.getByText(/broker-charterer intake/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'What is being built?', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Matching', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Play briefing/i })).toHaveCount(0);
 
-  // Hero h1 is the workflow headline
-  const h1 = page.locator('h1').first();
-  await expect(h1).toBeVisible();
-  await expect(h1).toContainText('broker');
-
-  // E2E runs with the auth bypass, so the landing shows the authenticated workspace CTA.
-  const workspaceCta = page.getByRole('link', { name: /Go to Workspace/i }).first();
-  await expect(workspaceCta).toBeVisible();
-
-  // The old disabled "Sign in coming next" teaser has been removed.
-  await expect(page.getByText(/coming next/i)).toHaveCount(0);
-
-  // Canvas is present and has drawn non-transparent pixels
-  const canvas = page.locator('[data-testid="marine-canvas"]');
-  await expect(canvas).toBeVisible({ timeout: 10_000 });
-
-  // Wait one rAF cycle for the canvas animation loop to paint
-  await page.waitForTimeout(200);
-
-  const hasPixels = await canvas.evaluate((el) => {
-    const c = el as HTMLCanvasElement;
-    const ctx = c.getContext('2d');
-    if (!ctx) return false;
-    const { data } = ctx.getImageData(0, 0, c.width, c.height);
-    // Count non-transparent pixels (alpha > 0)
-    let visiblePixels = 0;
-    for (let i = 3; i < data.length; i += 4) {
-      if ((data[i] ?? 0) > 0) visiblePixels++;
-    }
-    return visiblePixels > 50;
-  });
-  expect(hasPixels).toBe(true);
-
-  // Authenticated workspace CTA routes by role via the post-login hop (broker -> /dashboard,
-  // charterer -> /portal). The E2E user resolves to an authenticated home, not the landing.
-  await workspaceCta.click();
-  await expect(page).toHaveURL(/\/(dashboard|portal)/);
-  await page.goBack();
-
-  // No console errors on the landing page load
+  await expect(page.getByRole('link', { name: /Go to Workspace/i })).toHaveCount(0);
+  await expect(page.locator('a[href="/dashboard"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/portal"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/requirements"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/charterers"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/map"]')).toHaveCount(0);
+  await expect(page.locator('text=Voice briefing')).toHaveCount(0);
   expect(consoleErrors).toHaveLength(0);
 
-  // Scroll to top then wait for hero headline to finish fading in before screenshot
-  await page.evaluate(() => { window.scrollTo(0, 0); });
-  await page.waitForFunction(
-    () => {
-      const h = document.querySelector('h1');
-      return !!h && parseFloat(getComputedStyle(h).opacity) >= 0.99;
-    },
-    { timeout: 6000 },
-  );
-  // Settle remaining staggered items (subline, CTAs)
-  await page.waitForTimeout(600);
-  // Scroll h1 into view to ensure it is within the screenshot viewport
-  await page.locator('h1').first().scrollIntoViewIfNeeded();
-
-  // Desktop screenshot — hero headline + CTAs fully visible
+  await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
+  await page.waitForTimeout(1_200);
   await page.screenshot({
     path: path.join(SCREENSHOT_DIR, 'landing-desktop-1440.png'),
     fullPage: false,
   });
 });
 
-// ---------------------------------------------------------------------------
-// Mobile — 390 × 844 (iPhone 14 viewport)
-// ---------------------------------------------------------------------------
-
-test('mobile (390): heading visible, workspace CTA clickable and routes to the role home', async ({ page }) => {
+test('mobile (390): locked build page keeps the message readable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   await page.goto('/');
 
-  // Heading is visible at mobile width
-  const h1 = page.locator('h1').first();
-  await expect(h1).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: /Two junior assistants are being built/i })).toBeVisible();
+  await expect(page.getByText('The desk stays private while the service takes shape.', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Assistant previews/i })).toBeVisible();
+  await openAssistantDetails(page);
+  await selectStatusButton(page, /Matching assistant/i);
+  await expect(page.getByText(/shortlist rationale/i)).toBeVisible();
+  await selectStatusButton(page, /Chartering assistant/i);
+  await expect(page.getByText(/broker-charterer intake/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Play briefing/i })).toHaveCount(0);
 
-  // Open mobile hamburger menu so nav links are accessible
-  const menuToggle = page.getByRole('button', { name: /open navigation menu/i });
-  if (await menuToggle.isVisible()) {
-    await menuToggle.click();
-  }
-
-  // Authenticated workspace CTA (E2E bypass). Target the hero instance (last in DOM;
-  // nav renders first) so it is visible at mobile width without depending on the menu.
-  const workspaceCta = page.getByRole('link', { name: /Go to Workspace/i }).last();
-  await expect(workspaceCta).toBeVisible({ timeout: 10_000 });
-  await workspaceCta.click();
-  await expect(page).toHaveURL(/\/(dashboard|portal)/);
-
-  // Mobile screenshot — scroll to top, wait for hero headline to finish fading in before capturing
-  await page.goBack();
+  await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
   await page.evaluate(() => { window.scrollTo(0, 0); });
-  await page.waitForFunction(
-    () => {
-      const h = document.querySelector('h1');
-      return !!h && parseFloat(getComputedStyle(h).opacity) >= 0.99;
-    },
-    { timeout: 6000 },
-  );
-  // Settle remaining staggered items (subline, CTAs)
-  await page.waitForTimeout(600);
-  // Scroll h1 into view to ensure it is within the screenshot viewport
-  await page.locator('h1').first().scrollIntoViewIfNeeded();
-
+  await page.waitForTimeout(1_200);
   await page.screenshot({
     path: path.join(SCREENSHOT_DIR, 'landing-mobile-390.png'),
     fullPage: false,
   });
 });
 
-// ---------------------------------------------------------------------------
-// Health endpoint
-// ---------------------------------------------------------------------------
-
 test('GET /api/health returns 200 with { status: "ok" }', async ({ request }) => {
   const response = await request.get('/api/health');
   expect(response.status()).toBe(200);
-  const body = await response.json() as { status: string };
-  expect(body.status).toBe('ok');
+  expect(await response.json()).toMatchObject({ status: 'ok' });
 });
