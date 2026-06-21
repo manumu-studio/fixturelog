@@ -2,6 +2,34 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] — 2026-06-21 (Junior Assistant — public LLM demo pilot)
+
+A short-lived, demo-grade upgrade of the public assistant card: alongside the curated prompt
+buttons, a visitor can now type a free-text question and get a grounded LLM answer — gated behind a
+flag, rate-limited, output-scoped, and degrading gracefully to the deterministic preview (SPEC-004).
+
+### Added
+
+- **Grounded LLM answer** — `answerJuniorQuestion()` makes a single-shot, tool-free Claude Haiku call
+  over a tight, output-scoped system prompt built from a curated public knowledge file
+  (`docs/public-assistant/knowledge.md` + its runtime mirror). **No RAG, no broker data, no voice.**
+- **Rate guard** — 3 questions per visitor + a coarser 12/IP backstop per 12h window (blocked if
+  either trips); a calm `429` with `retryAfter`. In-memory, demo-scoped.
+- **Flag** — `JUNIOR_LLM_DEMO` (default **off**). Off → the public route stays fully deterministic.
+- **UI** — a free-text input + "questions left" / "limit reached" states added to the
+  `PublicAssistantPreview` card; curated buttons remain deterministic and free.
+
+### Changed
+
+- `POST /api/public/assistant-preview` now also accepts `{ question }` (free text, Zod-bounded ≤300
+  chars). Any model failure or flag-off request falls back to a safe deterministic preview message —
+  the public surface never returns a 500.
+
+### Safety
+
+- Output-scoped system prompt (refuse off-context, never leak instructions), low max-tokens, and a
+  deterministic fallback. No microphone, no LiveKit, no broker copilot, no `/api/broker/*`.
+
 ## [1.5.0] — 2026-06-20 (Sanctions / Operator-Risk Screening Gate)
 
 FixtureLog gains the first deterministic sanctions/operator-risk slice: local normalized fixture data, provenance-carrying screening evidence, compact broker-facing badges, and a hard pre-`FIXED` gate.

@@ -29,6 +29,9 @@ const serverEnvSchema = z.object({
     .optional()
     .default(DEV_PLACEHOLDER),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  // Public junior LLM demo (SPEC-004). Default OFF: the public assistant stays deterministic until
+  // this is explicitly enabled for the short demo window. Parsed so only the literal 'true' enables.
+  JUNIOR_LLM_DEMO: z.string().optional().default('false').transform((v) => v === 'true'),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
