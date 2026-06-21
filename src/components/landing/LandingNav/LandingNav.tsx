@@ -12,7 +12,7 @@ import { PUBLIC_NAV_LINKS } from '@/lib/constants/landing-copy';
 import type { LandingNavProps } from './LandingNav.types';
 import styles from './LandingNav.module.css';
 
-export function LandingNav({ className, authSlot }: LandingNavProps) {
+export function LandingNav({ className, authSlot, hideNavigation = false }: LandingNavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -59,40 +59,44 @@ export function LandingNav({ className, authSlot }: LandingNavProps) {
           <span className={styles.brandName}>{BRAND_NAME}</span>
         </Link>
 
-        {/* Mobile hamburger toggle — only visible at <640px */}
-        <button
-          type="button"
-          className={styles.menuToggle}
-          aria-expanded={menuOpen}
-          aria-controls="nav-links"
-          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          onClick={() => { setMenuOpen((prev) => !prev); }}
-        >
-          <span className={styles.hamburgerLine} aria-hidden="true" />
-          <span className={styles.hamburgerLine} aria-hidden="true" />
-          <span className={styles.hamburgerLine} aria-hidden="true" />
-        </button>
+        {!hideNavigation ? (
+          <>
+            {/* Mobile hamburger toggle — only visible at <640px */}
+            <button
+              type="button"
+              className={styles.menuToggle}
+              aria-expanded={menuOpen}
+              aria-controls="nav-links"
+              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              onClick={() => { setMenuOpen((prev) => !prev); }}
+            >
+              <span className={styles.hamburgerLine} aria-hidden="true" />
+              <span className={styles.hamburgerLine} aria-hidden="true" />
+              <span className={styles.hamburgerLine} aria-hidden="true" />
+            </button>
 
-        <ul
-          id="nav-links"
-          className={[styles.links, menuOpen ? styles.linksOpen : ''].filter(Boolean).join(' ')}
-          role="list"
-        >
-          {PUBLIC_NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className={styles.link}
-                onClick={() => { setMenuOpen(false); }}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
+            <ul
+              id="nav-links"
+              className={[styles.links, menuOpen ? styles.linksOpen : ''].filter(Boolean).join(' ')}
+              role="list"
+            >
+              {PUBLIC_NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={styles.link}
+                    onClick={() => { setMenuOpen(false); }}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
 
-          {/* Real auth CTA, server-rendered and injected by the page. */}
-          {authSlot ? <li>{authSlot}</li> : null}
-        </ul>
+              {/* Real auth CTA, server-rendered and injected by the page. */}
+              {authSlot ? <li>{authSlot}</li> : null}
+            </ul>
+          </>
+        ) : null}
       </div>
     </nav>
   );

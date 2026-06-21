@@ -1,0 +1,47 @@
+/* PublicAssistantPreview.module.css - compact public-safe assistant transcript controls. */
+
+.root {
+  display: grid;
+  gap: var(--fl-unit-10);
+  min-height: 142px;
+  padding-top: var(--fl-unit-14);
+  border-top: 1px solid rgba(0, 0, 97, 0.1);
+}
+
+.promptList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-6);
+}
+
+.prompt {
+  min-height: 28px;
+  padding: var(--fl-unit-4) var(--fl-unit-8);
+  border: 1px solid rgba(0, 117, 167, 0.16);
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.56);
+  color: var(--fl-navy);
+  font-family: var(--fl-font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.prompt[data-active='true'] {
+  border-color: rgba(0, 117, 167, 0.4);
+  background-color: rgba(0, 226, 253, 0.12);
+}
+
+.prompt:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.answer {
+  min-height: 62px;
+  margin: 0;
+  color: rgba(0, 0, 67, 0.78);
+  font-family: var(--fl-font-sans);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}

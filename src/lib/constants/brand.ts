@@ -1,6 +1,6 @@
 // brand.ts — product name and shared brand strings for UI, metadata, and demo data.
 
-export const BRAND_NAME = 'ManuMu Offshore Partners' as const;
+export const BRAND_NAME = 'ManuMu Offshore' as const;
 
 export const BRAND_DEMO_FLEET = `${BRAND_NAME} Demo Fleet` as const;
 

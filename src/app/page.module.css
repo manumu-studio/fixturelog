@@ -1,70 +1,300 @@
-/* page.module.css — proof strip styles for the landing page. */
+/* page.module.css - locked public build page styled like the marine landing hero. */
 
-/* Visually-hidden heading for screen readers — section still gets an h2 */
-.proofHeading {
+.page {
+  color: var(--fl-ink);
+  background-color: var(--fl-white);
+}
+
+.hero {
+  position: relative;
+  min-height: max(100svh, 820px);
+  display: flex;
+  align-items: center;
+  overflow: clip;
+}
+
+.cardOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.03);
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 560ms var(--fl-ease-out-expo),
+    visibility 560ms var(--fl-ease-out-expo);
+}
+
+.hero:has(.assistantCard [data-state="formed"]) .cardOverlay,
+.hero:has(.assistantCard details[open]) .cardOverlay {
+  visibility: visible;
+  opacity: 1;
+}
+
+.canvas {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.proofStrip {
-  background-color: var(--fl-surface-navy);
-  padding: var(--fl-unit-48) var(--fl-gutter);
-}
-
-.proofInner {
+.inner {
+  position: relative;
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
+  padding: var(--fl-unit-96) var(--fl-gutter) var(--fl-unit-64);
 }
 
-.proofList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--fl-unit-24) var(--fl-unit-48);
-  justify-content: center;
+@media (min-width: 768px) {
+  .inner {
+    padding-top: var(--fl-unit-128);
+  }
 }
 
-.proofItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--fl-unit-4);
-  text-align: center;
-  /* Ensure items have a minimum width so they don't collapse on 320px */
-  min-width: 100px;
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 370px);
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: var(--fl-unit-40) var(--fl-unit-56);
 }
 
-.proofValue {
-  font-family: var(--fl-font-display);
-  /* Cyan on navy background — passes AA for large text (contrast ~2.7:1 at display size) */
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 300;
-  color: var(--fl-cyan);
-  line-height: 1;
+.copy {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
 }
 
-.proofLabel {
+.assistantCard {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  position: relative;
+  z-index: 4;
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  width: 100%;
+  max-width: 370px;
+  min-height: 820px;
+  padding: var(--fl-unit-16);
+  border: 1px solid transparent;
+  border-radius: var(--fl-radius);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: translateZ(0);
+  transition:
+    background 720ms var(--fl-ease-out-expo),
+    border-color 720ms var(--fl-ease-out-expo),
+    box-shadow 720ms var(--fl-ease-out-expo),
+    backdrop-filter 720ms var(--fl-ease-out-expo),
+    transform 720ms var(--fl-ease-out-expo);
+}
+
+.assistantCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: var(--fl-white);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 720ms var(--fl-ease-out-expo);
+}
+
+.assistantCard:hover:not(:has([data-state='formed'])):not(:has(details[open]))::before,
+.assistantCard:focus-within:not(:has([data-state='formed'])):not(:has(details[open]))::before {
+  opacity: 0.06;
+}
+
+.assistantCard:hover:not(:has([data-state='formed'])):not(:has(details[open])) {
+  border-color: rgba(0, 0, 0, 0.035);
+  box-shadow: none;
+  transform: none;
+}
+
+.assistantCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.assistantCard:has([data-state="formed"]),
+.assistantCard:has(details[open]) {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: var(--fl-white);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(16px);
+  transform: translateY(-1px);
+}
+
+.assistantCard:has([data-state="formed"]) {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+.assistantVisual {
+  min-height: clamp(240px, 22vw, 280px);
+  padding-bottom: var(--fl-unit-12);
+  border-bottom: 1px solid transparent;
+  transition: border-color 720ms var(--fl-ease-out-expo);
+}
+
+.assistantCard:has([data-state="formed"]) .assistantVisual,
+.assistantCard:has(details[open]) .assistantVisual {
+  border-bottom-color: rgba(0, 0, 97, 0.12);
+}
+
+.statusGrid {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  max-width: 560px;
+  margin: var(--fl-unit-32) 0 0;
+  padding-top: var(--fl-unit-18);
+  border-top: 1px solid rgba(0, 0, 97, 0.14);
+}
+
+.eyebrow {
+  margin: 0 0 var(--fl-unit-14);
   font-family: var(--fl-font-sans);
-  font-size: 0.8125rem;
-  font-weight: 400;
-  /* White at 65% opacity on navy — ensure sufficient contrast */
-  color: rgba(255, 255, 255, 0.80);
-  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
 }
 
-/* Mobile — tighter layout at 320px */
-@media (max-width: 479px) {
-  .proofList {
-    gap: var(--fl-unit-20) var(--fl-unit-32);
+.title {
+  margin: 0;
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.9rem, 3.8vw, 3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--fl-navy);
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 540px;
+  margin: var(--fl-unit-18) 0 0;
+  font-family: var(--fl-font-sans);
+  font-size: 0.98rem;
+  line-height: 1.56;
+  color: var(--fl-ink);
+  opacity: 0.85;
+}
+
+.promise {
+  margin: var(--fl-unit-20) 0 0;
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+  line-height: 1.2;
+  color: var(--fl-navy);
+}
+
+.statusItem {
+  min-width: 0;
+  padding: 0 var(--fl-unit-18) 0 0;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.statusItem + .statusItem {
+  padding-left: var(--fl-unit-18);
+  border-left: 1px solid rgba(0, 0, 97, 0.1);
+}
+
+.statusItem dt {
+  font-family: var(--fl-font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
+}
+
+.statusItem dd {
+  margin: var(--fl-unit-6) 0 0;
+  font-family: var(--fl-font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: var(--fl-unit-32);
   }
 
-  .proofItem {
-    min-width: 80px;
+  .copy,
+  .assistantCard,
+  .statusGrid {
+    grid-column: auto;
+    grid-row: auto;
+    max-width: none;
+    margin-top: 0;
+  }
+
+  .assistantCard {
+    min-height: 720px;
+    padding: var(--fl-unit-14);
+  }
+
+  .assistantVisual {
+    min-height: clamp(190px, 48vw, 220px);
+  }
+
+  .statusGrid {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding-top: var(--fl-unit-80);
+  }
+
+  .statusGrid {
+    grid-template-columns: 1fr;
+    gap: var(--fl-unit-14);
+  }
+
+  .statusItem {
+    padding: 0;
+  }
+
+  .statusItem + .statusItem {
+    padding-left: 0;
+    padding-top: var(--fl-unit-14);
+    border-top: 1px solid rgba(0, 0, 97, 0.1);
+    border-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistantCard::before {
+    transition: none;
+  }
+
+  .assistantCard:hover:not(:has([data-state='formed'])):not(:has(details[open])) {
+    transform: none;
   }
 }
