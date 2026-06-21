@@ -1,0 +1,110 @@
+/* JuniorVoiceAssistant.module.css - silent particle assistant activation control. */
+
+.root {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  width: 100%;
+  min-height: 260px;
+  border: 0;
+  padding: 0;
+  color: var(--fl-navy);
+  background: transparent;
+  cursor: pointer;
+}
+
+.root:focus-visible {
+  outline: 2px solid var(--fl-blue);
+  outline-offset: 6px;
+  border-radius: var(--fl-radius);
+}
+
+.canvasWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: visible;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(0, 135, 203, 0.18), transparent 42%),
+    radial-gradient(circle at 48% 50%, rgba(0, 0, 97, 0.14), transparent 58%);
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 97, 0.08));
+  transition: filter 720ms var(--fl-ease-out-expo), background 720ms var(--fl-ease-out-expo);
+}
+
+.root[data-state='formed'] .canvasWrap {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(0, 226, 253, 0.16), transparent 38%),
+    radial-gradient(circle at 48% 50%, rgba(0, 0, 67, 0.22), transparent 58%);
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 67, 0.1));
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(70%, 260px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(0, 61, 128, 0.34);
+  border-radius: 999px;
+  opacity: 0.38;
+  transform: translate(-50%, -50%);
+  transition: border-color 720ms var(--fl-ease-out-expo), opacity 720ms var(--fl-ease-out-expo);
+}
+
+.root[data-state='formed'] .ring {
+  opacity: 0;
+}
+
+.root[data-state='forming'] .ring {
+  border-color: rgba(0, 61, 128, 0.2);
+  opacity: 0.16;
+}
+
+.voiceLine {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 7%;
+  width: min(78%, 250px);
+  transform: translateX(-50%);
+  color: rgba(0, 0, 97, 0.64);
+  font-family: var(--fl-font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+  opacity: 0.74;
+  transition:
+    color 560ms var(--fl-ease-out-expo),
+    opacity 560ms var(--fl-ease-out-expo),
+    transform 560ms var(--fl-ease-out-expo);
+}
+
+.root[data-state='formed'] .voiceLine {
+  color: rgba(0, 0, 67, 0.82);
+  opacity: 1;
+  transform: translate(-50%, -1px);
+}
+
+@media (max-width: 960px) {
+  .root {
+    min-height: 210px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvasWrap,
+  .ring,
+  .voiceLine {
+    transition: none;
+    animation: none;
+  }
+}
