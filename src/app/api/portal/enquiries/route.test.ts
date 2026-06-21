@@ -35,6 +35,13 @@ const ENQUIRY = {
   dayRateBudget: 82000,
   notes: null,
   createdAt: '2026-06-14T00:00:00.000Z',
+  screening: {
+    status: 'NOT_SCREENED',
+    screenedAt: null,
+    ttlExpiresAt: null,
+    source: null,
+    reason: 'Not screened',
+  },
 } satisfies EnquirySummary;
 
 const VALID_PAYLOAD = {

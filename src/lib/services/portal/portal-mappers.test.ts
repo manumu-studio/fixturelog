@@ -48,6 +48,13 @@ describe('portal mappers', () => {
       dayRateBudget: 55000,
       notes: 'North Sea rig move',
       createdAt: createdAt.toISOString(),
+      screening: {
+        status: 'NOT_SCREENED',
+        screenedAt: null,
+        ttlExpiresAt: null,
+        source: null,
+        reason: 'Not screened',
+      },
     });
   });
 
@@ -96,6 +103,13 @@ describe('portal mappers', () => {
         verdict: 'WORKABLE',
         fetchedAt: createdAt.toISOString(),
         source: 'Open-Meteo Marine (seeded)',
+      },
+      screening: {
+        status: 'NOT_SCREENED',
+        screenedAt: null,
+        ttlExpiresAt: null,
+        source: null,
+        reason: 'Not screened',
       },
     });
   });
@@ -176,6 +190,13 @@ describe('portal mappers', () => {
       score: 91,
       rank: 1,
       factors: { distance: 94, rateFit: 88, capabilityMargin: 92 },
+      screening: {
+        status: 'NOT_SCREENED',
+        screenedAt: null,
+        ttlExpiresAt: null,
+        source: null,
+        reason: 'Not screened',
+      },
     });
   });
 });
