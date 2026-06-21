@@ -17,11 +17,13 @@
 
 | ID | Date | Severity | Failure Mode | Status | File |
 |----|------|----------|-------------|--------|------|
+| _none_ | | | | | |
 
 ## Resolved Incidents
 
 | ID | Date | Resolved | Severity | Failure Mode | Status | File |
 |----|------|----------|----------|-------------|--------|------|
+| INCIDENT-BUILD-linked-worktree-deps | 2026-06-21 | 2026-06-21 | SEV-4 | Linked worktree had no schema-aware verification env (missing node_modules + stale Prisma client), masking 5 stale `screening` test fixtures | RESOLVED | docs/incidents/INCIDENT-BUILD-linked-worktree-deps.md |
 | INCIDENT-AI-confabulated-task-premise | 2026-06-20 | 2026-06-20 | SEV-2 | Assistant confabulated the task premise (hallucinated requirements/codebase facts presented as fact) | RESOLVED | docs/incidents/INCIDENT-AI-confabulated-task-premise.md |
 | INCIDENT-BUILD-parallel-next-artifact-corruption | 2026-06-20 | 2026-06-20 | SEV-4 | Parallel Next build and Playwright dev server corrupt local `.next` artifacts | RESOLVED | docs/incidents/INCIDENT-BUILD-parallel-next-artifact-corruption.md |
 | INCIDENT-BUILD-transient-landingnav-typecheck | 2026-06-20 | 2026-06-20 | SEV-4 | Transient LandingNav unused-prop typecheck signal | RESOLVED | docs/incidents/INCIDENT-BUILD-transient-landingnav-typecheck.md |

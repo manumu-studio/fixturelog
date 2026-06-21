@@ -113,6 +113,26 @@ enum SubjectItemStatus {
   FAILED
 }
 
+enum ScreeningStatus {
+  CLEAR
+  REVIEW
+  BLOCKED
+}
+
+enum ScreeningSubjectType {
+  VESSEL
+  OWNER
+  OPERATOR
+  CHARTERER
+}
+
+enum ScreeningReviewAction {
+  REVIEWED
+  ESCALATED
+  CANNOT_PROCEED
+  REVIEW_CLEARED
+}
+
 // Honesty label for a vessel's displayed image (§ PACKET-009 honesty rule).
 enum VesselImageSource {
   STOCK // generic licensed photo chosen by vessel type
@@ -130,30 +150,69 @@ enum AppRole {
 // ─── Reference / Party Entities ──────────────────────────────
 
 model Owner {
-  id        String   @id @default(cuid())
-  name      String
-  country   String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                          String           @id @default(cuid())
+  name                        String
+  country                     String?
+  notes                       String?
+  latestScreeningStatus       ScreeningStatus?
+  latestScreeningResultId     String?
+  latestScreenedAt            DateTime?
+  latestScreeningTtlExpiresAt DateTime?
+  latestScreeningSourceName   String?
+  latestScreeningListName     String?
+  latestScreeningListVersion  String?
+  latestScreeningListDate     DateTime?
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
 
-  vessels Vessel[]
+  vessels          Vessel[]
+  screeningResults ScreeningResult[]
 }
 
 model Charterer {
-  id           String   @id @default(cuid())
-  name         String
-  sector       String?
-  contactName  String?
-  contactEmail String?
-  contactPhone String?
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                          String           @id @default(cuid())
+  name                        String
+  sector                      String?
+  contactName                 String?
+  contactEmail                String?
+  contactPhone                String?
+  notes                       String?
+  latestScreeningStatus       ScreeningStatus?
+  latestScreeningResultId     String?
+  latestScreenedAt            DateTime?
+  latestScreeningTtlExpiresAt DateTime?
+  latestScreeningSourceName   String?
+  latestScreeningListName     String?
+  latestScreeningListVersion  String?
+  latestScreeningListDate     DateTime?
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
 
-  requirements Requirement[]
-  fixtures     Fixture[]
-  appUsers     AppUser[]
+  requirements     Requirement[]
+  fixtures         Fixture[]
+  appUsers         AppUser[]
+  screeningResults ScreeningResult[]
+}
+
+model Operator {
+  id                          String           @id @default(cuid())
+  name                        String
+  country                     String?
+  notes                       String?
+  latestScreeningStatus       ScreeningStatus?
+  latestScreeningResultId     String?
+  latestScreenedAt            DateTime?
+  latestScreeningTtlExpiresAt DateTime?
+  latestScreeningSourceName   String?
+  latestScreeningListName     String?
+  latestScreeningListVersion  String?
+  latestScreeningListDate     DateTime?
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
+
+  vessels          Vessel[]
+  fixtures         Fixture[]
+  screeningResults ScreeningResult[]
 }
 
 model Broker {
@@ -164,9 +223,10 @@ model Broker {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  fixtures       Fixture[]
-  approvedRecaps Recap[]
-  appUsers       AppUser[]
+  fixtures         Fixture[]
+  approvedRecaps   Recap[]
+  appUsers         AppUser[]
+  screeningReviews ScreeningReview[]
 }
 
 // Maps an OIDC identity (stable `sub` = externalId) to a business actor: a Broker
@@ -239,34 +299,47 @@ model RateBenchmark {
 // ─── Core Operational Entities ───────────────────────────────
 
 model Vessel {
-  id           String            @id @default(cuid())
-  name         String
-  imo          String?           @unique
-  mmsi         String?           @unique
-  vesselType   VesselType
-  ownerId      String
-  deckAreaM2   Float?
-  bollardPullT Float?
-  dpClass      DPClass
-  builtYear    Int?
-  status       VesselStatus
-  openRegionId String?
-  openPort     String?
-  openDate     DateTime?
-  imageUrl     String?
-  images       String[]          @default([])
-  imageSource  VesselImageSource @default(STOCK)
-  imageCredit  String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id                          String            @id @default(cuid())
+  name                        String
+  imo                         String?           @unique
+  mmsi                        String?           @unique
+  flagState                   String?
+  vesselType                  VesselType
+  ownerId                     String
+  operatorId                  String?
+  deckAreaM2                  Float?
+  bollardPullT                Float?
+  dpClass                     DPClass
+  builtYear                   Int?
+  status                      VesselStatus
+  openRegionId                String?
+  openPort                    String?
+  openDate                    DateTime?
+  imageUrl                    String?
+  images                      String[]          @default([])
+  imageSource                 VesselImageSource @default(STOCK)
+  imageCredit                 String?
+  latestScreeningStatus       ScreeningStatus?
+  latestScreeningResultId     String?
+  latestScreenedAt            DateTime?
+  latestScreeningTtlExpiresAt DateTime?
+  latestScreeningSourceName   String?
+  latestScreeningListName     String?
+  latestScreeningListVersion  String?
+  latestScreeningListDate     DateTime?
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
 
-  owner      Owner   @relation(fields: [ownerId], references: [id], onDelete: Restrict)
-  openRegion Region? @relation("VesselOpenRegion", fields: [openRegionId], references: [id], onDelete: Restrict)
+  owner      Owner     @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  operator   Operator? @relation(fields: [operatorId], references: [id], onDelete: SetNull)
+  openRegion Region?   @relation("VesselOpenRegion", fields: [openRegionId], references: [id], onDelete: Restrict)
 
-  positions PositionSnapshot[]
-  fixtures  Fixture[]
+  positions        PositionSnapshot[]
+  fixtures         Fixture[]
+  screeningResults ScreeningResult[]
 
   @@index([status, openRegionId, openDate])
+  @@index([operatorId])
 }
 
 model PositionSnapshot {
@@ -309,7 +382,8 @@ model Requirement {
   region    Region    @relation(fields: [regionId], references: [id], onDelete: Restrict)
   workscope Workscope @relation(fields: [workscopeId], references: [id], onDelete: Restrict)
 
-  fixtures Fixture[]
+  fixtures         Fixture[]
+  screeningResults ScreeningResult[]
 }
 
 model Fixture {
@@ -318,6 +392,7 @@ model Fixture {
   vesselId          String
   chartererId       String
   brokerId          String
+  operatorId        String?
   regionId          String
   workscopeId       String
   charterType       CharterType
@@ -340,6 +415,7 @@ model Fixture {
   vessel      Vessel       @relation(fields: [vesselId], references: [id], onDelete: Restrict)
   charterer   Charterer    @relation(fields: [chartererId], references: [id], onDelete: Restrict)
   broker      Broker       @relation(fields: [brokerId], references: [id], onDelete: Restrict)
+  operator    Operator?    @relation(fields: [operatorId], references: [id], onDelete: SetNull)
   region      Region       @relation(fields: [regionId], references: [id], onDelete: Restrict)
   workscope   Workscope    @relation(fields: [workscopeId], references: [id], onDelete: Restrict)
 
@@ -347,8 +423,10 @@ model Fixture {
   recaps           Recap[]
   weatherSnapshots WeatherSnapshot[]
   statusChanges    FixtureStatusChange[]
+  screeningResults ScreeningResult[]
 
   @@index([regionId, fixedAt])
+  @@index([operatorId])
 }
 
 model SubjectItem {
@@ -376,6 +454,67 @@ model FixtureStatusChange {
   fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
 
   @@index([fixtureId, createdAt])
+}
+
+model ScreeningResult {
+  id                 String               @id @default(cuid())
+  subjectType        ScreeningSubjectType
+  status             ScreeningStatus
+  query              String
+  sourceName         String
+  sourceJurisdiction String?
+  sourceListName     String
+  sourceListVersion  String
+  sourceListDate     DateTime?
+  sourceRecordId     String?
+  sourceRecordUrl    String?
+  matchedName        String?
+  matchedIdentifier  String?
+  matchType          String
+  score              Float?
+  reason             String
+  screenedAt         DateTime
+  ttlExpiresAt       DateTime
+  evidence           Json
+  fixtureId          String?
+  requirementId      String?
+  vesselId           String?
+  ownerId            String?
+  operatorId         String?
+  chartererId        String?
+  createdAt          DateTime             @default(now())
+
+  fixture     Fixture?          @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  requirement Requirement?      @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  vessel      Vessel?           @relation(fields: [vesselId], references: [id], onDelete: Cascade)
+  owner       Owner?            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  operator    Operator?         @relation(fields: [operatorId], references: [id], onDelete: Cascade)
+  charterer   Charterer?        @relation(fields: [chartererId], references: [id], onDelete: Cascade)
+  reviews     ScreeningReview[]
+
+  @@index([subjectType, status])
+  @@index([fixtureId, createdAt])
+  @@index([requirementId, createdAt])
+  @@index([vesselId, screenedAt])
+  @@index([ownerId, screenedAt])
+  @@index([operatorId, screenedAt])
+  @@index([chartererId, screenedAt])
+}
+
+model ScreeningReview {
+  id                String                @id @default(cuid())
+  screeningResultId String
+  brokerId          String
+  action            ScreeningReviewAction
+  rationale         String
+  notes             String?
+  createdAt         DateTime              @default(now())
+
+  screeningResult ScreeningResult @relation(fields: [screeningResultId], references: [id], onDelete: Cascade)
+  broker          Broker          @relation(fields: [brokerId], references: [id], onDelete: Restrict)
+
+  @@index([screeningResultId, createdAt])
+  @@index([brokerId, createdAt])
 }
 
 model Recap {

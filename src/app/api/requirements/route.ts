@@ -7,6 +7,7 @@ import {
   RequirementCreateSchema,
   RequirementListQuerySchema,
 } from '@/lib/validators/requirement.validators';
+import { persistChartererScreeningForRequirement } from '@/lib/services/sanctions-screening/fixture-screening-gate';
 
 export async function POST(request: NextRequest) {
   const session = await requireBrokerApi(); // 401 anonymous, 403 charterer
@@ -22,7 +23,10 @@ export async function POST(request: NextRequest) {
   }
 
   const [charterer, region, workscope] = await Promise.all([
-    prisma.charterer.findUnique({ where: { id: parsed.data.chartererId }, select: { id: true } }),
+    prisma.charterer.findUnique({
+      where: { id: parsed.data.chartererId },
+      select: { id: true, name: true, sector: true },
+    }),
     prisma.region.findUnique({ where: { id: parsed.data.regionId }, select: { id: true } }),
     prisma.workscope.findUnique({ where: { id: parsed.data.workscopeId }, select: { id: true } }),
   ]);
@@ -37,24 +41,33 @@ export async function POST(request: NextRequest) {
     dayRateBudget, sourceChannel, notes,
   } = parsed.data;
 
-  const requirement = await prisma.requirement.create({
-    data: {
-      chartererId,
-      regionId,
-      workscopeId,
-      vesselTypeNeeded,
-      startDate,
-      charterType,
-      status: 'ENQUIRY',
-      ...(minDeckAreaM2 !== undefined && { minDeckAreaM2 }),
-      ...(minBollardPullT !== undefined && { minBollardPullT }),
-      ...(minDpClass !== undefined && { minDpClass }),
-      ...(endDate !== undefined && { endDate }),
-      ...(durationDays !== undefined && { durationDays }),
-      ...(dayRateBudget !== undefined && { dayRateBudget }),
-      ...(sourceChannel !== undefined && { sourceChannel }),
-      ...(notes !== undefined && { notes }),
-    },
+  const requirement = await prisma.$transaction(async (tx) => {
+    const created = await tx.requirement.create({
+      data: {
+        chartererId,
+        regionId,
+        workscopeId,
+        vesselTypeNeeded,
+        startDate,
+        charterType,
+        status: 'ENQUIRY',
+        ...(minDeckAreaM2 !== undefined && { minDeckAreaM2 }),
+        ...(minBollardPullT !== undefined && { minBollardPullT }),
+        ...(minDpClass !== undefined && { minDpClass }),
+        ...(endDate !== undefined && { endDate }),
+        ...(durationDays !== undefined && { durationDays }),
+        ...(dayRateBudget !== undefined && { dayRateBudget }),
+        ...(sourceChannel !== undefined && { sourceChannel }),
+        ...(notes !== undefined && { notes }),
+      },
+    });
+    await persistChartererScreeningForRequirement(tx, {
+      requirementId: created.id,
+      chartererId: charterer.id,
+      name: charterer.name,
+      sector: charterer.sector,
+    });
+    return created;
   });
 
   return NextResponse.json({ data: requirement }, { status: 201 });
@@ -84,7 +97,15 @@ export async function GET(request: NextRequest) {
     prisma.requirement.findMany({
       where,
       include: {
-        charterer: { select: { name: true } },
+        charterer: {
+          select: {
+            name: true,
+            latestScreeningStatus: true,
+            latestScreenedAt: true,
+            latestScreeningTtlExpiresAt: true,
+            latestScreeningSourceName: true,
+          },
+        },
         region: { select: { name: true, code: true } },
         workscope: { select: { name: true } },
       },

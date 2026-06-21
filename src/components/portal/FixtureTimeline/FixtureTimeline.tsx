@@ -36,6 +36,7 @@ function FixtureItem({
         <span className={styles.vessel}>{fixture.vesselName}</span>
         <span className={styles.type}>{fixture.vesselType}</span>
         <StatusBadge status={fixture.status} />
+        <StatusBadge status={fixture.screening.status} />
       </div>
       <div className={styles.meta}>
         <span>{fixture.regionName}</span>

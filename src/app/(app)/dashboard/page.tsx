@@ -52,6 +52,7 @@ export default async function BrokerDashboardPage() {
                 fixtureId={fixture.id}
                 status={fixture.status}
                 subjects={fixture.subjects}
+                screeningStatus={fixture.screening.status}
               />
             )}
           />
