@@ -11,9 +11,10 @@ The worker's brain is a config choice, set by the `VOICE_BRAIN` env var:
 - `echo` - throwaway **audio loopback**: joins a LiveKit Cloud room and loops your
   microphone back to you. Proves the WebRTC path with **LiveKit Cloud credentials only**,
   no AI providers. Handled in `agent.py`.
-- `pipeline` (default) - Deepgram STT -> Claude -> Cartesia TTS cascade, with Silero VAD
-  and the multilingual turn detector. Needs the LiveKit trio plus Deepgram, Cartesia, and
-  Anthropic keys. Built by `build_session` in `brain.py`.
+- `pipeline` (default) - Deepgram STT -> Claude -> ElevenLabs TTS cascade, with Silero VAD
+  and the multilingual turn detector. Needs the LiveKit trio plus Deepgram, ElevenLabs, and
+  Anthropic keys. Built by `build_session` in `brain.py`. The voice is env-overridable
+  (`ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL`); the default is the premade "Daniel" voice.
 - `realtime` - OpenAI speech-to-speech realtime model, with Deepgram STT passed in so the
   turn model still gets text. Needs `OPENAI_API_KEY`, only when this brain is selected.
 
