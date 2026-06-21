@@ -31,11 +31,33 @@ function isPending(subject: CloseActionSubject): boolean {
   return subject.status === 'PENDING';
 }
 
-export function FixtureCloseActions({ fixtureId, status, subjects }: FixtureCloseActionsProps) {
+function screeningBlocksFix(screeningStatus: FixtureCloseActionsProps['screeningStatus']): boolean {
+  return screeningStatus === 'BLOCKED'
+    || screeningStatus === 'REVIEW'
+    || screeningStatus === 'STALE'
+    || screeningStatus === 'SOURCE_ERROR';
+}
+
+function screeningWarning(screeningStatus: FixtureCloseActionsProps['screeningStatus']): string | null {
+  if (screeningStatus === 'BLOCKED') return 'Screening blocked: cannot proceed to FIXED.';
+  if (screeningStatus === 'REVIEW') return 'Screening review required before FIXED.';
+  if (screeningStatus === 'STALE') return 'Screening re-check required before FIXED.';
+  if (screeningStatus === 'SOURCE_ERROR') return 'Screening unavailable: review required before FIXED.';
+  return null;
+}
+
+export function FixtureCloseActions({
+  fixtureId,
+  status,
+  subjects,
+  screeningStatus,
+}: FixtureCloseActionsProps) {
   const { busy, error, liftSubject, advanceStatus } = useFixtureCloseActions(fixtureId);
   const move = NEXT_MOVE[status];
   const pendingSubjects = subjects.filter(isPending);
   const inFlight = busy !== null;
+  const fixedMoveBlocked = move?.to === 'FIXED' && screeningBlocksFix(screeningStatus);
+  const screeningMessage = move?.to === 'FIXED' ? screeningWarning(screeningStatus) : null;
 
   // Nothing actionable for terminal fixtures and no open subjects → render nothing.
   if (move === undefined && pendingSubjects.length === 0) {
@@ -70,7 +92,7 @@ export function FixtureCloseActions({ fixtureId, status, subjects }: FixtureClos
           <PortalButton
             variant="primary"
             size="sm"
-            disabled={inFlight}
+            disabled={inFlight || fixedMoveBlocked}
             onClick={() => {
               void advanceStatus(move.to);
             }}
@@ -80,9 +102,9 @@ export function FixtureCloseActions({ fixtureId, status, subjects }: FixtureClos
         </div>
       )}
 
-      {error !== null && (
+      {(error !== null || screeningMessage !== null) && (
         <p className={styles.error} role="alert">
-          {error}
+          {error ?? screeningMessage}
         </p>
       )}
     </div>

@@ -16,7 +16,12 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
+vi.mock('@/lib/services/sanctions-screening/fixture-screening-gate', () => ({
+  screenFixtureForFixedGate: vi.fn(),
+}));
+
 import { prisma } from '@/lib/prisma';
+import { screenFixtureForFixedGate } from '@/lib/services/sanctions-screening/fixture-screening-gate';
 import {
   buildAdvanceFixtureStatusTool,
   executeAdvanceFixtureStatus,
@@ -26,6 +31,7 @@ const ctx = { brokerId: 'broker-1' };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(screenFixtureForFixedGate).mockResolvedValue({ allowed: true });
 });
 
 describe('executeAdvanceFixtureStatus', () => {
@@ -50,6 +56,26 @@ describe('executeAdvanceFixtureStatus', () => {
     expect(txStub.fixtureStatusChange.create).toHaveBeenCalledWith({
       data: { fixtureId: 'fixture-1', fromStatus: 'NEGOTIATING', toStatus: 'ON_SUBS', actor: 'broker-1' },
     });
+  });
+
+  it('rejects a human-approved FIXED write when sanctions screening blocks', async () => {
+    vi.mocked(prisma.fixture.findFirst).mockResolvedValue({
+      status: 'ON_SUBS',
+      requirementId: null,
+      subjects: [{ status: 'LIFTED' }],
+    } as never);
+    vi.mocked(screenFixtureForFixedGate).mockResolvedValue({
+      allowed: false,
+      reason: 'Cannot fix: sanctions screening is BLOCKED for UMKA.',
+    });
+
+    const outcome = await executeAdvanceFixtureStatus(ctx, 'fixture-1', 'FIXED');
+
+    expect(outcome).toEqual({
+      ok: false,
+      error: 'Cannot fix: sanctions screening is BLOCKED for UMKA.',
+    });
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('rejects an illegal transition via the status policy (no DB write)', async () => {

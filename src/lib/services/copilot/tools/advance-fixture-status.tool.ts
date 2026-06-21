@@ -9,6 +9,7 @@ import { tool, type Tool } from 'ai';
 import type { FixtureStatus, RequirementStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { evaluateTransition } from '@/lib/services/fixture-status-policy';
+import { screenFixtureForFixedGate } from '@/lib/services/sanctions-screening/fixture-screening-gate';
 import {
   AdvanceFixtureStatusInputSchema,
   AdvanceFixtureStatusResultSchema,
@@ -69,6 +70,13 @@ export async function executeAdvanceFixtureStatus(
   });
   if (!outcome.allowed) {
     return { ok: false, error: outcome.reason };
+  }
+
+  if (fixture.status === 'ON_SUBS' && toStatus === 'FIXED') {
+    const screeningGate = await screenFixtureForFixedGate(fixtureId);
+    if (!screeningGate.allowed) {
+      return { ok: false, error: screeningGate.reason };
+    }
   }
 
   await persistTransition({

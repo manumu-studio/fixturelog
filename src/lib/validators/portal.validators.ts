@@ -17,6 +17,9 @@ const REQUIREMENT_STATUS = z.enum([
 ]);
 const FIXTURE_STATUS = z.enum(['DRAFT', 'NEGOTIATING', 'ON_SUBS', 'FIXED', 'COMPLETED', 'FAILED']);
 const SUBJECT_STATUS = z.enum(['PENDING', 'LIFTED', 'WAIVED', 'FAILED']);
+const SCREENING_BADGE_STATUS = z.enum([
+  'CLEAR', 'REVIEW', 'BLOCKED', 'STALE', 'NOT_SCREENED', 'SOURCE_ERROR',
+]);
 
 // ─── Input ───────────────────────────────────────────────────
 // Create Enquiry: region/workscope chosen by code (no cuids in the client); the
@@ -38,6 +41,15 @@ export const PortalEnquiryCreateSchema = z.object({
 export type PortalEnquiryCreateInput = z.infer<typeof PortalEnquiryCreateSchema>;
 
 // ─── Response DTOs ───────────────────────────────────────────
+export const ScreeningBadgeSchema = z.object({
+  status: SCREENING_BADGE_STATUS,
+  screenedAt: z.string().nullable(),
+  ttlExpiresAt: z.string().nullable(),
+  source: z.string().nullable(),
+  reason: z.string(),
+});
+export type ScreeningBadge = z.infer<typeof ScreeningBadgeSchema>;
+
 export const EnquirySummarySchema = z.object({
   id: z.string(),
   status: REQUIREMENT_STATUS,
@@ -52,6 +64,7 @@ export const EnquirySummarySchema = z.object({
   dayRateBudget: z.number().nullable(),
   notes: z.string().nullable(),
   createdAt: z.string(),
+  screening: ScreeningBadgeSchema,
 });
 export type EnquirySummary = z.infer<typeof EnquirySummarySchema>;
 
@@ -91,6 +104,7 @@ export const FixtureSummarySchema = z.object({
   durationDays: z.number().nullable(),
   subjects: z.array(SubjectSchema),
   weather: WeatherVerdictSchema,
+  screening: ScreeningBadgeSchema,
 });
 export type FixtureSummary = z.infer<typeof FixtureSummarySchema>;
 
@@ -122,6 +136,7 @@ export const ShortlistEntrySchema = z.object({
     rateFit: z.number(),
     capabilityMargin: z.number(),
   }),
+  screening: ScreeningBadgeSchema,
 });
 export type ShortlistEntry = z.infer<typeof ShortlistEntrySchema>;
 

@@ -17,10 +17,35 @@ import type {
 export const ENQUIRY_INCLUDE = {
   region: { select: { name: true, code: true } },
   workscope: { select: { name: true } },
+  charterer: {
+    select: {
+      latestScreeningStatus: true,
+      latestScreenedAt: true,
+      latestScreeningTtlExpiresAt: true,
+      latestScreeningSourceName: true,
+    },
+  },
 } satisfies Prisma.RequirementInclude;
 
 export const FIXTURE_INCLUDE = {
-  vessel: { select: { name: true, vesselType: true } },
+  vessel: {
+    select: {
+      name: true,
+      vesselType: true,
+      latestScreeningStatus: true,
+      latestScreenedAt: true,
+      latestScreeningTtlExpiresAt: true,
+      latestScreeningSourceName: true,
+    },
+  },
+  charterer: {
+    select: {
+      latestScreeningStatus: true,
+      latestScreenedAt: true,
+      latestScreeningTtlExpiresAt: true,
+      latestScreeningSourceName: true,
+    },
+  },
   region: { select: { name: true } },
   subjects: { orderBy: { createdAt: 'asc' } },
   weatherSnapshots: { orderBy: { fetchedAt: 'desc' }, take: 1 },

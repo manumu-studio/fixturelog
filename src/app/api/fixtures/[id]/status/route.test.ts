@@ -15,10 +15,15 @@ vi.mock('@/lib/prisma', () => ({
 // whose brokerId is the audit actor.
 vi.mock('@/lib/auth/require-broker', () => ({ requireBrokerApi: vi.fn() }));
 
+vi.mock('@/lib/services/sanctions-screening/fixture-screening-gate', () => ({
+  screenFixtureForFixedGate: vi.fn(),
+}));
+
 // Note: evaluateTransition is NOT mocked — pure function runs for real.
 import { PATCH } from './route';
 import { prisma } from '@/lib/prisma';
 import { requireBrokerApi } from '@/lib/auth/require-broker';
+import { screenFixtureForFixedGate } from '@/lib/services/sanctions-screening/fixture-screening-gate';
 
 const FIXTURE_ID = 'clxxxxxxxxxxxxxxxxxxxxxx01';
 const BROKER_ID = 'clxxxxxxxxxxxxxxxxxxxxxx04';
@@ -70,6 +75,7 @@ beforeEach(() => {
     ok: true,
     ctx: { brokerId: BROKER_ID, appUserId: 'appuser-1', email: null, name: null },
   });
+  vi.mocked(screenFixtureForFixedGate).mockResolvedValue({ allowed: true });
   vi.mocked(prisma.$transaction).mockImplementation(async (cb) => cb(prisma as never));
 });
 
@@ -158,6 +164,29 @@ describe('PATCH /api/fixtures/:id/status', () => {
     expect(prisma.requirement.update).not.toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ fixedAt: expect.anything() }) }),
     );
+    expect(screenFixtureForFixedGate).toHaveBeenCalledWith(FIXTURE_ID);
+  });
+
+  it('ON_SUBS → FIXED returns 400 before persistence when screening gate blocks', async () => {
+    vi.mocked(screenFixtureForFixedGate).mockResolvedValue({
+      allowed: false,
+      reason: 'Cannot fix: sanctions screening is BLOCKED for UMKA.',
+    });
+    vi.mocked(prisma.fixture.findUnique).mockResolvedValue(
+      makeFixtureStub('ON_SUBS', [{ status: 'LIFTED' }], REQUIREMENT_ID) as never,
+    );
+
+    const res = await PATCH(
+      makePatchRequest({ toStatus: 'FIXED', actor: BROKER_ID }),
+      { params: Promise.resolve({ id: FIXTURE_ID }) },
+    );
+    const json = await res.json() as { error: string };
+
+    expect(res.status).toBe(400);
+    expect(json.error).toBe('Cannot fix: sanctions screening is BLOCKED for UMKA.');
+    expect(prisma.fixture.update).not.toHaveBeenCalled();
+    expect(prisma.fixtureStatusChange.create).not.toHaveBeenCalled();
+    expect(prisma.requirement.update).not.toHaveBeenCalled();
   });
 
   it('ON_SUBS → FIXED with a PENDING subject returns 400; no fixture write or requirement write', async () => {

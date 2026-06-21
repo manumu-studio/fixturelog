@@ -11,10 +11,12 @@ import type {
 function formatEnquiry(e: EnquirySummary, i: number): string {
   const rate = e.dayRateBudget !== null ? `${e.dayRateBudget}/day budget` : 'no budget given';
   const end = e.endDate ?? 'open';
+  const screeningSource = e.screening.source ?? 'no source';
   const lines = [
     `[E${i}] Enquiry ${e.id} — ${e.vesselTypeNeeded} in ${e.regionName}`,
     `  status: ${e.status}; charter: ${e.charterType}; workscope: ${e.workscopeName}`,
     `  dates: ${e.startDate} → ${end}; rate: ${rate}`,
+    `  screening: ${e.screening.status}; ${e.screening.reason}; source: ${screeningSource}; screenedAt: ${e.screening.screenedAt ?? 'never'}; ttlExpiresAt: ${e.screening.ttlExpiresAt ?? 'n/a'}`,
   ];
   if (e.notes !== null) {
     lines.push(`  notes: ${e.notes}`);
@@ -28,10 +30,12 @@ function formatFixture(f: FixtureSummary, i: number): string {
     ? 'none'
     : f.subjects.map((s) => `${s.label} (${s.status})`).join(', ');
   const weather = f.weather !== null ? `${f.weather.verdict} (as of ${f.weather.fetchedAt})` : 'no reading';
+  const screeningSource = f.screening.source ?? 'no source';
   return [
     `[F${i}] Fixture ${f.id} — ${f.vesselName} (${f.vesselType}) in ${f.regionName}`,
     `  status: ${f.status}; agreed rate: ${f.agreedDayRate} ${f.currency}; commencement: ${f.commencement ?? 'TBC'}`,
     `  open subjects: ${open.length}; subjects: ${subjectText}`,
+    `  screening: ${f.screening.status}; ${f.screening.reason}; source: ${screeningSource}; screenedAt: ${f.screening.screenedAt ?? 'never'}; ttlExpiresAt: ${f.screening.ttlExpiresAt ?? 'n/a'}`,
     `  weather: ${weather}`,
   ].join('\n');
 }

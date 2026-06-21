@@ -35,6 +35,7 @@ export function ActiveEnquiries({
                 <span className={styles.date}>{formatDate(e.startDate)}</span>
                 <span className={styles.rate}>{formatRate(e.dayRateBudget)}</span>
                 <StatusBadge status={e.status} />
+                <StatusBadge status={e.screening.status} />
               </Link>
             </li>
           ))}
