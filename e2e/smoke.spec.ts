@@ -3,9 +3,8 @@ import { test, expect } from '@playwright/test';
 
 test('homepage loads', async ({ page }) => {
   await page.goto('/');
-  // The public landing identifies the app via the nav brand; the <h1> is the hero headline.
-  await expect(page.getByRole('link', { name: /ManuMu Offshore Partners/i }).first()).toBeVisible();
-  await expect(page.locator('h1')).toBeVisible();
+  await expect(page.getByText('ManuMu Offshore').first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Two junior assistants are being built/i })).toBeVisible();
 });
 
 test('health endpoint returns 200', async ({ request }) => {

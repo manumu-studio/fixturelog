@@ -2,14 +2,6 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] — Landing logo animation polish
-
-### Fixed
-
-- Rebuilt the public landing nav logo animation from the actual FixtureLog mark rather than the simplified three-path draft. The animated SVG now draws the circular mark plus two separated incomplete capital-M strokes, one upright and one flipped.
-- Matched the OR Studio animation pattern more closely with a completed-mark reveal under the stroke-draw animation, while keeping the implementation on `motion.path` so existing landing tests continue to pass.
-- Added global ESLint ignores for generated/vendor output (`.next`, coverage reports, Playwright output, local virtualenvs, `next-env.d.ts`) so `npx eslint . --ext .ts,.tsx` validates source files instead of build artifacts.
-
 ## [1.5.0] — 2026-06-20 (Sanctions / Operator-Risk Screening Gate)
 
 FixtureLog gains the first deterministic sanctions/operator-risk slice: local normalized fixture data, provenance-carrying screening evidence, compact broker-facing badges, and a hard pre-`FIXED` gate.
@@ -28,6 +20,51 @@ FixtureLog gains the first deterministic sanctions/operator-risk slice: local no
 - No `CLEAN_FIXED` enum was added; locked fixture/requirement status vocabulary remains unchanged.
 - No yente, direct government ingestion, AIS, voice/RAG, legal advice, autonomous clearing, or broker override for true `BLOCKED`.
 - Targeted verification: sanctions service tests, status route tests, copilot status executor tests, broker dashboard mapper tests, full typecheck, and lint.
+
+## [1.4.3] — 2026-06-20 (Public build lock)
+
+### Added
+
+- Added `BuildStatusPanel`, a build-status disclosure panel for the public build page.
+- Added `JuniorVoiceAssistant`, a supervised particle preview for the junior assistant experience. It now supports the public message that two assistants are being prepared: one for chartering handoffs and one for vessel matching, with a short preview-only voice identity line. It does not request microphone access, call the LiveKit voice backend, or expose `/api/broker/voice/token`.
+- Added focused unit coverage for the locked landing and legacy `/page2` redirect.
+
+### Changed
+
+- Replaced the public `/` product landing with a professional private-build page that says two junior assistants are being built for chartering and matching, with selectable build signals and no public links to `/dashboard`, `/portal`, `/requirements`, `/charterers`, or `/map`.
+- Refined the assistant area into one integrated preview card: projected 3D dot sphere, in-card build-status disclosure, stable section dividers, shorter status label, subtle active border, explicit `.card-overlay` dimming while the card keeps its color, and reserved right-side geometry so the voice, title, and extra-information sections do not move when "More info" opens.
+- Shortened the public brand label to `ManuMu Offshore`.
+- Redirected the old experimental `/page2` landing to `/`.
+- Updated Playwright landing E2E and refreshed desktop/mobile landing screenshots.
+- Updated current-state docs and package metadata to `1.4.3`.
+
+### Added — Limited public assistant preview (2026-06-21)
+
+- Added a deterministic limited public assistant preview inside the landing assistant card: curated prompt buttons call `POST /api/public/assistant-preview` and return approved public-context answers only. It does not expose broker data, broker tools, writes, microphone access, LiveKit, RAG, an LLM call, or `/api/broker/copilot`. It is deterministic and public-safe — **not live voice, not RAG, and not the full broker copilot**.
+- Added `src/lib/public-assistant/public-assistant-preview.ts` — a deterministic answer map keyed by four curated prompt IDs (`what-building`, `broker-help`, `matching-help`, `why-private`), returning a scoped `400` safe message for unknown IDs.
+- Added `src/app/api/public/assistant-preview/route.ts` — a public, Zod-validated `POST` endpoint, with route tests and import-safety tests proving it never imports broker copilot, broker auth, voice/LiveKit, or dashboard modules.
+- Added `src/components/landing/PublicAssistantPreview/` — a compact prompt/answer card UI (curated buttons, loading state, transcript-style answer, safe error fallback) with a Zod boundary on the response. No free-text input.
+- Integrated the preview into the existing assistant card after `BuildStatusPanel` and reserved the card height so opening "More info" or asking a prompt does not move the sphere, title row, or card (verified on desktop and mobile).
+
+## [1.4.2] — 2026-06-17 (Landing role comparison)
+
+### Added
+
+- Added a public landing `RoleComparison` section with a Broker / Charterer segmented toggle, showing the different home routes, responsibilities, and scoped data views for `/dashboard` and `/portal`.
+- Added landing coverage for the role comparison copy in `src/app/page.test.tsx`; full unit suite now passes with 375 tests across 60 files.
+
+### Changed
+
+- Removed the decorative CTA footer overlay so the landing no longer carries the extra visual pattern treatment.
+- Updated current-state docs and package metadata to `1.4.2`.
+
+## [1.4.1] — 2026-06-16 (Landing logo animation polish)
+
+### Fixed
+
+- Rebuilt the public landing nav logo animation from the actual FixtureLog mark rather than the simplified three-path draft. The animated SVG now draws the circular mark plus two separated incomplete capital-M strokes, one upright and one flipped.
+- Matched the OR Studio animation choreography more closely with a completed-mark reveal under the stroke-draw animation, while keeping the implementation on `motion.path` so existing landing tests continue to pass.
+- Added global ESLint ignores for generated/vendor output (`.next`, coverage reports, Playwright output, local virtualenvs, `next-env.d.ts`) so `npx eslint . --ext .ts,.tsx` validates source files instead of build artifacts.
 
 ## [1.4.0] — 2026-06-15 (AI Broker Copilot v2 — grounded, confirm-gated agent)
 
