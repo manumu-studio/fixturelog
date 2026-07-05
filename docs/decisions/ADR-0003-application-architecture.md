@@ -11,7 +11,7 @@
 
 FixtureLog needs an application architecture before any code is written. The methodology (`docs/decisions/ADR-0001-research-first-methodology.md`) and data strategy (`docs/decisions/ADR-0002-data-and-integration-strategy.md`) are now ratified; this ADR settles the shape of the runtime, the deploy unit, and the CI/CD model.
 
-The technical-decision research in `docs/research/` recommended a full-stack framework over a split frontend/backend, but the recommendation was not binding. Two constraints sharpen the choice. First, the `learning-speaking-app` project already runs a proven Next.js 15 + Prisma + Postgres pipeline; mirroring its shape makes its `ci.yml`, `playwright.config`, and `vitest.config` reusable rather than rebuilt. Second, the SSY Full-Stack Developer role lists React / TypeScript / Node / PostgreSQL, so the stack should read as that stack without ceremony. This decision is scoped to architecture only; scope tiering lives in `docs/specs/SPEC-001-mvp-build.md`, and data/integration choices live in ADR-0002.
+The initial technical-decision research recommended a full-stack framework over a split frontend/backend, but the recommendation was not binding. Two constraints sharpen the choice. First, the `learning-speaking-app` project already runs a proven Next.js 15 + Prisma + Postgres pipeline; mirroring its shape makes its `ci.yml`, `playwright.config`, and `vitest.config` reusable rather than rebuilt. Second, the SSY Full-Stack Developer role lists React / TypeScript / Node / PostgreSQL, so the stack should read as that stack without ceremony. This decision is scoped to architecture only; scope tiering lives in `docs/specs/SPEC-001-mvp-build.md`, and data/integration choices live in ADR-0002.
 
 ---
 

@@ -22,6 +22,11 @@ src/app/page2/
 /private-session-prompts/
 FETCH_HEAD
 /private-language-log/
+/private-prep/
+/private-career/
+/private-research/
+/private-interview-prep/
+/private-technical-report.md
 # Project map
 /PROJECT_MAP.md
 /CONTEXT.md
@@ -66,6 +71,11 @@ FETCH_HEAD
 /docs/audits/
 /docs/superpowers/
 /docs/research/
+/docs/PROJECT-ORGANIZATION-AUDIT-*.md
+/docs/retrospectives/
+/docs/pivot/
+/docs/private/
+/private-research/
 /docs/api/
 /docs/DEPLOYMENT.md
 
