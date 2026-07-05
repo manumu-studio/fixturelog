@@ -8,7 +8,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
   <a href="#"><strong>Live Demo</strong></a> · <a href="docs/specs/SPEC-001-mvp-build.md"><strong>Build Spec</strong></a> · <a href="docs/GLOSSARY.md"><strong>Glossary</strong></a> · <a href="https://github.com/manumu-studio/fixturelog"><strong>Source Code</strong></a>
 </p>
 
-<p align="center"><em>v1.4.3 — the public site is intentionally locked behind a professional private-build landing with supervised chartering and matching assistant previews. The real charterer Client Portal <code>/portal</code>, broker Dashboard <code>/dashboard</code>, and broker-only AI Copilot still exist behind role-gated auth while the demo is refined.</em></p>
+<p align="center"><em>v1.4.4 — the public site is intentionally locked behind a professional private-build landing with two supervised junior voice assistant previews. They explain why FixtureLog is under construction and what the chartering and matching assistants will do when the full experience is ready.</em></p>
 
 ---
 
@@ -26,11 +26,11 @@ A broker captures a charterer's **requirement**, runs a pure two-stage **matchin
 
 ## Pages
 
-The public root is a locked private-build page; everything operational is authenticated and **role-gated**. After login a charterer (CLIENT) lands on the portal and a broker (BROKER) on the dashboard — a `/api/auth/post-login` hop routes each role to its home, and each guard bounces the other role away.
+The public root is a locked private-build page; everything operational is authenticated and **role-gated**. The locked page exposes no sign-in CTA, direct product links, or live voice controls; it only shows two supervised junior voice assistant previews that explain the future chartering and matching experience. After login through the private auth flow, a charterer (CLIENT) lands on the portal and a broker (BROKER) on the dashboard — a `/api/auth/post-login` hop routes each role to its home, and each guard bounces the other role away.
 
 | Route | Audience | What it shows |
 |---|---|---|
-| `/` | Public | Private build notice — maritime intelligence canvas, chartering and matching assistant previews, build status disclosure, and a deterministic limited assistant preview (curated prompt buttons → approved public answers via `POST /api/public/assistant-preview`); no product-route links or live voice controls |
+| `/` | Public | Private build notice — maritime intelligence canvas, two junior voice assistant previews for chartering and matching, build status disclosure, and deterministic limited assistant answers explaining why the page is under construction and what the assistants will do when ready; no sign-in CTA, direct product-route links, or live voice controls |
 | `/api/public/assistant-preview` | Public | Deterministic public-safe assistant preview: validates a curated `promptId` (Zod) and returns an approved static answer or a scoped `400`; no auth, no broker data/tools, no LLM, no LiveKit |
 | `/page2` | Public | Redirects to `/` so the old experimental landing is no longer exposed |
 | `/portal` 👤 | Charterer | **Dashboard** — your active enquiries, pending actions, and fixture/weather timeline |
@@ -154,7 +154,7 @@ prisma/
   seed.ts               # 30 seeded vessels (honesty-labelled images; 21 real photos, 16 real IMOs) + full two-sided workflow data
 public/assets/vessels/  # per-type house-art SVGs (STOCK) + real/ CC photos of same-named ships (WIKIMEDIA) — both honesty-labelled
 e2e/                    # Playwright: smoke · happy-path · map · landing
-docs/                   # specs · ADRs · research · journal · PRs · glossary
+docs/                   # architecture · ADRs · specs · journal · PRs · glossary
 ```
 
 ## Architecture decisions
@@ -179,7 +179,8 @@ The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/archit
 
 ## Roadmap
 
-- **Done (v1.4.3)** — public build lock: `/` now shows a professional private-build landing with supervised chartering and matching assistant previews and no product-route links or live voice controls; `/page2` redirects to `/`. The assistant card also runs a deterministic limited public assistant preview (curated prompt buttons → approved public answers via `/api/public/assistant-preview`) — no LLM, RAG, live voice, or broker copilot exposure
+- **Done (v1.4.4)** — two-assistant under-construction preview: the locked public page now frames the demo around two supervised junior voice assistants that explain why the page is closed and what the chartering/matching assistants will do when ready; still no sign-in CTA, direct product links, or live voice controls
+- **Done (v1.4.3)** — public build lock: `/` shows a professional private-build landing with supervised chartering and matching assistant previews and no direct product-route links or live voice controls; `/page2` redirects to `/`. The assistant card also runs a deterministic limited public assistant preview (curated prompt buttons → approved public answers via `/api/public/assistant-preview`) — no LLM, RAG, live voice, or broker copilot exposure
 - **Done (v1.4.2)** — public landing role comparison: a Broker / Charterer toggle explained the `/dashboard` and `/portal` difference before visitors entered the product
 - **Done (v1.4.0)** — AI Broker Copilot v2: the grounded broker-only chat becomes a bounded tool-using agent (`getFixture` / `findMatches` auto-run; `advanceFixtureStatus` / `generateRecap` are proposed-only and execute only after an explicit broker approval). The deterministic policy stays the only door to the DB
 - **Done (v1.3.0)** — two-sided product: charterer Client Portal (`/portal`) + broker Dashboard (`/dashboard`), role-gated identity (`AppUser` → Broker | Charterer), honesty-labelled vessel imagery, charterer-scoped + broker-wide dashboard APIs, and a token-only portal design kit
@@ -193,4 +194,4 @@ The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/archit
 
 ## License
 
-Independent portfolio demonstration — **not affiliated with or endorsed by SSY (Simpson Spence Young)**. Company facts cited in the research docs are drawn from public sources and tagged for confidence.
+Independent portfolio demonstration — **not affiliated with or endorsed by SSY (Simpson Spence Young)**. Public facts and demo data are labelled for source and confidence where they appear.

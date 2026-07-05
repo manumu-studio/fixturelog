@@ -19,7 +19,7 @@ This project reuses the proven methodology from the `learning-speaking-app` proj
 
 1. **We adopt a research-first, packet-based methodology.** Work proceeds in small, focused packets, each with task files written **before** implementation.
 2. **No implementation until product and technical decisions are documented.** Application code, package installation, and framework initialisation are deliberately deferred until a spec/packet defines the work.
-3. **Research documents are the source of truth for the first planning phase.** The cleaned research in `docs/research/` (knowledge base, project blueprint, technical-decision research, glossary) is the canonical reference until superseded by specs and ADRs.
+3. **Research documents are the source of truth for the first planning phase.** The initial research archive informed the project blueprint, technical decisions, and glossary until superseded by specs and ADRs. The public repo now treats ADRs and specs as the canonical source.
 4. **Future implementation must be split into packets and task files.** Each packet ends with documentation: journal entry, PR doc, version bump, and living-doc sync (README, etc.).
 5. **Decisions are recorded as ADRs** in `docs/decisions/`. This ADR is the first; subsequent decisions (e.g. final product scope, canonical status model, data strategy lock-in) get their own ADRs.
 
@@ -30,7 +30,7 @@ This project reuses the proven methodology from the `learning-speaking-app` proj
 **Positive:**
 - Decisions are explicit, reviewable, and reversible with a paper trail.
 - Reduced wasted effort — no code is written against an undecided design.
-- Onboarding and context-recovery are fast (research docs + ADRs + journal).
+- Onboarding and context-recovery are fast (ADRs + specs + journal).
 - Matches the disciplined-delivery story the SSY role values.
 
 **Negative / costs:**
