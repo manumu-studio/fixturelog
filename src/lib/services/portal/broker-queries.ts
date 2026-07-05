@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { toEnquirySummary, toFixtureSummary } from './portal-mappers';
 import { ENQUIRY_INCLUDE, FIXTURE_INCLUDE } from './portal-queries';
 import type {
-  Dashboard, EnquirySummary, FixtureSummary, PendingAction,
+  Dashboard, EnquirySummary, FixtureSummary, PendingAction, ScreeningBadge,
 } from '@/lib/validators/portal.validators';
 
 const ACTIVE_STATUSES: RequirementStatus[] = ['ENQUIRY', 'SHORTLISTED', 'NEGOTIATING', 'ON_SUBS'];
@@ -21,6 +21,17 @@ function earliestDue(subjects: FixtureSummary['subjects']): string | null {
     .filter((d): d is string => d !== null)
     .sort();
   return due[0] ?? null;
+}
+
+function screeningNeedsReview(status: ScreeningBadge['status']): boolean {
+  return status === 'BLOCKED'
+    || status === 'REVIEW'
+    || status === 'STALE'
+    || status === 'SOURCE_ERROR';
+}
+
+function weatherNeedsReview(weather: FixtureSummary['weather']): boolean {
+  return weather !== null && weather.verdict !== 'WORKABLE';
 }
 
 // Broker-oriented decisions derived from current statuses (run a match, chase subjects,
@@ -44,6 +55,28 @@ function deriveBrokerActions(
   }
   for (const f of fixtures) {
     const pending = f.subjects.filter((s) => s.status === 'PENDING');
+    const preFixed = f.status === 'NEGOTIATING' || f.status === 'ON_SUBS';
+    if (preFixed && screeningNeedsReview(f.screening.status)) {
+      actions.push({
+        id: `signal-screening-${f.id}`,
+        kind: 'ADD_DETAILS',
+        label: `Review screening signal before fixing ${f.vesselName} (${f.screening.status.toLowerCase()})`,
+        enquiryId: null,
+        fixtureId: f.id,
+        dueAt: null,
+      });
+    }
+    const reviewWeather = f.weather;
+    if (preFixed && weatherNeedsReview(reviewWeather) && reviewWeather !== null) {
+      actions.push({
+        id: `signal-weather-${f.id}`,
+        kind: 'ADD_DETAILS',
+        label: `Review ${reviewWeather.verdict.toLowerCase().replace(/_/g, ' ')} weather window before fixing ${f.vesselName}`,
+        enquiryId: null,
+        fixtureId: f.id,
+        dueAt: null,
+      });
+    }
     if (pending.length > 0) {
       actions.push({
         id: `subj-${f.id}`,

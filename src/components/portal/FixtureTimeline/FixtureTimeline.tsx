@@ -23,6 +23,49 @@ function WeatherLine({ weather }: { weather: FixtureSummary['weather'] }) {
   );
 }
 
+function formatVerdict(verdict: string): string {
+  return verdict.replace(/_/g, ' ').toLowerCase();
+}
+
+function screeningSignal(fixture: FixtureSummary): string | null {
+  const { screening } = fixture;
+  if (
+    screening.status !== 'BLOCKED'
+    && screening.status !== 'REVIEW'
+    && screening.status !== 'STALE'
+    && screening.status !== 'SOURCE_ERROR'
+  ) {
+    return null;
+  }
+  const source = screening.source ?? 'source pending';
+  return `Screening: ${screening.reason} · ${source}`;
+}
+
+function weatherSignal(weather: FixtureSummary['weather']): string | null {
+  if (weather === null || weather.verdict === 'WORKABLE') {
+    return null;
+  }
+  return `Weather: ${formatVerdict(weather.verdict)} window · ${weather.source}`;
+}
+
+function ReviewSignals({ fixture }: { fixture: FixtureSummary }) {
+  const signals = [screeningSignal(fixture), weatherSignal(fixture.weather)]
+    .filter((signal): signal is string => signal !== null);
+  if (signals.length === 0) {
+    return null;
+  }
+  return (
+    <div className={styles.signals}>
+      <span className={styles.signalsLabel}>Broker review signals</span>
+      <ul className={styles.signalList}>
+        {signals.map((signal) => (
+          <li key={signal}>{signal}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function FixtureItem({
   fixture,
   renderFixtureActions,
@@ -54,6 +97,7 @@ function FixtureItem({
         </ul>
       )}
       <WeatherLine weather={fixture.weather} />
+      <ReviewSignals fixture={fixture} />
       {/* Broker-only slot: charterer call sites omit the prop → nothing renders. */}
       {renderFixtureActions?.(fixture)}
     </li>
