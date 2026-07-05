@@ -102,3 +102,31 @@
   opacity: 0.55;
   font-style: italic;
 }
+
+.signals {
+  display: grid;
+  gap: var(--fl-unit-8);
+  margin-top: var(--fl-unit-12);
+  padding: var(--fl-unit-12);
+  border: 1px solid color-mix(in srgb, var(--fl-blue) 18%, transparent);
+  border-radius: var(--fl-radius);
+  background-color: color-mix(in srgb, var(--fl-cyan) 9%, var(--fl-surface-white));
+}
+
+.signalsLabel {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
+}
+
+.signalList {
+  display: grid;
+  gap: var(--fl-unit-6);
+  margin: 0;
+  padding-left: var(--fl-unit-16);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--fl-ink);
+}

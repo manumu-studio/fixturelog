@@ -94,4 +94,53 @@ describe('getBrokerDashboard', () => {
       },
     ]);
   });
+
+  it('adds broker review signal actions for pre-fixed screening and weather warnings', async () => {
+    const fixtures: FixtureRow[] = [
+      {
+        id: 'fixture-review',
+        status: 'ON_SUBS',
+        agreedDayRate: 60000,
+        currency: 'GBP',
+        commencement: startDate,
+        durationDays: 21,
+        vessel: {
+          name: 'Skandi Vega',
+          vesselType: 'AHTS',
+          latestScreeningStatus: 'REVIEW',
+          latestScreenedAt: createdAt,
+          latestScreeningTtlExpiresAt: laterDue,
+          latestScreeningSourceName: 'FixtureLog local sanctions fixture',
+        },
+        region: { name: 'North Sea' },
+        subjects: [],
+        weatherSnapshots: [{ workabilityVerdict: 'MARGINAL', fetchedAt: createdAt }],
+      },
+    ];
+
+    vi.mocked(prisma.requirement.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.fixture.findMany).mockResolvedValue(fixtures as never);
+    vi.mocked(prisma.requirement.count).mockResolvedValue(0);
+
+    const dashboard = await getBrokerDashboard();
+
+    expect(dashboard.pendingActions).toEqual([
+      {
+        id: 'signal-screening-fixture-review',
+        kind: 'ADD_DETAILS',
+        label: 'Review screening signal before fixing Skandi Vega (review)',
+        enquiryId: null,
+        fixtureId: 'fixture-review',
+        dueAt: null,
+      },
+      {
+        id: 'signal-weather-fixture-review',
+        kind: 'ADD_DETAILS',
+        label: 'Review marginal weather window before fixing Skandi Vega',
+        enquiryId: null,
+        fixtureId: 'fixture-review',
+        dueAt: null,
+      },
+    ]);
+  });
 });

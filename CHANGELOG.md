@@ -2,6 +2,28 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.6.1] — 2026-07-05 (Broker Review Signals demo polish)
+
+The broker dashboard now makes the post-research risk story visible in the product: review signals
+surface before a broker fixes a deal or finalizes the recap, while the deterministic backend remains
+the only authority for blocking writes.
+
+### Changed
+
+- **Broker review signals** — fixture cards now show a compact "Broker review signals" strip when
+  stored screening evidence needs review or the latest weather verdict is not `WORKABLE`.
+- **Decision queue** — the broker "Needs your decision" panel now adds pre-`FIXED` review actions
+  for screening warnings and marginal/non-workable weather windows.
+- **Demo narrative** — documentation now frames the existing sanctions/operator-risk slice as
+  evidence-backed broker assistance, not autonomous AI decision-making.
+
+### Safety
+
+- No new external data source, schema migration, live AIS, RAG, voice wiring, legal advice, or
+  autonomous decision path was added.
+- The `ON_SUBS -> FIXED` gate still runs through the existing deterministic status + screening
+  services; the UI only makes the evidence easier to see.
+
 ## [1.6.0] — 2026-06-21 (Junior Assistant — public LLM demo pilot)
 
 A short-lived, demo-grade upgrade of the public assistant card: alongside the curated prompt

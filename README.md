@@ -8,7 +8,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
   <a href="#"><strong>Live Demo</strong></a> · <a href="docs/specs/SPEC-001-mvp-build.md"><strong>Build Spec</strong></a> · <a href="docs/GLOSSARY.md"><strong>Glossary</strong></a> · <a href="https://github.com/manumu-studio/fixturelog"><strong>Source Code</strong></a>
 </p>
 
-<p align="center"><em>v1.6.0 — the public landing's assistant card gains an optional, flag-gated <strong>junior LLM demo</strong>: alongside the curated buttons, a visitor can ask a free-text question and get a grounded, output-scoped Claude answer (rate-limited, no broker data, no RAG, graceful deterministic fallback). The broker desk still carries deterministic sanctions/operator-risk screening, and the grounded AI Broker Copilot can explain stored screening evidence but cannot clear, override, or give legal advice.</em></p>
+<p align="center"><em>v1.6.1 — the broker dashboard now surfaces <strong>Broker Review Signals</strong>: stored sanctions/operator-risk evidence and marginal weather windows appear in the fixture card and decision queue before a broker moves a deal to FIXED. The copilot can explain the stored evidence, but the deterministic backend remains the only authority for write blocking.</em></p>
 
 ---
 
@@ -22,7 +22,7 @@ Capture a client requirement, match available offshore vessels, record the fixtu
 
 FixtureLog is a portfolio demo of a realistic **offshore shipbroking workflow** — an Offshore Fixture Board + Recap Generator with a marine weather check and a regional vessel map, built as a demonstration for an SSY (Simpson Spence Young) Full-Stack Developer role.
 
-A broker captures a charterer's **requirement**, runs a pure two-stage **matching engine** (hard filters → weighted composite score) to produce a ranked vessel shortlist with a per-factor breakdown, records the **fixture** (the agreed deal) through a subject-gated and sanctions-gated status machine, generates a deterministic **SUPPLYTIME 2017 recap** in Markdown and plain text, checks whether marine weather supports the work window via an **Open-Meteo** verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`), and visualises seeded vessel positions on a **Leaflet** map. The AI Broker Copilot adds a grounded, confirm-gated runtime LLM on top, but the deterministic backend stays the only path to a write — the source of truth. Scope, status enums, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md); domain vocabulary lives in the [glossary](docs/GLOSSARY.md).
+A broker captures a charterer's **requirement**, runs a pure two-stage **matching engine** (hard filters → weighted composite score) to produce a ranked vessel shortlist with a per-factor breakdown, records the **fixture** (the agreed deal) through a subject-gated and sanctions-gated status machine, generates a deterministic **SUPPLYTIME 2017 recap** in Markdown and plain text, checks whether marine weather supports the work window via an **Open-Meteo** verdict (`WORKABLE` / `MARGINAL` / `NOT_WORKABLE`), and visualises seeded vessel positions on a **Leaflet** map. The broker dashboard now turns stored screening evidence and weather verdicts into **Broker Review Signals** before `FIXED`, helping the broker see post-close risk without letting the model decide. The AI Broker Copilot adds a grounded, confirm-gated runtime LLM on top, but the deterministic backend stays the only path to a write — the source of truth. Scope, status enums, and data model are locked in [SPEC-001](docs/specs/SPEC-001-mvp-build.md); domain vocabulary lives in the [glossary](docs/GLOSSARY.md).
 
 ## Pages
 
@@ -36,7 +36,7 @@ The public root is a locked private-build page; everything operational is authen
 | `/portal` 👤 | Charterer | **Dashboard** — your active enquiries, pending actions, and fixture/weather timeline |
 | `/portal/enquiries` · `/portal/enquiries/new` · `/portal/enquiries/[id]` 👤 | Charterer | Your enquiries, the create-enquiry form, and detail with a recommended-vessel shortlist |
 | `/portal/fixtures` · `/portal/documents` 👤 | Charterer | Your fixtures (status, subjects, weather) and your recap documents (copy / download) |
-| `/dashboard` 🔒 | Broker | **Broker home** — the broker-wide incoming queue (same three zones, all charterers) |
+| `/dashboard` 🔒 | Broker | **Broker home** — broker-wide incoming queue, pending decisions, fixture/weather timeline, and Broker Review Signals before `FIXED` |
 | `/map` 🔒 | Charterer + Broker | Available-vessels map — color-coded Leaflet markers from seeded position snapshots |
 | `/requirements` · `/requirements/[id]` 🔒 | Broker | Requirement list with status badges, and shortlist detail with per-factor score breakdown |
 | `/charterers` · `/charterers/[id]` 🔒 | Broker | Charterer list and detail with linked requirements and fixtures |
@@ -171,6 +171,7 @@ Project context and decision history: [`docs/architecture/PROJECT-CONTEXT.md`](d
 
 ## Roadmap
 
+- **Done (v1.6.1)** — Broker Review Signals demo polish: the broker dashboard turns stored screening evidence and marginal/non-workable weather windows into visible fixture-card signals and pending actions before `FIXED`
 - **Done (v1.6.0)** — junior assistant LLM demo pilot: the public assistant card's free-text box, when `JUNIOR_LLM_DEMO` is on, returns a grounded, output-scoped Claude answer over a curated public knowledge file (no RAG, no broker data); rate-limited 3/visitor + 12/IP per 12h with a calm `429`; graceful deterministic fallback so the public surface never 500s
 - **Done (v1.5.0)** — sanctions/operator-risk screening slice: additive `Operator`, `ScreeningResult`, `ScreeningReview`, and `Vessel.flagState`; local normalized fixture adapter; 24-hour provenance TTL; charterer screening on requirement create; compact risk badges; and a deterministic pre-`FIXED` gate shared by the route and copilot executor
 - **Done (v1.4.3)** — public build lock: `/` now shows a professional private-build landing with supervised chartering and matching assistant previews and no product-route links or live voice controls; `/page2` redirects to `/`. The assistant card also runs a deterministic limited public assistant preview (curated prompt buttons → approved public answers via `/api/public/assistant-preview`) — no LLM, RAG, live voice, or broker copilot exposure
