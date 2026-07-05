@@ -11,7 +11,7 @@
 
 FixtureLog needs a data and integration model before any schema or service code is written. The questions are: where does authoritative data come from, which external systems do we integrate, and how do we keep the demo honest, deterministic, and cheap to run in CI.
 
-The domain research (`docs/research/SSY-OFFSHORE-TECHNICAL-DECISION-RESEARCH.md`) surveys the available data sources: enterprise AIS providers (MarineTraffic, Spire, Kpler), the free AISStream.io feed, and the free Open-Meteo Marine API. SSY's real enterprise stack is .NET on SQL Server, while the offshore broking demo targets a serverless Postgres deployment. We must decide what to integrate now versus defer, and how to represent provenance so seeded data is never mistaken for live data.
+The initial domain research surveyed the available data sources: enterprise AIS providers (MarineTraffic, Spire, Kpler), the free AISStream.io feed, and the free Open-Meteo Marine API. SSY's real enterprise stack is .NET on SQL Server, while the offshore broking demo targets a serverless Postgres deployment. We must decide what to integrate now versus defer, and how to represent provenance so seeded data is never mistaken for live data.
 
 This ADR ratifies the data and integration strategy only. Application architecture is recorded separately in `docs/decisions/ADR-0003-application-architecture.md`; scope tiering and the data model live in `docs/specs/SPEC-001-mvp-build.md`.
 

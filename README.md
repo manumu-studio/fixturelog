@@ -26,7 +26,7 @@ A broker captures a charterer's **requirement**, runs a pure two-stage **matchin
 
 ## Pages
 
-The public root is a locked private-build page; everything operational is authenticated and **role-gated**. After login a charterer (CLIENT) lands on the portal and a broker (BROKER) on the dashboard — a `/api/auth/post-login` hop routes each role to its home, and each guard bounces the other role away.
+The public root is a locked private-build page; everything operational is authenticated and **role-gated**. The locked page exposes no sign-in CTA, direct product links, or live voice controls; it only shows two supervised junior voice assistant previews that explain the future chartering and matching experience. After login through the private auth flow, a charterer (CLIENT) lands on the portal and a broker (BROKER) on the dashboard — a `/api/auth/post-login` hop routes each role to its home, and each guard bounces the other role away.
 
 | Route | Audience | What it shows |
 |---|---|---|
@@ -155,7 +155,7 @@ prisma/
   seed.ts               # 30 seeded vessels (honesty-labelled images; 21 real photos, 16 real IMOs) + full two-sided workflow data
 public/assets/vessels/  # per-type house-art SVGs (STOCK) + real/ CC photos of same-named ships (WIKIMEDIA) — both honesty-labelled
 e2e/                    # Playwright: smoke · happy-path · map · landing
-docs/                   # specs · ADRs · research · journal · PRs · glossary
+docs/                   # architecture · ADRs · specs · journal · PRs · glossary
 ```
 
 ## Architecture decisions
@@ -168,15 +168,6 @@ Key decisions are recorded as ADRs in [`docs/decisions/`](docs/decisions/):
 - **Locked MVP contract** — scope tiers, status enums, data model, and build sequence in [SPEC-001](docs/specs/SPEC-001-mvp-build.md)
 
 Project context and decision history: [`docs/architecture/PROJECT-CONTEXT.md`](docs/architecture/PROJECT-CONTEXT.md).
-
-## Interview diagrams
-
-The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/architecture/INTERVIEW-GRAPHS.md) are the quick rehearsal pack for interviews:
-
-- CI/CD pipeline from PR to verified deployable build
-- Request flow from browser action to validated API response
-- Data pipeline from enquiry to fixed fixture and recap
-- Runtime flow for Auth.js, protected routes, APIs, Prisma, Neon, and Open-Meteo
 
 ## Roadmap
 
@@ -196,4 +187,4 @@ The architecture graphs in [`docs/architecture/INTERVIEW-GRAPHS.md`](docs/archit
 
 ## License
 
-Independent portfolio demonstration — **not affiliated with or endorsed by SSY (Simpson Spence Young)**. Company facts cited in the research docs are drawn from public sources and tagged for confidence.
+Independent portfolio demonstration — **not affiliated with or endorsed by SSY (Simpson Spence Young)**. Public facts and demo data are labelled for source and confidence where they appear.

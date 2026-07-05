@@ -1,13 +1,13 @@
 # Roadmap — FixtureLog
 
-> **Status: v1.3.0 — two-sided product (2026-06-15).** All five MVP milestones, the public landing, auth integration, and **the charterer Client Portal (`/portal`) + broker Dashboard (`/dashboard`)** are shipped. Both authenticated homes are role-gated on the `AppUser` identity (Broker → `/dashboard`, Charterer → `/portal`); the landing stays public. 343 unit tests across 52 files; coverage is above the 70/60/70/70 gate; 7 E2E across 4 specs; production build + `npm audit` green. Configured for Vercel + Neon deploy. **The runtime AI Broker Copilot is dropped** — the two-sided portal/dashboard is the product direction. Next: deepen the two-sided workflow and harden role isolation.
+> **Status: v1.4.3 — public build locked while the demo is refined (2026-06-20).** The operational product still exists behind role-gated auth: charterer Client Portal (`/portal`), broker Dashboard (`/dashboard`), broker-only AI Copilot, map, requirements, fixtures, and documents. The public `/` route now shows a professional private-build landing with supervised chartering and matching assistant previews and no product-route links or live voice controls; `/page2` redirects to `/`. Configured for Vercel + Neon deploy. Next: deepen the two-sided workflow and harden role isolation.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
-- [x] Clean + synthesize domain research (`docs/research/`)
+- [x] Clean + synthesize domain research (archived privately after public-repo cleanup)
 - [x] Technical-decision research (APIs, stack, deployment)
 - [x] Glossary + role-context research
-- [x] Methodology scaffolding (ADR-0001, PROJECT-CONTEXT, journal, incidents, roadmap, changelog, context)
+- [x] Methodology scaffolding (ADR-0001, PROJECT-CONTEXT, journal, roadmap, changelog)
 - [x] ADR-0002: ratify data strategy (seeded + Open-Meteo)
 - [x] First spec: lock MVP scope + canonical status enum
 
@@ -64,13 +64,26 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 
 ### Public Landing — v1.1.0 ✅ COMPLETE (2026-06-14)
 - [x] Public landing page at `/` with animated marine-chart hero canvas (vessel tracks, port nodes, laycan arcs, cyan ribbon)
-- [x] Helical Bio Explorer motion pattern (primary) + SSY editorial skin (navy/cyan, Fraunces serif) — hybrid design direction
-- [x] Landing components: `LandingNav`, `LandingHero`, `MarineTrafficCanvas`, `FeatureShowcase`, `HowItWorks`, `TechBadges`, `CtaFooter`, `LandingFooter` (4-file pattern throughout)
+- [x] Helical Bio Explorer motion choreography (primary) + SSY editorial skin (navy/cyan, Fraunces serif) — hybrid design direction
+- [x] Landing components: `LandingNav`, `LandingHero`, `MarineTrafficCanvas`, `FeatureShowcase`, `HowItWorks`, `TechBadges`, `CtaFooter`, `LandingFooter` (4-file component structure throughout)
 - [x] `motion@^12` added for staggered entrance, `whileInView` reveals, scroll-drawn connector, badge stagger
 - [x] All landing copy centralised in `src/lib/constants/landing-copy.ts`
 - [x] Landing unit tests: 15 tests in `src/app/page.test.tsx`; landing E2E: 3 tests in `e2e/landing.spec.ts`
 - [x] Screenshots under `public/assets/landing/`
 - [x] Total: 264 unit tests across 31 files; 4 E2E specs
+
+### Landing Role Comparison — v1.4.2 ✅ COMPLETE (2026-06-17)
+- [x] Public landing now includes a Broker / Charterer segmented toggle before the feature showcase.
+- [x] Broker view explains `/dashboard`, broker-wide queues, copilot/voice access, and approval-gated writes.
+- [x] Charterer view explains `/portal`, own enquiries, fleet actions, and scoped documents/status.
+- [x] CTA footer decorative overlay removed to keep the landing cleaner.
+- [x] Landing unit test coverage updated for the role comparison release.
+
+### Public Build Lock — v1.4.3 ✅ COMPLETE (2026-06-20)
+- [x] Public `/` now shows a private-build landing with a maritime intelligence canvas, chartering/matching assistant copy, a supervised particle preview, and build-status disclosure.
+- [x] Public page exposes no product-route links or auth CTAs while the demo is being refined.
+- [x] Legacy `/page2` redirects to `/` so the old experimental landing is no longer public.
+- [x] Landing unit/E2E coverage and desktop/mobile screenshots updated.
 
 ## Phase 3: Post-MVP
 

@@ -9,9 +9,9 @@
 | **Deciders** | Manu Murillo |
 | **Supersedes** | — |
 | **Related** | [ADR-0002 — Data & Integration Strategy](../decisions/ADR-0002-data-and-integration-strategy.md) · [ADR-0003 — Application Architecture](../decisions/ADR-0003-application-architecture.md) |
-| **Inputs** | [Project blueprint](../research/SSY-OFFSHORE-FIXTURE-PROJECT-BLUEPRINT.md) · [Private context](../../CONTEXT.md) · Locked Decision Ledger (2026-06-11) |
+| **Inputs** | Archived project blueprint · Locked Decision Ledger (2026-06-11) |
 
-> The Locked Decision Ledger (ratified 2026-06-11) is authoritative. Where this spec and `docs/research/` disagree, this spec wins; where this spec and the ledger disagree, the ledger wins. Enum values, scope tiers, and the CI shape below are locked, not advisory.
+> The Locked Decision Ledger (ratified 2026-06-11) is authoritative. Where this spec and earlier research disagree, this spec wins; where this spec and the ledger disagree, the ledger wins. Enum values, scope tiers, and the CI shape below are locked, not advisory.
 
 ---
 
