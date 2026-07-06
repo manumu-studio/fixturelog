@@ -1,0 +1,195 @@
+/* ShortlistView.module.css — broker requirement detail and scored shortlist layout. */
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-24);
+}
+
+@media (min-width: 1040px) {
+  .layout {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-16);
+}
+
+.eyebrow {
+  margin: 0 0 var(--fl-unit-8);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--fl-navy);
+}
+
+.subtitle {
+  margin: var(--fl-unit-8) 0 0;
+  font-size: 0.9375rem;
+  color: var(--fl-ink);
+  opacity: 0.72;
+}
+
+.statusLine {
+  margin-top: var(--fl-unit-16);
+}
+
+.details,
+.weightGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-12);
+  margin-top: var(--fl-unit-20);
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--fl-unit-12);
+  padding-bottom: var(--fl-unit-12);
+  border-bottom: 1px solid var(--fl-border-subtle);
+}
+
+.detailRow:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.detailRow dt {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fl-ink);
+  opacity: 0.68;
+}
+
+.detailRow dd {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+  text-align: right;
+}
+
+.sideHeading {
+  margin: 0;
+  font-family: var(--fl-font-display);
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+}
+
+.reviewCopy {
+  margin: var(--fl-unit-12) 0 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--fl-ink);
+  opacity: 0.78;
+}
+
+.reviewList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fl-unit-8);
+  margin-top: var(--fl-unit-16);
+}
+
+.reviewList li {
+  padding: var(--fl-unit-6) var(--fl-unit-10);
+  border-radius: var(--fl-pill);
+  background-color: color-mix(in srgb, var(--fl-blue) 10%, transparent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fl-blue);
+}
+
+.shortlist {
+  min-width: 0;
+}
+
+.shortlistHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fl-unit-16);
+  margin-bottom: var(--fl-unit-20);
+}
+
+.shortlistTitle {
+  margin: 0;
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  font-weight: 400;
+  color: var(--fl-navy);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--fl-unit-14) var(--fl-unit-16);
+  text-align: left;
+  border-bottom: 1px solid var(--fl-border-subtle);
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+}
+
+.table th {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
+  background-color: var(--fl-surface-light);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.vesselName {
+  font-weight: 700;
+  color: var(--fl-navy);
+}
+
+.score {
+  display: inline-flex;
+  min-width: 2.5rem;
+  justify-content: center;
+  padding: var(--fl-unit-4) var(--fl-unit-10);
+  border-radius: var(--fl-pill);
+  background-color: color-mix(in srgb, var(--fl-cyan) 24%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--fl-unit-32);
+  border-radius: var(--fl-radius);
+  background-color: var(--fl-surface-light);
+  color: var(--fl-ink);
+}

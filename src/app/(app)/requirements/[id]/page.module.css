@@ -1,0 +1,31 @@
+/* requirements/[id]/page.module.css — detail-page utility spacing. */
+
+.backBar {
+  margin-bottom: var(--fl-unit-24);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fl-blue);
+}
+
+.backLink::before {
+  content: '←';
+  margin-right: var(--fl-unit-6);
+}
+
+.backLink:hover {
+  color: var(--fl-navy);
+  text-decoration: none;
+}
+
+.notFound {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-16);
+  align-items: flex-start;
+  color: var(--fl-ink);
+}

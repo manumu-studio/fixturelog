@@ -6,6 +6,7 @@ import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
+import styles from './page.module.css';
 
 const CreateChartererResponseSchema = z.object({
   data: z.object({
@@ -70,51 +71,52 @@ export default function NewChartererPage() {
   }
 
   return (
-    <main>
-      <Link href="/charterers">← Charterers</Link>
+    <div className={styles.page}>
+      <Link href="/charterers" className={styles.backLink}>Back to charterers</Link>
 
-      <section>
+      <section className={styles.header}>
+        <p className={styles.eyebrow}>Client book</p>
         <h1>Register Charterer</h1>
         <p>Create a charterer record before adding enquiries or fixtures.</p>
       </section>
 
-      <form onSubmit={handleSubmit}>
-        <label>
-          Name
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <label className={styles.field}>
+          <span>Name</span>
           <input name="name" required maxLength={200} />
         </label>
 
-        <label>
-          Sector
+        <label className={styles.field}>
+          <span>Sector</span>
           <input name="sector" maxLength={100} />
         </label>
 
-        <label>
-          Contact name
+        <label className={styles.field}>
+          <span>Contact name</span>
           <input name="contactName" maxLength={200} />
         </label>
 
-        <label>
-          Contact email
+        <label className={styles.field}>
+          <span>Contact email</span>
           <input name="contactEmail" type="email" />
         </label>
 
-        <label>
-          Contact phone
+        <label className={styles.field}>
+          <span>Contact phone</span>
           <input name="contactPhone" maxLength={50} />
         </label>
 
-        <label>
-          Notes
+        <label className={`${styles.field} ${styles.full}`}>
+          <span>Notes</span>
           <textarea name="notes" maxLength={1000} />
         </label>
 
-        {error && <p role="alert">{error}</p>}
+        {error && <p role="alert" className={styles.error}>{error}</p>}
 
-        <button type="submit" disabled={isSubmitting}>
+        <button type="submit" disabled={isSubmitting} className={styles.submit}>
           {isSubmitting ? 'Registering...' : 'Register charterer'}
         </button>
       </form>
-    </main>
+    </div>
   );
 }

@@ -1,0 +1,98 @@
+/* charterers/page.module.css — broker client book metrics and responsive table styling. */
+
+.summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-16);
+  margin-bottom: var(--fl-unit-24);
+}
+
+@media (min-width: 720px) {
+  .summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.metricValue,
+.metricLabel {
+  display: block;
+}
+
+.metricValue {
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1;
+  color: var(--fl-navy);
+}
+
+.metricLabel {
+  margin-top: var(--fl-unit-8);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
+}
+
+.tableHeader {
+  padding: var(--fl-unit-24);
+  border-bottom: 1px solid var(--fl-border-subtle);
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--fl-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--fl-navy);
+}
+
+.cardSubline {
+  margin: var(--fl-unit-6) 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--fl-ink);
+  opacity: 0.7;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--fl-unit-16) var(--fl-unit-24);
+  text-align: left;
+  border-bottom: 1px solid var(--fl-border-subtle);
+  font-size: 0.875rem;
+  color: var(--fl-ink);
+}
+
+.table th {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
+  background-color: var(--fl-surface-light);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.primaryLink {
+  font-weight: 700;
+  color: var(--fl-navy);
+}
+
+.primaryLink:hover {
+  color: var(--fl-blue);
+  text-decoration: none;
+}
