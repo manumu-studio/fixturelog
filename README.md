@@ -161,6 +161,10 @@ docs/                   # architecture · ADRs · specs · incidents · journal 
 
 ## Architecture decisions
 
+Database shape: [`docs/architecture/DATABASE-NEON-TABLE-MAP.md`](docs/architecture/DATABASE-NEON-TABLE-MAP.md).
+API-to-table access map: [`docs/architecture/API-TO-NEON-TABLE-MAP.md`](docs/architecture/API-TO-NEON-TABLE-MAP.md).
+Company workflow from charterer enquiry to recap: [`docs/architecture/COMPANY-WORKFLOW-CHARTERER-ENQUIRY.md`](docs/architecture/COMPANY-WORKFLOW-CHARTERER-ENQUIRY.md).
+
 Key decisions are recorded as ADRs in [`docs/decisions/`](docs/decisions/):
 
 - **Honesty rule for data** — seeded Postgres + live Open-Meteo weather; AIS deferred; every datum tagged by source and confidence ([ADR-0002](docs/decisions/ADR-0002-data-and-integration-strategy.md))

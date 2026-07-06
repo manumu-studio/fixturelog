@@ -24,6 +24,10 @@ clearance decisions.
   404 surface.
 - Refreshed landing screenshots, updated stale Playwright landing specs, and removed the CTA footer
   decorative overlay.
+- Added a Neon/Postgres table map for interview preparation and schema visualization.
+- Added an API-to-Neon access map showing which route families reach which tables.
+- Added ASCII diagram fallbacks and a charterer-enquiry company workflow guide for interview rehearsal.
+- Hid the live voice copilot card from the broker dashboard UI while leaving the existing backend code untouched.
 
 ### Safety
 

@@ -17,7 +17,11 @@ requirement/charterer pages, while preserving the v1.6 Broker Review Signals sto
 - Fixed restored-landing mobile overflow and refreshed desktop/mobile landing screenshots.
 - Updated stale Playwright landing/smoke checks that still expected the superseded locked build page.
 - Hardened `.gitignore` so a local `node_modules` symlink used by clean worktrees cannot be staged.
+- Added a Neon/Postgres table map for interview prep and schema visualization.
+- Added an API-to-Neon table map for explaining how route handlers, guards, and services reach the database.
+- Added ASCII diagram fallbacks and a charterer-enquiry workflow guide for interview rehearsal.
 - Redirected unknown browser routes to `/` so visitors return to the public domain landing.
+- Hid the live voice copilot card from the broker dashboard UI while keeping backend code unchanged.
 - Synced living docs and package metadata to `1.6.2`.
 
 ## Safety Boundaries
