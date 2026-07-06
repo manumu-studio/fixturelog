@@ -45,22 +45,20 @@ interface FeatureRowProps {
 
 function FeatureRow({ feature, index, reducedMotion }: FeatureRowProps) {
   const isReverse = index % 2 !== 0;
-  const xOffset = isReverse ? 48 : -48;
 
   const rowClass = [styles.feature, isReverse ? styles.featureReverse : '']
     .filter(Boolean)
     .join(' ');
 
-  const initial = reducedMotion ? { opacity: 0 } : { opacity: 0, x: xOffset };
-  const animate = reducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 };
+  const animate = { opacity: 1, x: 0 };
 
   return (
     <motion.div
       className={rowClass}
-      initial={initial}
+      initial={false}
       whileInView={animate}
       viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: reducedMotion ? 0 : 0.55, ease: [0.19, 1, 0.22, 1] }}
     >
       <div className={styles.textCol}>
         <p className={styles.eyebrow}>{feature.eyebrow}</p>

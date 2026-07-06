@@ -2,6 +2,38 @@
 
 All notable changes to FixtureLog are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.6.2] — 2026-07-06 (Interview demo surface restoration)
+
+The public demo is back to the full offshore workflow landing while preserving the v1.6 review
+signal story: screening evidence and weather risk remain broker-assist signals, not autonomous
+clearance decisions.
+
+### Changed
+
+- Restored the public `/` route from the locked assistant-build page to the offshore workflow
+  landing: marine hero, proof metrics, feature showcase, fleet teaser, workflow steps, tech badges,
+  footer, and auth-aware calls to action.
+- Polished broker `/requirements`, `/requirements/[id]`, `/charterers`, `/charterers/[id]`, and
+  `/charterers/new` with the portal design kit, responsive tables, metrics, and mobile-safe layouts.
+- Kept the `main` branch screening badge data on `/requirements` while adding the polished queue
+  layout, so v1.5/v1.6 review-signal work is not regressed.
+- Added a broker review-gate note to the shortlist detail: matching score is commercial evidence,
+  not clearance; charterer, owner, operator, vessel, and weather evidence still need human review
+  before commitment.
+- Added a global browser-route fallback so unknown pages redirect to `/` instead of showing a raw
+  404 surface.
+- Refreshed landing screenshots, updated stale Playwright landing specs, and removed the CTA footer
+  decorative overlay.
+
+### Safety
+
+- No schema migration, new external source, live AIS, voice/RAG wiring, legal advice, autonomous
+  clearing, or public broker-copilot exposure was added.
+- The limited public assistant endpoint remains in the codebase, but it is no longer the live `/`
+  page.
+- API guards continue to return explicit JSON `401`/`403` responses; the fallback redirect is for
+  browser pages.
+
 ## [1.6.1] — 2026-07-05 (Broker Review Signals demo polish)
 
 The broker dashboard now makes the post-research risk story visible in the product: review signals

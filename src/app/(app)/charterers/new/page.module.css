@@ -1,0 +1,149 @@
+/* charterers/new/page.module.css — broker-facing charterer registration form. */
+
+.page {
+  max-width: 860px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: var(--fl-unit-24);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fl-blue);
+}
+
+.backLink::before {
+  content: '←';
+  margin-right: var(--fl-unit-6);
+}
+
+.backLink:hover {
+  color: var(--fl-navy);
+  text-decoration: none;
+}
+
+.header {
+  margin-bottom: var(--fl-unit-24);
+}
+
+.eyebrow {
+  margin: 0 0 var(--fl-unit-10);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fl-blue);
+}
+
+.header h1 {
+  margin: 0;
+  font-family: var(--fl-font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--fl-navy);
+}
+
+.header p:last-child {
+  max-width: 58ch;
+  margin: var(--fl-unit-12) 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--fl-ink);
+  opacity: 0.72;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fl-unit-18);
+  padding: var(--fl-unit-24);
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-radius);
+  background-color: var(--fl-surface-white);
+  box-shadow: var(--fl-shadow-card);
+}
+
+@media (min-width: 720px) {
+  .form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-unit-8);
+}
+
+.full,
+.error,
+.submit {
+  grid-column: 1 / -1;
+}
+
+.field span {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--fl-navy);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--fl-border-subtle);
+  border-radius: var(--fl-radius);
+  padding: var(--fl-unit-12);
+  font: inherit;
+  color: var(--fl-ink);
+  background-color: var(--fl-white);
+}
+
+.field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: 2px solid var(--fl-cyan);
+  outline-offset: 2px;
+  border-color: var(--fl-blue);
+}
+
+.error {
+  margin: 0;
+  padding: var(--fl-unit-12);
+  border-radius: var(--fl-radius);
+  background-color: color-mix(in srgb, var(--fl-ink) 8%, transparent);
+  color: var(--fl-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.submit {
+  justify-self: start;
+  border: 1.5px solid var(--fl-cyan);
+  border-radius: var(--fl-pill);
+  padding: var(--fl-unit-12) var(--fl-unit-32);
+  background-color: var(--fl-cyan);
+  color: var(--fl-navy);
+  font-family: var(--fl-font-sans);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color var(--fl-motion-base) var(--fl-ease-out),
+    border-color var(--fl-motion-base) var(--fl-ease-out);
+}
+
+.submit:hover {
+  background-color: var(--fl-cyan-hover);
+  border-color: var(--fl-cyan-hover);
+}
+
+.submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

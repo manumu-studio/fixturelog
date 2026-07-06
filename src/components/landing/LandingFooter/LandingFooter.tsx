@@ -1,6 +1,6 @@
 // LandingFooter.tsx — portfolio disclaimer, route links, and copyright.
 // No SSY affiliation claim. Clearly labelled as independent portfolio demo.
-// Footer column headings use mid-blue (#0087cb) per SSY-pattern report guidance.
+// Footer column headings use mid-blue (#0087cb) for landing consistency.
 
 import Link from 'next/link';
 import { BRAND_HOME_LABEL, BRAND_NAME } from '@/lib/constants/brand';

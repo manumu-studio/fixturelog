@@ -8,12 +8,12 @@ Capture a client requirement, match available offshore vessels, record the fixtu
   <a href="#"><strong>Live Demo</strong></a> · <a href="docs/specs/SPEC-001-mvp-build.md"><strong>Build Spec</strong></a> · <a href="docs/GLOSSARY.md"><strong>Glossary</strong></a> · <a href="https://github.com/manumu-studio/fixturelog"><strong>Source Code</strong></a>
 </p>
 
-<p align="center"><em>v1.6.1 — the broker dashboard now surfaces <strong>Broker Review Signals</strong>: stored sanctions/operator-risk evidence and marginal weather windows appear in the fixture card and decision queue before a broker moves a deal to FIXED. The copilot can explain the stored evidence, but the deterministic backend remains the only authority for write blocking.</em></p>
+<p align="center"><em>v1.6.2 — the public site is back to the full offshore workflow landing. Broker requirement and charterer pages now use the portal design kit, while Broker Review Signals still surface screening and weather evidence before a deal moves to FIXED.</em></p>
 
 ---
 
 <p align="center">
-  <img src="public/assets/landing/landing-desktop-1440.png" alt="FixtureLog — private build landing page" width="800" />
+  <img src="public/assets/landing/landing-desktop-1440.png" alt="FixtureLog — offshore workflow landing page" width="800" />
 </p>
 
 ---
@@ -26,23 +26,24 @@ A broker captures a charterer's **requirement**, runs a pure two-stage **matchin
 
 ## Pages
 
-The public root is a locked private-build page; everything operational is authenticated and **role-gated**. The locked page exposes no sign-in CTA, direct product links, or live voice controls; it only shows two supervised junior voice assistant previews that explain the future chartering and matching experience. After login through the private auth flow, a charterer (CLIENT) lands on the portal and a broker (BROKER) on the dashboard — a `/api/auth/post-login` hop routes each role to its home, and each guard bounces the other role away.
+The public root is the offshore workflow landing again; operational pages remain authenticated and **role-gated**. After login through the private auth flow, a charterer (CLIENT) lands on the portal and a broker (BROKER) on the dashboard — a `/api/auth/post-login` hop routes each role to its home, and each guard bounces the other role away.
 
 | Route | Audience | What it shows |
 |---|---|---|
-| `/` | Public | Private build notice — maritime intelligence canvas, chartering and matching assistant previews, build status disclosure, and a deterministic limited assistant preview (curated prompt buttons → approved public answers via `POST /api/public/assistant-preview`); no product-route links or live voice controls |
+| `/` | Public | Offshore workflow landing — marine intelligence canvas, proof metrics, feature showcase, fleet teaser, workflow steps, tech stack, footer, and auth-aware calls to action |
 | `/api/public/assistant-preview` | Public | Public-safe assistant preview: a curated `promptId` returns an approved static answer; a free-text `{ question }` returns a grounded, output-scoped Claude answer **only when `JUNIOR_LLM_DEMO` is on** (rate-limited 3/visitor·12h), else a deterministic fallback. Zod-validated; no auth, no broker data/tools, no RAG, no LiveKit |
 | `/page2` | Public | Redirects to `/` so the old experimental landing is no longer exposed |
+| Unknown browser routes | Public | Redirect to `/` so visitors return to the public landing; API routes keep explicit JSON status codes |
 | `/portal` 👤 | Charterer | **Dashboard** — your active enquiries, pending actions, and fixture/weather timeline |
 | `/portal/enquiries` · `/portal/enquiries/new` · `/portal/enquiries/[id]` 👤 | Charterer | Your enquiries, the create-enquiry form, and detail with a recommended-vessel shortlist |
 | `/portal/fixtures` · `/portal/documents` 👤 | Charterer | Your fixtures (status, subjects, weather) and your recap documents (copy / download) |
 | `/dashboard` 🔒 | Broker | **Broker home** — broker-wide incoming queue, pending decisions, fixture/weather timeline, and Broker Review Signals before `FIXED` |
 | `/map` 🔒 | Charterer + Broker | Available-vessels map — color-coded Leaflet markers from seeded position snapshots |
-| `/requirements` · `/requirements/[id]` 🔒 | Broker | Requirement list with status badges, and shortlist detail with per-factor score breakdown |
-| `/charterers` · `/charterers/[id]` 🔒 | Broker | Charterer list and detail with linked requirements and fixtures |
+| `/requirements` · `/requirements/[id]` 🔒 | Broker | Polished requirement queue with metrics, status and screening badges, and shortlist detail with per-factor score breakdown plus a broker review-gate note |
+| `/charterers` · `/charterers/[id]` 🔒 | Broker | Polished charterer book with metrics, client records, linked requirements, and fixture history |
 
 <p align="center">
-  <img src="public/assets/landing/landing-mobile-390.png" alt="FixtureLog — private build landing on mobile" width="280" />
+  <img src="public/assets/landing/landing-mobile-390.png" alt="FixtureLog — offshore workflow landing on mobile" width="280" />
 </p>
 
 ## Architecture
@@ -124,7 +125,7 @@ npm run test:e2e                     # Playwright: smoke · happy-path · map ·
 src/
   middleware.ts         # baseline security headers (edge-safe; excludes /api/auth/*)
   app/
-    page.tsx            # public locked private-build landing with chartering/matching assistant previews + deterministic limited assistant preview
+    page.tsx            # public offshore workflow landing with proof metrics, feature panels, fleet teaser, and auth CTAs
     portal/             # charterer Client Portal (charterer-gated): dashboard · enquiries · fixtures · documents
     (app)/              # broker route group (requireSession) — dashboard · map · requirements · charterers
     auth/error/         # auth error page
@@ -132,10 +133,10 @@ src/
       auth/             # Auth.js handlers · federated sign-out · post-login role hop (public)
       portal/           # charterer-scoped: dashboard · enquiries · fixtures · documents
       broker/           # broker-wide: dashboard
-      public/           # public deterministic assistant-preview (no auth, no broker data, no LLM)
+      public/           # public assistant-preview API (deterministic prompts + optional flag-gated LLM question path)
       …                 # 21 domain route handlers (session-gated) + /health (public)
   components/
-    landing/            # landing sections — incl. BuildStatusPanel, JuniorVoiceAssistant, PublicAssistantPreview, and retained historical landing components
+    landing/            # landing sections — hero canvas, feature showcase, fleet teaser, workflow, retained preview components
     portal/             # token-only design kit: PortalShell · PortalNav · PortalButton · PortalCard ·
                         #   PortalPageHeader · StatusBadge · EmptyState · Modal · Lightbox · dashboard zones
   features/
@@ -155,7 +156,7 @@ prisma/
   seed.ts               # 30 seeded vessels (honesty-labelled images; 21 real photos, 16 real IMOs) + full two-sided workflow data
 public/assets/vessels/  # per-type house-art SVGs (STOCK) + real/ CC photos of same-named ships (WIKIMEDIA) — both honesty-labelled
 e2e/                    # Playwright: smoke · happy-path · map · landing
-docs/                   # architecture · ADRs · specs · journal · PRs · glossary
+docs/                   # architecture · ADRs · specs · incidents · journal · PRs · glossary
 ```
 
 ## Architecture decisions
@@ -171,6 +172,7 @@ Project context and decision history: [`docs/architecture/PROJECT-CONTEXT.md`](d
 
 ## Roadmap
 
+- **Done (v1.6.2)** — interview demo surface restoration: `/` is back to the offshore workflow landing, broker `/requirements` and `/charterers` pages use the portal design kit, and shortlist detail frames matching/screening as evidence for human review
 - **Done (v1.6.1)** — Broker Review Signals demo polish: the broker dashboard turns stored screening evidence and marginal/non-workable weather windows into visible fixture-card signals and pending actions before `FIXED`
 - **Done (v1.6.0)** — junior assistant LLM demo pilot: the public assistant card's free-text box, when `JUNIOR_LLM_DEMO` is on, returns a grounded, output-scoped Claude answer over a curated public knowledge file (no RAG, no broker data); rate-limited 3/visitor + 12/IP per 12h with a calm `429`; graceful deterministic fallback so the public surface never 500s
 - **Done (v1.5.0)** — sanctions/operator-risk screening slice: additive `Operator`, `ScreeningResult`, `ScreeningReview`, and `Vessel.flagState`; local normalized fixture adapter; 24-hour provenance TTL; charterer screening on requirement create; compact risk badges; and a deterministic pre-`FIXED` gate shared by the route and copilot executor
@@ -184,7 +186,7 @@ Project context and decision history: [`docs/architecture/PROJECT-CONTEXT.md`](d
 
 ## Built by
 
-[ManuMu Studio](https://manumustudio.com). The current public build page uses FixtureLog's maritime editorial skin (Fraunces type, deep navy, cyan, and a calm marine intelligence canvas). Earlier landing experiments borrowed motion patterns from the author's [Helical Bio Explorer](https://github.com/manumu-studio/helical-bio-explorer). No SSY brand assets, logos, or trademarks were copied.
+[ManuMu Studio](https://manumustudio.com). The current public landing uses FixtureLog's maritime editorial skin (Fraunces type, deep navy, cyan, and a calm marine intelligence canvas). Earlier landing experiments borrowed motion patterns from the author's [Helical Bio Explorer](https://github.com/manumu-studio/helical-bio-explorer). No SSY brand assets, logos, or trademarks were copied.
 
 ## License
 

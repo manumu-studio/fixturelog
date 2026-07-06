@@ -1,4 +1,4 @@
-/* CtaFooter.module.css — deep navy CTA band with cyan/blue route-gradient overlay. */
+/* CtaFooter.module.css — deep navy CTA band with route links. */
 
 .section {
   position: relative;
@@ -6,28 +6,6 @@
   background-color: var(--fl-surface-navy);
   color: var(--fl-white);
   overflow: hidden;
-}
-
-/*
-  Subtle diagonal gradient pattern inspired by SSY "Get in touch" banner.
-  Uses cyan (#00e2fd) and mid-blue (#0087cb) at low opacity so the navy
-  base remains dominant. Purely decorative — aria-hidden in the component.
-*/
-.overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      ellipse 70% 60% at 80% 50%,
-      rgba(0, 226, 253, 0.10) 0%,
-      transparent 70%
-    ),
-    radial-gradient(
-      ellipse 50% 80% at 20% 60%,
-      rgba(0, 135, 203, 0.08) 0%,
-      transparent 65%
-    );
-  pointer-events: none;
 }
 
 .inner {

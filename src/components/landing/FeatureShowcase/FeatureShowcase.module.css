@@ -7,6 +7,7 @@
   /* Reduced vertical padding on mobile to prevent excessive whitespace at 320px */
   padding: var(--fl-unit-64) var(--fl-gutter);
   background-color: var(--fl-surface-light);
+  overflow-x: clip;
 }
 
 @media (min-width: 768px) {

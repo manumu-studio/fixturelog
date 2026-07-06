@@ -3,6 +3,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import { serverFetch } from '@/lib/server-fetch';
+import { requireBroker } from '@/lib/auth/require-broker';
+import { EmptyState, PortalCard, PortalPageHeader, StatusBadge } from '@/components/portal';
+import { formatDate } from '@/lib/utils/format';
+import styles from './page.module.css';
 
 const ChartererSchema = z.object({
   id: z.string(),
@@ -46,69 +50,81 @@ async function fetchData<S extends z.ZodTypeAny>(
 
 function RequirementsSection({ requirements }: { requirements: Requirement[] }) {
   return (
-    <section>
-      <h2>Requirements ({requirements.length})</h2>
+    <PortalCard padded={false}>
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Requirements</h2>
+        <span className={styles.count}>{requirements.length}</span>
+      </div>
       {requirements.length === 0 ? (
-        <p>No requirements recorded.</p>
+        <EmptyState title="No requirements recorded" message="New charterer enquiries will appear here." />
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Vessel Type</th>
-              <th>Region</th>
-              <th>Workscope</th>
-              <th>Status</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requirements.map((r) => (
-              <tr key={r.id}>
-                <td>{r.vesselTypeNeeded}</td>
-                <td>{r.region?.name ?? '—'}</td>
-                <td>{r.workscope?.name ?? '—'}</td>
-                <td>{r.status}</td>
-                <td>{new Date(r.createdAt).toLocaleDateString('en-GB')}</td>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Vessel type</th>
+                <th>Region</th>
+                <th>Workscope</th>
+                <th>Status</th>
+                <th>Created</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {requirements.map((requirement) => (
+                <tr key={requirement.id}>
+                  <td>
+                    <Link href={`/requirements/${requirement.id}`} className={styles.primaryLink}>
+                      {requirement.vesselTypeNeeded}
+                    </Link>
+                  </td>
+                  <td>{requirement.region?.name ?? '—'}</td>
+                  <td>{requirement.workscope?.name ?? '—'}</td>
+                  <td><StatusBadge status={requirement.status} /></td>
+                  <td>{formatDate(requirement.createdAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-    </section>
+    </PortalCard>
   );
 }
 
 function FixturesSection({ fixtures }: { fixtures: Fixture[] }) {
   return (
-    <section>
-      <h2>Fixtures ({fixtures.length})</h2>
+    <PortalCard padded={false}>
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Fixtures</h2>
+        <span className={styles.count}>{fixtures.length}</span>
+      </div>
       {fixtures.length === 0 ? (
-        <p>No fixtures recorded.</p>
+        <EmptyState title="No fixtures recorded" message="Fixed work will appear here once a shortlist moves forward." />
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Vessel</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fixtures.map((f) => (
-              <tr key={f.id}>
-                <td>
-                  <Link href={`/fixtures/${f.id}`}>{f.vessel.name}</Link>
-                </td>
-                <td>{f.vessel.vesselType}</td>
-                <td>{f.status}</td>
-                <td>{new Date(f.createdAt).toLocaleDateString('en-GB')}</td>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Vessel</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Created</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {fixtures.map((fixture) => (
+                <tr key={fixture.id}>
+                  <td className={styles.vesselName}>{fixture.vessel.name}</td>
+                  <td>{fixture.vessel.vesselType}</td>
+                  <td><StatusBadge status={fixture.status} /></td>
+                  <td>{formatDate(fixture.createdAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-    </section>
+    </PortalCard>
   );
 }
 
@@ -117,6 +133,7 @@ export default async function ChartererDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireBroker();
   const { id } = await params;
 
   const [charterer, requirements, fixtures] = await Promise.all([
@@ -126,20 +143,42 @@ export default async function ChartererDetailPage({
   ]);
 
   return (
-    <main>
-      <Link href="/charterers">← Charterers</Link>
+    <>
+      <div className={styles.backBar}>
+        <Link href="/charterers" className={styles.backLink}>Back to charterers</Link>
+      </div>
 
-      <section>
-        <h1>{charterer.name}</h1>
-        {charterer.sector && <p>Sector: {charterer.sector}</p>}
-        {charterer.contactName && <p>Contact: {charterer.contactName}</p>}
-        {charterer.contactEmail && <p>Email: {charterer.contactEmail}</p>}
-        {charterer.contactPhone && <p>Phone: {charterer.contactPhone}</p>}
-        {charterer.notes && <p>{charterer.notes}</p>}
-      </section>
+      <PortalPageHeader
+        eyebrow="Charterer record"
+        title={charterer.name}
+        subline={charterer.sector ?? 'Broker-managed charterer profile'}
+      />
 
-      <RequirementsSection requirements={requirements} />
-      <FixturesSection fixtures={fixtures} />
-    </main>
+      <div className={styles.layout}>
+        <PortalCard>
+          <h2 className={styles.profileTitle}>Relationship details</h2>
+          <dl className={styles.profileList}>
+            <div className={styles.profileRow}>
+              <dt>Contact</dt>
+              <dd>{charterer.contactName ?? '—'}</dd>
+            </div>
+            <div className={styles.profileRow}>
+              <dt>Email</dt>
+              <dd>{charterer.contactEmail ?? '—'}</dd>
+            </div>
+            <div className={styles.profileRow}>
+              <dt>Phone</dt>
+              <dd>{charterer.contactPhone ?? '—'}</dd>
+            </div>
+          </dl>
+          {charterer.notes !== null && <p className={styles.notes}>{charterer.notes}</p>}
+        </PortalCard>
+
+        <div className={styles.activity}>
+          <RequirementsSection requirements={requirements} />
+          <FixturesSection fixtures={fixtures} />
+        </div>
+      </div>
+    </>
   );
 }
