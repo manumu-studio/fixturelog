@@ -43,7 +43,9 @@ Review Signals work on `main`.
 - `docs/incidents/INCIDENT-P001-stale-landing-e2e.md`,
   `docs/incidents/INCIDENT_REGISTRY.md`
 - `README.md`, `CHANGELOG.md`, `docs/roadmap/ROADMAP.md`,
-  `docs/architecture/PROJECT-CONTEXT.md`, `package.json`, `package-lock.json`
+  `docs/architecture/PROJECT-CONTEXT.md`, `docs/architecture/DATABASE-NEON-TABLE-MAP.md`,
+  `docs/architecture/API-TO-NEON-TABLE-MAP.md`,
+  `docs/architecture/COMPANY-WORKFLOW-CHARTERER-ENQUIRY.md`, `package.json`, `package-lock.json`
 
 ## Verification
 
@@ -62,6 +64,11 @@ After PR creation, Husky `pre-push` exposed two local-checkout issues:
 - Stale Playwright landing/smoke assertions still expected the superseded locked build copy.
 - The clean worktree needed dependency/env symlinks for local hooks; `.gitignore` now ignores a
   `node_modules` symlink as well as a real dependency directory.
+- Added `docs/architecture/DATABASE-NEON-TABLE-MAP.md` as a meeting-prep view of the Neon tables.
+- Added `docs/architecture/API-TO-NEON-TABLE-MAP.md` to show how each API route reaches Neon.
+- Added ASCII diagram fallbacks and a company workflow guide from charterer enquiry to recap.
+- Hid the live voice copilot card from the broker dashboard UI; the existing backend route and component files
+  remain untouched for now.
 
 ## Demo Line
 

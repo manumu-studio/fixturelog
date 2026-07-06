@@ -11,16 +11,7 @@ import { PendingActions } from '@/components/portal/PendingActions';
 import { FixtureTimeline } from '@/components/portal/FixtureTimeline';
 import { FixtureCloseActions } from '@/components/portal/FixtureCloseActions';
 import { BrokerCopilot } from '@/components/portal/BrokerCopilot';
-import { VoiceAgent } from '@/components/portal/VoiceAgent';
 import styles from './page.module.css';
-
-// Labels + branding for the voice panel. Kept here (the host) so the component stays generic.
-const VOICE_CONFIG = {
-  title: 'Voice copilot',
-  tagline: 'Talk to your desk. Tap connect and ask.',
-  connectLabel: 'Start talking',
-  disconnectLabel: 'End call',
-};
 
 const BROKER_HREFS = { enquiry: '/requirements', fixtures: '/requirements', documents: '/requirements' };
 const BROKER_EMPTY_CTA = { label: 'Open requirements', href: '/requirements' };
@@ -60,7 +51,6 @@ export default async function BrokerDashboardPage() {
         <div className={styles.col}>
           <PendingActions actions={dashboard.pendingActions} hrefs={BROKER_HREFS} />
           <BrokerCopilot />
-          <VoiceAgent tokenEndpoint="/api/broker/voice/token" appConfig={VOICE_CONFIG} />
         </div>
       </div>
     </>
