@@ -40,7 +40,7 @@
   gap: var(--fl-unit-16);
 }
 
-/* Uppercase column heading in mid-blue — mirrors SSY footer pattern */
+/* Uppercase column heading in mid-blue for landing consistency */
 .groupLabel {
   font-family: var(--fl-font-sans);
   font-size: 0.75rem;

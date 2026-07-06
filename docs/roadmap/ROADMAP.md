@@ -1,6 +1,6 @@
 # Roadmap — FixtureLog
 
-> **Status: v1.4.3 — public build locked while the demo is refined (2026-06-20).** The operational product still exists behind role-gated auth: charterer Client Portal (`/portal`), broker Dashboard (`/dashboard`), broker-only AI Copilot, map, requirements, fixtures, and documents. The public `/` route now shows a professional private-build landing with supervised chartering and matching assistant previews and no product-route links or live voice controls; `/page2` redirects to `/`. Configured for Vercel + Neon deploy. Next: deepen the two-sided workflow and harden role isolation.
+> **Status: v1.6.2 — interview demo surface restored (2026-07-06).** The public `/` route is back to the offshore workflow landing with proof metrics, feature panels, fleet teaser, workflow steps, tech badges, footer, and auth-aware CTAs. The operational product remains role-gated: charterer Client Portal (`/portal`), broker Dashboard (`/dashboard`), broker-only AI Copilot, map, polished requirements, polished charterers, fixtures, and documents. Broker Review Signals continue to surface screening and weather evidence before `FIXED`. Configured for Vercel + Neon deploy. Next: deepen the two-sided workflow and harden role isolation.
 
 ## Phase 0: Research & Foundation (current) — v0.0.0
 - [x] Inspect repo, confirm empty
@@ -84,6 +84,13 @@ Resolved by `docs/decisions/ADR-0002-data-and-integration-strategy.md`, `docs/de
 - [x] Public page exposes no product-route links or auth CTAs while the demo is being refined.
 - [x] Legacy `/page2` redirects to `/` so the old experimental landing is no longer public.
 - [x] Landing unit/E2E coverage and desktop/mobile screenshots updated.
+
+### Interview Demo Surface Restoration — v1.6.2 ✅ COMPLETE (2026-07-06)
+- [x] Public `/` restored to the offshore workflow landing with auth-aware CTAs.
+- [x] Broker `/requirements` and `/requirements/[id]` restyled with portal cards, metrics, status/screening badges, and shortlist evidence.
+- [x] Broker `/charterers`, `/charterers/[id]`, and `/charterers/new` restyled as a polished client book.
+- [x] Requirement detail frames matching as evidence, not clearance, with a human review-gate note.
+- [x] Desktop/mobile landing screenshots refreshed; public root no longer leads with the locked assistant page.
 
 ## Phase 3: Post-MVP
 

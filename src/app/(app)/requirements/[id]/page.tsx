@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { z } from 'zod';
 import { serverFetch } from '@/lib/server-fetch';
 import { requireBroker } from '@/lib/auth/require-broker';
+import { PortalButton } from '@/components/portal';
 import { ShortlistView, MatchResponseSchema, RequirementDetailSchema } from './ShortlistView';
+import styles from './page.module.css';
 
 const IdSchema = z.string().cuid();
 
@@ -46,16 +48,18 @@ export default async function RequirementDetailPage({
 
   if (!reqResult.ok || !matchResult.ok) {
     return (
-      <main>
-        <Link href="/requirements">← Requirements</Link>
+      <div className={styles.notFound}>
+        <PortalButton href="/requirements" variant="secondary">Back to requirements</PortalButton>
         <p>Requirement not found.</p>
-      </main>
+      </div>
     );
   }
 
   return (
     <>
-      <Link href="/requirements">← Requirements</Link>
+      <div className={styles.backBar}>
+        <Link href="/requirements" className={styles.backLink}>Back to requirements</Link>
+      </div>
       <ShortlistView
         requirement={reqResult.data.data}
         match={matchResult.data.data}

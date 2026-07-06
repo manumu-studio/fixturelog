@@ -4,7 +4,8 @@ import { test, expect } from '@playwright/test';
 test('homepage loads', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByText('ManuMu Offshore').first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Two junior assistants are being built/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /From enquiry to recap/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Key metrics/i })).toBeVisible();
 });
 
 test('health endpoint returns 200', async ({ request }) => {
